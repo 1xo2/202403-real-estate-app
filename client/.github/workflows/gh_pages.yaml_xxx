@@ -1,0 +1,60 @@
+# Triggers
+
+on:
+  push:
+  pull_request:
+    branches:
+      - main
+
+# Functions
+
+jobs:  
+  build: # job action
+    
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        
+        uses: actions/checkout@v2 # referring to script (in gh actions)
+      - name: Install Node 20.9.0
+        uses: actions/setup-node@v1
+        with:
+          node-version: 20.9.0
+      - name: Install NPM dependencies
+        run: npm i
+      - name: Run Unit Tesing / Jest
+        run: npm test
+      - name: Build Project
+        run: npm run build
+      - name: Upload the deploys artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: production-files
+          path: ./dist  
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: build # as a step dependency
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: production-files # as a pointer to previous 'name' 
+          path: ./dist
+      - name: deploy to gh pages
+        uses: peaceiris/actions-gh-pages@v3 # push to gh pages        
+        with:
+          github_token: ${{ secrets.MY_CICD_ACCESS_TOKEN }}
+          publish_dir: ./dist
+
+
+          
+
+
+
+
+
+
+# Deploy job
+

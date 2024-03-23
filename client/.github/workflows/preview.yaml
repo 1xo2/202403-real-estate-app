@@ -1,0 +1,60 @@
+# Triggers
+on:
+  push:
+    branches-ignore:
+      - main
+
+# Functions
+jobs:  
+  build: # job action
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+        
+      - name: Install Node 20.9.0
+        uses: actions/setup-node@v1
+        with:
+          node-version: 20.9.0
+      
+      - name: Install NPM dependencies
+        run: npm i
+  
+      - name: Run Unit Testing / Jest
+        run: npm test
+      
+      - name: Run Cypress (start server)
+        run: npm run d &
+
+      - name: Run Cypress (run specific test)
+        run: npm run cypress:run -- --spec "cypress/e2e/note_home.cy.ts"
+
+      - name: Build Project
+        run: npm run build
+      
+      - name: Upload the deploys artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: production-files
+          path: ./dist  
+  
+  Deploy-Preview:
+    name: GitHub Actions Vercel Preview Deployment
+    needs: build
+    if: ${{ always() && needs.build.result == 'success' }}
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Vercel CLI
+        run: npm install --global vercel@canary
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Build Project Artifacts
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Deploy Project Artifacts to Vercel
+        run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}   
+            # https://github.com/vercel/examples/blob/main/ci-cd/github-actions/.github/workflows/preview.yaml            

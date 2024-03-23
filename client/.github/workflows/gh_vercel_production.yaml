@@ -1,0 +1,71 @@
+# Triggers
+on:
+  push:
+  pull_request:
+    branches:
+      - main
+
+# Functions
+jobs:  
+  build: # job action
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+        
+      - name: Install Node 20.9.0
+        uses: actions/setup-node@v1
+        with:
+          node-version: 20.9.0
+
+      - name: Install NPM dependencies
+        run: npm i
+
+      - name: Run Unit Testing / Jest
+        run: npm test
+
+      - name: Run Cypress (start server)
+        run: npm run d &
+
+      - name: Run Cypress (run specific test)
+        run: npm run cypress:run -- --spec "cypress/e2e/note_home.cy.ts"
+
+      - name: Build Project
+        run: npm run build
+
+      - name: Upload the deploys artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: production-files
+          path: ./dist  
+
+  Deploy-Production:  # https://vercel.com/guides/how-can-i-use-github-actions-with-vercel
+    name: GitHub Actions Vercel Production Deployment
+    needs: build
+    if: ${{ always() && needs.build.result == 'success' }}
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@canary
+
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build Project Artifacts
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy Project Artifacts to Vercel        
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+        # Retrieve your Vercel Access Token (in bigMemory)
+        # Install the Vercel CLI and run vercel login
+        # Inside your folder, run [[[vercel link]]] to create a new Vercel project
+        # Inside the generated .vercel folder, save the projectId and orgId from the project.json
+        # Inside GitHub, add VERCEL_TOKEN, VERCEL_ORG_ID, and VERCEL_PROJECT_ID as secrets
