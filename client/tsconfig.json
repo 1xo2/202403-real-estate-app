@@ -22,7 +22,7 @@
     
     ////////////////
     // NEW ↓
-    "baseUrl": "./src",
+    // "baseUrl": "./src",
     "forceConsistentCasingInFileNames": true,
 
   },
