@@ -2,3 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
+a {
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+  background-color: transparent !important;
+}
+body {
+  background-color: #ccc;
+}
+.center-flex {
+  display: flex;
+  align-items: center;
+  justify-items: center;
+}
+.divider {
+  height: 2em;
+  width: 2px;
+  background-color: #bbb;
+  margin: 0 12.5px;
+}
