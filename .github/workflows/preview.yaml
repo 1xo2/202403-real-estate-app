@@ -18,20 +18,35 @@ jobs:
         with:
           node-version: 20.9.0
       
-      - name: Install NPM dependencies
-        run: npm i
-  
-      - name: Run Unit Testing / Jest
-        run: npm test
-      
-      - name: Run Cypress (start server)
-        run: npm run d &
+      - name: Install Node 20.9.0
+        uses: actions/setup-node@v1
+        with:
+          node-version: 20.9.0
 
-      - name: Run Cypress (run specific test)
-        run: npm run cypress:run -- --spec "cypress/e2e/note_home.cy.ts"
+      - name: (1) Install NPM dependencies
+        run: |
+          cd client
+          npm install
 
-      - name: Build Project
-        run: npm run build
+      - name: (2) Run Unit Testing / Jest
+        run: |
+          cd client
+          npm test
+
+      - name: (3) Run Cypress (start server)
+        run: |
+          cd client
+          npm run d &
+
+      - name: (4) Run Cypress (run specific test)
+        run: |
+          cd client
+          npm run cypress:run -- --spec "cypress/e2e/note_home.cy.ts"
+
+      - name: (5) Build Project
+        run: |
+          cd client
+          npm run build
       
       - name: Upload the deploys artifact
         uses: actions/upload-artifact@v2

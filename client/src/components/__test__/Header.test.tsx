@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { BrowserRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import Header from "../Header";
-import { BrowserRouter } from "react-router-dom";
 
 afterEach(() => {
   cleanup();
