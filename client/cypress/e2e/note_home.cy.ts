@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-import cypress from "cypress";
+// import cypress from "cypress";
 
 const TxtTitle = "test note title";
 const TxtTag = "test note tag";
@@ -15,8 +15,7 @@ type addCommandsProps = {
   index: string;
 };
 
-Cypress.Commands.add(
-  "createNewNote",
+Cypress.Commands.add("createNewNote",
   ({
     txtTitle = TxtTitle,
     txtTag = TxtTag,
@@ -60,7 +59,7 @@ describe("e2e", () => {
 
   describe("Home Page", () => {
     it("its render and h1 correctly", () => {
-      cy.get("h1").first().should("have.text", "Hello");
+      cy.get("h1").first().should("have.text", "X:Estate");
     });
   });
 });
