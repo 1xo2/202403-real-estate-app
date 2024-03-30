@@ -7,6 +7,7 @@
     "test": "test",
     "c-d": "cd client && npm run d",
     "c-b": "cd client && npm run b",
+    "c-v": "cd client && npm run test",
     "s-b": "cd server && npm run b",
     "s-d": "cd server && npm run d",
     "start:server": "cd server && npm start",

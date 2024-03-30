@@ -1,7 +1,7 @@
 import Header from "./components/Header";
 import AboutPage from "./pages/AboutPage";
 import HomePage from "./pages/HomePage";
-import LoginPage from "./pages/LoginPage";
+import SignInPage from "./pages/SignInPage";
 import ProfilePage from "./pages/ProfilePage";
 import RegisterPage from "./pages/RegisterPage";
 
@@ -10,12 +10,12 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 function App() {
   return (
     <BrowserRouter>
-    <Header/>
+      <Header />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/about" element={<AboutPage />} />
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signIn" element={<SignInPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/profile" element={<ProfilePage />} />
       </Routes>

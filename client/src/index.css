@@ -10,7 +10,7 @@ a:hover {
   background-color: transparent !important;
 }
 body {
-  background-color: #ccc;
+  background-color: rgb(241, 245, 241);
 }
 .center-flex {
   display: flex;
@@ -23,3 +23,6 @@ body {
   background-color: #bbb;
   margin: 0 12.5px;
 }
+.capitalize {
+    text-transform: capitalize;
+  }

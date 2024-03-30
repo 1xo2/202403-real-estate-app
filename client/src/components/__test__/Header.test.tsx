@@ -21,7 +21,7 @@ describe("Header Component", () => {
     expect(aSignIn).toBeDefined();
 
     fireEvent.click(aSignIn);
-    expect(window.location.pathname).toBe("/login");
+    expect(window.location.pathname).toBe("/signIn");
   });
   it("should render links about & home responsively", () => {
     const aHome = screen.getByText("Home");

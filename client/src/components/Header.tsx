@@ -37,7 +37,7 @@ export default function Header({}: Props) {
             <Link to={"/about"}>About</Link>
           </li>
           <li>
-            <Link to={"/login"}>Sign-In</Link>
+            <Link to={"/signIn"}>Sign-In</Link>
           </li>
         </ul>
       </div>
