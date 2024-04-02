@@ -1,8 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import { wordsCap } from "../../utils/stringManipulation";
+import errorHandler, { CustomError } from "./errorHandler"; // Import CustomError type from errorHandler
+
 
 const errorMiddleware = (
-  err: Error,
+  // err: Error,
+  err: CustomError,
   req: Request,
   res: Response,
   next: NextFunction
@@ -25,9 +28,9 @@ const errorMiddleware = (
     err.name === "MongoServerError" ||
     (err && (err as any).code === 11000);
 
-  let resMsg = "An error occurred while processing your request.";
+  let resAltMsg; //= "An error occurred while processing your request.";
   if (isDuplicateKeyErr) {
-    resMsg = wordsCap("please try other user name");
+    resAltMsg = wordsCap("please try other user name");
   }
 
   // Logging to STDOUT/STDERR: Platform-as-a-Service (PaaS)
@@ -42,7 +45,8 @@ const errorMiddleware = (
   res.status(statusCode).json({
     success: false,
     statusCode,
-    message: resMsg,
+    message: resAltMsg || message,
+    msg: err.msg,
     //   errorName: err?.name,
     //   error: err,
   });

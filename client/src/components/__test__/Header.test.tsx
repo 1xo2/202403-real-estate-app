@@ -15,13 +15,13 @@ beforeEach(() => {
 });
 
 describe("Header Component", () => {
-  it("should render the header text, signing correctly", () => {
+  it("should render the header text, login correctly", () => {
     expect(screen.getByText("Estate")).toBeDefined();
-    const aSignIn = screen.getByText("Sign-In");
-    expect(aSignIn).toBeDefined();
+    const aLogin = screen.getByText("Log-In");
+    expect(aLogin).toBeDefined();
 
-    fireEvent.click(aSignIn);
-    expect(window.location.pathname).toBe("/signIn");
+    fireEvent.click(aLogin);
+    expect(window.location.pathname).toBe("/login");
   });
   it("should render links about & home responsively", () => {
     const aHome = screen.getByText("Home");

@@ -7,14 +7,14 @@ export default defineConfig({
       bundler: "vite",
     },
   },
-
-  // e2e: {
-  //   setupNodeEvents(on, config) {
-  //     // implement node event listeners here
-  //   },
-  // },
   e2e: {
     baseUrl: "http://localhost:3000",
     specPattern: "cypress/e2e/*.cy.ts",    
   },
 });
+
+// e2e: {
+//   setupNodeEvents(on, config) {
+//     // implement node event listeners here
+//   },
+// },

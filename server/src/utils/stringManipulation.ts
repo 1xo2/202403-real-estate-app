@@ -11,3 +11,7 @@ export function wordsCap(sentence: string): string {
 
   return capitalizedWords.join(" ");
 }
+// return true is null || undefined
+export function isNull_Undefined_emptyString<T>(value: T | null | undefined | ""): value is null | undefined | "" {
+  return value === null || value === undefined || value==="";
+}

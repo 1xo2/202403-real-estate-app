@@ -4,13 +4,13 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "d": "vite",
+    "d": "set NODE_ENV=dev&& vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "cypress:run": "cypress run --config video=false --e2e cypress/e2e/note_home.cy.ts",
+    "cypress:run": "cypress run --config video=false --e2e",
     "c": "cypress open",
-    "test": "vitest",
+    "test": "set NODE_ENV=test&& vitest",
     "coverage": "vitest run --coverage"
   },
   "dependencies": {

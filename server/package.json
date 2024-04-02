@@ -22,9 +22,11 @@
   "homepage": "https://github.com/1xo2/202403-real-estate-app#readme",
   "dependencies": {
     "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.6",
     "@types/mongoose": "^5.11.97",
     "bcryptjs": "^2.4.3",
     "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.2.3"
   },
   "devDependencies": {
