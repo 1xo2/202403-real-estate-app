@@ -6,7 +6,7 @@ describe("User Registration", () => {
     // Check if the environment is set to "test"
 
     // Cypress is injecting the /false/ part into the URL
-    const apiPath = "/false/api/auth/register"; // "http://localhost:8000/api/auth/register";
+    const apiPath = "/api/auth/register"; // "http://localhost:8000/api/auth/register";
 
     // Intercept the API request based on the environment
     cy.intercept("POST", apiPath, {
@@ -36,7 +36,7 @@ describe("User Log-in", () => {
     // Check if the environment is set to "test"
 
     // Cypress is injecting the /false/ part into the URL
-    const apiPath = "/false/api/auth/login"; // "http://localhost:8000/api/auth/login";
+    const apiPath = "/api/auth/login"; // "http://localhost:8000/api/auth/login";
 
     // Intercept the API request based on the environment
     cy.intercept("POST", apiPath, {

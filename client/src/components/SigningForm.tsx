@@ -1,51 +1,64 @@
 import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
+import { IAppError } from "../errorHandlers/clientErrorHandler";
+import { AppDispatch, RootState } from "../redux/store";
+import {
+  logIn_End,
+  logIn_Start,
+  login_Fail,
+  login_Success,
+} from "../redux/user/userSlice";
+import { isNull_Undefined_emptyString } from "../utils/stringManipulation";
 
 type Props = { isRegister: boolean };
 
 export default function SigningForm({ isRegister }: Props) {
-  const [formState, setFormState] = useState({});
+  const dispatch: AppDispatch = useDispatch();
+  const { loading, error, currentUser } = useSelector(
+    (state: RootState) => state.user
+  );
+
   const navigate = useNavigate();
 
   const [isValid, setIsValid] = useState({
-    isLoading: false,
-    isLogInOK: false,
+    formState: {},
     isValidEmail: true,
     errorMsg: "",
   });
 
   const onTxtChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormState((prevState) => {
-      return {
-        ...prevState,
-        [e.target.id]: e.target.value,
-      };
-    });
+    const { id, value } = e.target;
+    setIsValid((prevState) => ({
+      ...prevState,
+      formState: { ...prevState.formState, [id]: value },
+    }));
 
-    if (e.target.id === "eMail") {
+    if (id === "eMail") {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      // setIsValidEmail(emailRegex.test(e.target.value));
       setIsValid((prevState) => ({
         ...prevState,
-        isValidEmail: emailRegex.test(e.target.value),
+        isValidEmail: emailRegex.test(value),
       }));
     }
-
-    console.log("formState:", formState);
+    console.log("formState:", isValid.formState);
   };
+
+  const unitTestingEnvironment =
+    process.env.NODE_ENV === "test" && "http://localhost:8000";
+  console.log("unitTestingEnvironment:", unitTestingEnvironment);
 
   const formSubmitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formJson = JSON.stringify(formState);
+    const formJson = JSON.stringify(isValid.formState);
     console.log("formJson:", formJson);
+
     try {
-      setIsValid((prev) => ({
-        ...prev,
-        isLoading: true,
-      }));
+      dispatch(logIn_Start());
 
       const unitTestingEnvironment =
-        process.env.NODE_ENV === "test" && "http://localhost:8000";
+        process.env.NODE_ENV === "test" ? "http://localhost:8000" : "";
+
       const apiPath = "/api/auth/" + (isRegister ? "register" : "login");
       const res = await fetch(unitTestingEnvironment + apiPath, {
         method: "post",
@@ -57,19 +70,11 @@ export default function SigningForm({ isRegister }: Props) {
       const data = await res.json();
 
       if (data.success === false) {
-        setIsValid((prev) => ({
-          ...prev,
-          errorMsg: data.msg,
-        }));
-
+        dispatch(login_Fail(data as IAppError));
         return;
       }
 
-      setIsValid((prev) => ({
-        ...prev,
-        isLogInOK: true,
-        errorMsg: "",
-      }));
+      dispatch(login_Success(data));
 
       setTimeout(() => {
         if (isRegister) {
@@ -82,10 +87,7 @@ export default function SigningForm({ isRegister }: Props) {
     } catch (error) {
       console.error("Error occurred during fetch:", error);
     } finally {
-      setIsValid((prev) => ({
-        ...prev,
-        isLoading: false,
-      }));
+      dispatch(logIn_End());
     }
   };
 
@@ -122,20 +124,20 @@ export default function SigningForm({ isRegister }: Props) {
             className="border p-3 gap-4"
           />
         </div>
-        {/* {!isValidEmail && <p className="text-red-500">Invalid email format</p>} */}
+
         {!isValid.isValidEmail && (
           <p className="text-red-500">Invalid email format</p>
         )}
         <button
-          disabled={isValid.isLoading || !isValid.isValidEmail}
+          disabled={loading || !isValid.isValidEmail}
           type="submit"
           className={`${
-            isValid.isLoading || (!isValid.isValidEmail && "cursor-not-allowed")
+            loading || (!isValid.isValidEmail && "cursor-not-allowed")
           }  'focus:opacity-95 disabled:opacity-80 rounded-lg bg-slate-700 text-white p-3 uppercase'`}
         >
           {isRegister ? "Register" : "Log-In"}
-          {isValid.isLoading && " proc..."}
-          {isValid.isLogInOK && " ✅"}
+          {loading && " proc..."}
+          {currentUser?.userName && " ✅"}
         </button>
       </form>
       <div className=" flex gap-3 my-3 ">
@@ -148,9 +150,9 @@ export default function SigningForm({ isRegister }: Props) {
           )}
         </span>
       </div>
-      {isValid.errorMsg !== "" && (
+      {!isNull_Undefined_emptyString(error?.msg) && (
         <p className="text-red-700 p-3 border-l-4 border-red-700 ">
-          {isValid.errorMsg}
+          {error?.msg}
         </p>
       )}
     </>

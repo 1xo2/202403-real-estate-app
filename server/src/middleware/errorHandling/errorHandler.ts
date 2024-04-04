@@ -1,11 +1,11 @@
-interface CustomErrorProps {
+interface ICustomErrorProps {
   name: string;
   statusCode: number;
   // message: string;
   msg: string;
 }
 
-export class CustomError extends Error implements CustomErrorProps {
+export class CustomError extends Error implements ICustomErrorProps {
   name: string;
   statusCode: number;
   // message: string;
