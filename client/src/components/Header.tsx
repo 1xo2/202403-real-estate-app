@@ -1,7 +1,6 @@
 import { FaSearch } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import Avatar from "./Avatar";
-import OAuthGoogle from "./OAuthGoogle/OAuthGoogle";
 
 export default function Header() {
   return (
