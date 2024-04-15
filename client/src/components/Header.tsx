@@ -6,14 +6,14 @@ export default function Header() {
   return (
     <header className="bg-slate-200 shadow-md">
       <div className="flex justify-between items-center max-w-6xl max-auto p-3">
-// LOGO
+        {/*  LOGO  */}
         <h1 className="font-bold text-sm ms:text-xl flex flex-wrap ">
           <Link to={"/home"}>
             <span className="text-slate-500">X:</span>
             <span className="text-slate-700">Estate</span>
           </Link>
         </h1>
-// SEARCH-BOX
+        {/*  SEARCH-BOX  */}
         <form action="" className="bg-slate-100 p-3 rounded-s ">
           {/* <div className="flex justify-center items-center"> */}
           <div className="center-flex">
@@ -29,7 +29,7 @@ export default function Header() {
             <FaSearch className="text-slate-600 cursor-pointer "></FaSearch>
           </div>
         </form>
-// LINKS
+        {/*  LINKS  */}
         <ul className="flex gap-4 text-slate-700">
           <li className="hidden sm:inline">
             <Link to={"/home"}>Home</Link>
@@ -41,8 +41,8 @@ export default function Header() {
             <Link to={"/login"}>Log-In</Link>
           </li>
         </ul>
-// AVATAR      
-      <Avatar  />
+        {/*  AVATAR  */}
+        <Avatar />
       </div>
     </header>
   );
