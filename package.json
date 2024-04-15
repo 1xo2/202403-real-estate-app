@@ -7,7 +7,6 @@
     "c-t": "cd client && npm test",
     "c-d": "cd client && npm run d",
     "c-b": "cd client && npm run b",
-    "c-v": "cd client && npm run test",
     "s-b": "cd server && npm run b",
     "s-d": "cd server && npm run d",
     "start:server": "cd server && npm start",
@@ -16,8 +15,8 @@
     "start:cypress:open": "cd client && npm run c",
     "start": "npm-run-all --parallel start:server start:client",
     "go": "npm-run-all --parallel s-d c-d",
-    "c-c": "concurrently -n \"server,client,Cypress\" -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\"   \"npm run s-d -n server\" \"npm run c-d\"  \"npm run start:cypress:run\"  ",
-    "c-c2": "concurrently -n \"server,client,Cypress\" -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\"   \"npm run s-d -n server\" \"npm run c-d\"  \"npm run start:cypress:open\"  "
+    "c-cr": "concurrently -n \"server,client,Cypress\" -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\"   \"npm run s-d -n server\" \"npm run c-d\"  \"npm run start:cypress:run\"  ",
+    "c-co": "concurrently -n \"server,client,Cypress\" -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\"   \"npm run s-d -n server\" \"npm run c-d\"  \"npm run start:cypress:open\"  "
   },
   "repository": {
     "type": "git",
@@ -31,7 +30,11 @@
   },
   "homepage": "https://github.com/1xo2/202403-real-estate-app#readme",
   "devDependencies": {
+    "@types/redux-persist": "^4.3.1",
     "concurrently": "^8.2.2",
     "npm-run-all": "^4.1.5"
+  },
+  "dependencies": {
+    "redux-persist": "^6.0.0"
   }
 }

@@ -25,6 +25,7 @@ app.listen(port, () => {
 app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
 
+
 // Error handling middleware
 app.use(errorMiddleware);
 

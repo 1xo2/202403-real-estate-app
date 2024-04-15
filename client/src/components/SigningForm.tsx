@@ -10,6 +10,10 @@ import {
   login_Success,
 } from "../redux/user/userSlice";
 import { isNull_Undefined_emptyString } from "../utils/stringManipulation";
+import OAuthGoogle from "./OAuthGoogle/OAuthGoogle";
+import xss from "xss";
+import { fetchHeaders } from "../share/fetchHeaders";
+import { BD_fields } from "../share/enums";
 
 type Props = { isRegister: boolean };
 
@@ -24,11 +28,16 @@ export default function SigningForm({ isRegister }: Props) {
   const [isValid, setIsValid] = useState({
     formState: {},
     isValidEmail: true,
+    isValidPassword: true,
     errorMsg: "",
   });
 
   const onTxtChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
+
+    //  console.log("Input field ID:", id);
+    //  console.log("Input field value:", value);
+
     setIsValid((prevState) => ({
       ...prevState,
       formState: { ...prevState.formState, [id]: value },
@@ -40,41 +49,49 @@ export default function SigningForm({ isRegister }: Props) {
         ...prevState,
         isValidEmail: emailRegex.test(value),
       }));
+    } else if (id === "password") {
+      setIsValid((prevState) => ({
+        ...prevState,
+        isValidPassword: value.length > 4,
+      }));      
     }
+
     console.log("formState:", isValid.formState);
   };
 
-  const unitTestingEnvironment =
-    process.env.NODE_ENV === "test" && "http://localhost:8000";
-  console.log("unitTestingEnvironment:", unitTestingEnvironment);
-
   const formSubmitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formJson = JSON.stringify(isValid.formState);
-    console.log("formJson:", formJson);
+    // const formJson = JSON.stringify(isValid.formState);
+    const sanitizedFormJson = xss(JSON.stringify(isValid.formState));
+    //
+    // console.log("enter: form-Submit-Handler:");
+    // console.log("formJson:", formJson);
+    console.log("sanitizedFormJson:", sanitizedFormJson);
 
     try {
       dispatch(logIn_Start());
 
-      const unitTestingEnvironment =
-        process.env.NODE_ENV === "test" ? "http://localhost:8000" : "";
-
       const apiPath = "/api/auth/" + (isRegister ? "register" : "login");
-      const res = await fetch(unitTestingEnvironment + apiPath, {
+      const res = await fetch(apiPath, {
         method: "post",
-        body: formJson,
-        headers: {
-          "Content-Type": "application/json",
-        },
+        body: sanitizedFormJson,
+        headers: fetchHeaders
+        // body: formJson,
+        // headers: {
+        //   "Content-Type": "application/json",
+        // },
       });
       const data = await res.json();
 
       if (data.success === false) {
+        console.log("fetching data.status fail:", data.success);
         dispatch(login_Fail(data as IAppError));
         return;
       }
 
       dispatch(login_Success(data));
+      console.log("fetching data.success:", data);
+      console.log("-------currentUser:", currentUser);
 
       setTimeout(() => {
         if (isRegister) {
@@ -88,6 +105,7 @@ export default function SigningForm({ isRegister }: Props) {
       console.error("Error occurred during fetch:", error);
     } finally {
       dispatch(logIn_End());
+      // console.log("finally:  currentUser?.userName;:", currentUser?.userName);
     }
   };
 
@@ -106,39 +124,52 @@ export default function SigningForm({ isRegister }: Props) {
               type="text"
               placeholder="User Name"
               className="border p-3 gap-4"
+              maxLength={BD_fields.userName_maxlength}
             />
           )}
           <input
             id="eMail"
+            data-testid="email-input"
             required
-            type="text"
+            type="email"
             placeholder="Email"
             className="border p-3 gap-4"
+            maxLength={BD_fields.eMail_maxlength}
           />
 
           <input
             id="password"
+            data-testid="password-input"
             required
             type={isRegister ? "text" : "password"}
             placeholder="Password"
             className="border p-3 gap-4"
+            maxLength={10}
           />
         </div>
 
         {!isValid.isValidEmail && (
           <p className="text-red-500">Invalid email format</p>
         )}
+        {!isValid.isValidPassword && (
+          <p className="text-red-500">Invalid password length</p>
+        )}
         <button
-          disabled={loading || !isValid.isValidEmail}
+          disabled={
+            loading || !isValid.isValidEmail || !isValid.isValidPassword
+          }
           type="submit"
           className={`${
-            loading || (!isValid.isValidEmail && "cursor-not-allowed")
+            loading ||
+            ((!isValid.isValidEmail || !isValid.isValidPassword) &&
+              "cursor-not-allowed")
           }  'focus:opacity-95 disabled:opacity-80 rounded-lg bg-slate-700 text-white p-3 uppercase'`}
         >
           {isRegister ? "Register" : "Log-In"}
           {loading && " proc..."}
           {currentUser?.userName && " ✅"}
         </button>
+        <OAuthGoogle />
       </form>
       <div className=" flex gap-3 my-3 ">
         <p>Have an account?</p>
@@ -155,6 +186,9 @@ export default function SigningForm({ isRegister }: Props) {
           {error?.msg}
         </p>
       )}
+      {/* loading:{loading || "non"}
+      error:{error || "non"} */}
+      {/* currentUser: {currentUser?.userName || "non"} */}
     </>
   );
 }

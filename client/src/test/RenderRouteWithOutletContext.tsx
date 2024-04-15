@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { MemoryRouter, Outlet, Route, Routes } from "react-router-dom";
 
-interface RenderRouteWithOutletContextProps<T = any> {
+interface IRenderRouteWithOutletContextProps<T = any> {
   context: T;
   children: ReactNode;
 }
@@ -9,7 +9,7 @@ interface RenderRouteWithOutletContextProps<T = any> {
 export const RenderRouteWithOutletContext = <T,>({
   context,
   children,
-}: RenderRouteWithOutletContextProps<T>) => {
+}: IRenderRouteWithOutletContextProps<T>) => {
   return (
     <MemoryRouter>
       <Routes>

@@ -1,6 +1,6 @@
 import React, { Component, ErrorInfo } from "react";
 
-interface ErrorBoundaryState {
+interface IErrorBoundaryState {
   hasError: boolean;
   error: Error | null;
   errorInfo: ErrorInfo | null;
@@ -11,7 +11,7 @@ type Props = {
 };
 
 //  catches JavaScript errors anywhere in its child component tree
-export class ErrorBoundary extends Component<Props, ErrorBoundaryState> {
+export class ErrorBoundary extends Component<Props, IErrorBoundaryState> {
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -21,7 +21,7 @@ export class ErrorBoundary extends Component<Props, ErrorBoundaryState> {
     };
   }
 
-  static getDerivedStateFromError(err: Error): ErrorBoundaryState {
+  static getDerivedStateFromError(err: Error): IErrorBoundaryState {
     return { hasError: true, error: err, errorInfo: null };
   }
 

@@ -9,6 +9,9 @@ import {
 import { BrowserRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import SigningForm from "../SigningForm";
+import { Provider } from "react-redux";
+import { store } from "../../redux/store";
+
 
 // const mockedUsedNavigate = vi.fn();
 // vi.mock("react-router-dom", () => ({
@@ -43,7 +46,9 @@ let emailInput: HTMLElement,
 beforeEach(() => {
   render(
     <BrowserRouter>
-      <SigningForm isRegister={true} />
+      <Provider store={store}>
+          <SigningForm isRegister={true} />
+      </Provider>
     </BrowserRouter>
   );
   emailInput = screen.getByPlaceholderText("Email");
@@ -135,7 +140,6 @@ describe("SigningForm Component", () => {
   });
 });
 
-
 // vi.mock("../api/auth", () => ({
 //   register: vi.fn(),
 // }));
@@ -171,30 +175,30 @@ describe("SigningForm Component", () => {
 //     });
 //   });
 
-  // it("displays an error message if registration fails", async () => {
-  //   // Mock the API response to simulate registration failure
-  //   const registerMock = vi
-  //     .fn()
-  //     .mockResolvedValue({ success: false, error: "Email already exists" });
-  //   require("../api/auth").register = registerMock;
+// it("displays an error message if registration fails", async () => {
+//   // Mock the API response to simulate registration failure
+//   const registerMock = vi
+//     .fn()
+//     .mockResolvedValue({ success: false, error: "Email already exists" });
+//   require("../api/auth").register = registerMock;
 
-  //   // Fill out the registration form
-  //   fireEvent.change(emailInput, {
-  //     target: { value: "test@example.com" },
-  //   });
-  //   fireEvent.change(passwordInput, {
-  //     target: { value: "password123" },
-  //   });
-  //   // Fill out other fields as needed
+//   // Fill out the registration form
+//   fireEvent.change(emailInput, {
+//     target: { value: "test@example.com" },
+//   });
+//   fireEvent.change(passwordInput, {
+//     target: { value: "password123" },
+//   });
+//   // Fill out other fields as needed
 
-  //   // Submit the form
-  //   fireEvent.click(submitButton);
+//   // Submit the form
+//   fireEvent.click(submitButton);
 
-  //   // Wait for the error message to be displayed
-  //   await waitFor(() => {
-  //     expect(screen.getByText("Email already exists")).toBeDefined();
-  //   });
-  // });
+//   // Wait for the error message to be displayed
+//   await waitFor(() => {
+//     expect(screen.getByText("Email already exists")).toBeDefined();
+//   });
+// });
 
-  // Add more test cases for other scenarios, such as form validation errors
+// Add more test cases for other scenarios, such as form validation errors
 // });

@@ -1,30 +1,38 @@
-import { NextFunction, Request, Response } from "express";
-import UserModel from "../models/user.model";
 import bcrypt from "bcryptjs";
-import { isNull_Undefined_emptyString } from "../utils/stringManipulation";
-import errorHandler from "../middleware/errorHandling/errorHandler";
+import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import xss from "xss";
+import errorHandler from "../middleware/errorHandling/errorHandler";
+import UserModel, { IUserDocument } from "../models/user.model";
+import { isNull_Undefined_emptyString } from "../utils/stringManipulation";
 
-interface User extends Document {
+interface IUserResponse {
   userName?: string;
   eMail?: string;
   password?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+interface ISanitizedUser {
+  userName?: string;
+  eMail?: string;
+  password?: string;
+  userPhoto?: string;
 }
 
-////////////
+const JWT_SECRET = process.env?.JWT_SECRET || "fff22-0ff";
+
 // Register
 //////////
-export const signupController = async (
+export const signup_controller = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> => {
-  const { eMail, password, userName } = req.body;
+): Promise<void> => {  
+  // Sanitize the req.body object using xss
+  const sanitizedBody: string = xss(JSON.stringify(req.body));
+  const { eMail, password, userName } = JSON.parse(sanitizedBody) as ISanitizedUser;
 
-  // console.log('req.body:', req.body)
-  // console.log("\nuserName:", userName);
-  // console.log("\npassword:", password);
-  // console.log("\neMail:", eMail);
 
   if (
     isNull_Undefined_emptyString(userName) ||
@@ -46,20 +54,19 @@ export const signupController = async (
     next(error);
   }
 };
-////////////
+
 // LogIn
 //////////
-export const logInController = async (
+export const logIn_controller = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> => {
-  const { eMail, password } = req.body;
+): Promise<void> => {  
 
-  // console.log('req.body:', req.body)
-  // console.log("\nuserName:", userName);
-  // console.log("\npassword:", password);
-  // console.log("\neMail:", eMail);
+  // Sanitize the req.body object using xss
+  const sanitizedBody: string = xss(JSON.stringify(req.body));  
+  const { eMail, password } = JSON.parse(sanitizedBody) as ISanitizedUser;
+
   try {
     if (
       isNull_Undefined_emptyString(password) ||
@@ -80,18 +87,92 @@ export const logInController = async (
     if (!validPassword)
       return next(errorHandler("Wrong Credentials", "signIn-d", 401));
 
-    const token = jwt.sign(
-      { id: validUser._id },
-      process.env?.JWT_SECRET || "fff22-0ff"
-    );
+    const token = jwt.sign({ id: validUser._id }, JWT_SECRET);
 
     const { password: pass, _id: theID, ...rest } = validUser.toObject();
 
     res
+      // cookie info are accessible just from server - not react/client
       .cookie("access_token", token, { httpOnly: true })
       .status(200)
       .json(rest);
     // .json("Session Pass Granted");
+  } catch (error: any) {
+    // Set status code to 500 and pass the error to the error handling middleware
+    res.status(500);
+    next(error);
+  }
+};
+
+// google
+//////////
+export const google_controller = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  // Sanitize the req.body object using xss
+  const sanitizedBody: string = xss(JSON.stringify(req.body));
+
+  // Extract userName, eMail, and userPhoto from the sanitizedBody object
+  const { eMail, userName } = JSON.parse(sanitizedBody) as ISanitizedUser;
+
+  console.log("userName:", userName);
+  console.log("eMail:", eMail);
+
+  try {
+    if (isNull_Undefined_emptyString(eMail)) {
+      return next(errorHandler("request.body is not ok", "err:df0fpp", 500));
+    }
+
+    const validUser = (await UserModel.findOne({ eMail })) as IUserDocument;
+
+    if (validUser) {
+      console.log("enter known user by google :");
+
+      const token = jwt.sign({ id: validUser._id }, JWT_SECRET);
+
+      console.log("validUser.toObject();:", validUser.toObject());
+
+      // Extract only the necessary fields for the response
+      const restResponseUser: IUserResponse = {
+        userName: validUser.userName,
+        eMail: validUser.eMail,
+        createdAt: validUser.createdAt,
+        updatedAt: validUser.updatedAt,
+      };
+
+      res
+        // cookie info are accessible just from server - not react/client
+        .cookie("access_token", token, { httpOnly: true })
+        .status(200)
+        .json(restResponseUser);
+    } else {
+      //  email not in DB ->
+      //  create new user, generate password
+      console.log("enter new user by google :");
+
+      const generatePassword =
+        Math.random().toString(36).slice(-8) +
+        Math.random().toString(36).slice(-8);
+      const hashedPassword = bcrypt.hashSync(generatePassword, 10);
+      const newUserName =
+        (userName || "x-userName").replace(" ", "") + '_' +
+        generatePassword.slice(-4);
+      const newUser = new UserModel({
+        userName: newUserName,
+        eMail,
+        password: hashedPassword,
+      });
+      await newUser.save();
+      const token = jwt.sign({ id: newUser._id }, JWT_SECRET);
+      const { password: pass, ...rest } = newUser.toObject();
+      // cookie info are accessible just from server - not react/client
+      res
+        .cookie("accept_token", token, { httpOnly: true })
+        .status(200)
+        .json(rest);
+    }
   } catch (error: any) {
     // Set status code to 500 and pass the error to the error handling middleware
     res.status(500);

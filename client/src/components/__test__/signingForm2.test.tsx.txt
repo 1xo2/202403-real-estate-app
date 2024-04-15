@@ -1,0 +1,151 @@
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { Provider } from "react-redux";
+import { BrowserRouter } from "react-router-dom";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { IUser, login_Success } from "../../redux/user/userSlice";
+
+import SigningForm from "../SigningForm";
+import mockStore from "../../test/__mocks__/redux/redux";
+import createFetchMock from "vitest-fetch-mock";
+import { rootReducer } from "../../redux/store";
+import { createStore } from "@reduxjs/toolkit";
+
+// Create the fetchMocker and enable mocks
+const fetchMocker = createFetchMock(vi);
+fetchMocker.enableMocks();
+
+// beforeEach(() => {
+//   fetchMocker.resetMocks();
+// });
+
+const fetchResponse: IUser = {
+  userName: "userC",
+  eMail: "userC@userC.com",
+  createdAt: "2024-03-31T16:02:36.794Z",
+  updatedAt: "2024-03-31T16:02:36.794Z",
+  __v: 0,
+};
+
+/// Create a simple Redux store
+const store = createStore(rootReducer);
+
+describe("SigningForm component", () => {
+  it("submits the form and updates the Redux state", async () => {
+    const mockedData = {
+      success: true,
+      user: {
+        userName: "testUser",
+        eMail: "test@example.com",
+        createdAt: "2022-04-11",
+        updatedAt: "2022-04-11",
+        __v: 1,
+      },
+    };
+
+    // Mocking the fetch function
+    global.fetch = vi.fn().mockResolvedValue({
+      json: () => Promise.resolve(mockedData),
+    });
+
+    render(
+      <BrowserRouter>
+        <Provider store={store}>
+          {/* <Provider store={mockStore}> */}
+          <SigningForm isRegister={false} />
+        </Provider>
+      </BrowserRouter>
+    );
+
+    // Get input elements
+    const emailInput: HTMLInputElement = screen.getByTestId("email-input");
+    const passwordInput: HTMLInputElement =
+      screen.getByPlaceholderText("Password");
+    const submitButton: HTMLButtonElement = screen.getByRole("button", {
+      name: /Log-In/i,
+    });
+
+    // Test email input
+    userEvent.type(emailInput, "test@example.com");
+    await waitFor(
+      () => {
+        expect(emailInput.value).toBe("test@example.com");
+      },
+      { timeout: 3000 }
+    );
+
+    // Test password input
+    userEvent.type(passwordInput, "test.example.com");
+    await waitFor(
+      () => {
+        expect(passwordInput.value).toBe("test.example.com");
+      },
+      { timeout: 3000 }
+    );
+    // Mock fetch response
+    // fetchMocker.mockResponseOnce(JSON.stringify(fetchResponse));
+
+    // vi.spyOn(global, "fetch").mockImplementation(
+    //   await setupFetchStub(JSON.stringify(fetchResponse))("/api/auth/login")
+    // );
+
+    // // Mock fetch implementation
+    // vi.spyOn(global, "fetch").mockImplementation((url, options) => {
+    //   return Promise.resolve({
+    //     json: () => Promise.resolve(JSON.stringify(fetchResponse)),
+    //   });
+    // });
+
+    // Click submit button
+    fireEvent.click(submitButton);
+
+    // Wait for the asynchronous actions to finish
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+    });
+
+    // Check that the Redux state was updated
+    const currentUser = store.getState().user.currentUser;
+    expect(currentUser?.userName).toBe("testUser");
+
+    // expect fetch
+    await waitFor(
+      () => {
+        expect(fetch).toHaveBeenCalledWith("/api/auth/login", {
+          method: "post",
+          body: JSON.stringify({
+            eMail: "test@example.com",
+            password: "test.example.com",
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+      },
+      { timeout: 5000 }
+    );
+    // expect dispatch
+    await waitFor(
+      () => {
+        // mockStore.dispatch(login_Success(fetchResponse));
+        expect(mockStore.dispatch);
+        expect(mockStore.dispatch).toHaveBeenCalledWith(
+          login_Success(fetchResponse)
+        );
+
+        console.log("mockStore.dispatch: called");
+        console.log("mockStore.getState().user:", mockStore.getState().user);
+      },
+      { timeout: 3000 }
+    );
+
+    // Wait for the success symbol to appear
+    await waitFor(
+      () => {
+        const successButton = screen.getByText(/✅/);
+        expect(successButton).toBeDefined();
+      },
+      { timeout: 10000 }
+    );
+  }, 15000);
+});

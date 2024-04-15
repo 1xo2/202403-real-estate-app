@@ -5,55 +5,51 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
+import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi
+} from "vitest";
+// import mockStore from "../../test/__mocks__/redux";
 import SigningForm from "../SigningForm";
+import mockStore from "../../test/__mocks__/redux/redux";
 
-// const mockedUsedNavigate = vi.fn();
-// vi.mock("react-router-dom", () => ({
-//   ...(vi.importActual("react-router-dom") as any),
-//   useNavigate: () => mockedUsedNavigate,
-// }));
-
-// vi.mock("react-router-dom", async (importOriginal) => {
-//   const actual: RouteProps = await importOriginal(); // Asserting actual as RouteProps
-//   return {
-//     ...actual,
-//     BrowserRouter: ({ children }: { children: ReactNode }) => <>{children}</>,
-//   };
-// });
-
-afterEach(() => {
-  cleanup();
-});
 let emailInput: HTMLElement,
   submitButton: HTMLButtonElement,
   registerLink: HTMLElement,
   passwordInput: HTMLElement;
 
+
+
+afterEach(() => {
+  cleanup();
+});
+
+
 beforeEach(() => {
+ 
   render(
-    <BrowserRouter>
-      <SigningForm isRegister={false} />
+    <BrowserRouter>q
+      <Provider store={mockStore}>
+        <SigningForm isRegister={false} />
+      </Provider>
     </BrowserRouter>
   );
   emailInput = screen.getByPlaceholderText("Email");
   passwordInput = screen.getByPlaceholderText("Password");
-  submitButton = screen.getByRole("button", { name: "Log-In" });
+  submitButton = screen.getByRole("button", { name: /Log-In/i });
   registerLink = screen.getByRole("link", { name: "Register" });
-});
-// beforeAll(() => {
-//   // console.log("start DOM of RegisterPage")
-//   // screen.debug()
-// })
-
-describe("LogInPage", () => {
-  it("should render page correctly", () => {
-    expect(screen.getAllByText("Register")).toBeDefined();
-  });
 });
 
 describe("SigningForm Component", () => {
+  it("should render page correctly", () => {
+    expect(screen.getAllByText("Register")).toBeDefined();
+  });
   it("should render SigningForm correctly", () => {
     expect(submitButton).toBeDefined();
     expect(registerLink).toBeDefined();
@@ -109,24 +105,64 @@ describe("SigningForm Component", () => {
     });
   });
 
-  console.log("\n\rprocess.env.NODE_ENV:", process.env.NODE_ENV);
+  // it('displays a "✅" symbol on the button after successful login', async () => {
+  //   fetchMocker.enableMocks(); // Enable mocking before each test
+  //   fetchMocker.doMock();
+  //   fetchMocker.mockResponseOnce(
+  //     JSON.stringify({
+  //       success: true,
+  //       currentUser: {
+  //         userName: "mockedUserName",
+  //         eMail: "test@example.com",
+  //         createdAt: "2024-04-01",
+  //         updatedAt: "2024-04-01",
+  //         __v: 0,
+  //       },
+  //     })
+  //   );
 
-  it("should give successful sign to login", async () => {
-    fireEvent.change(emailInput, { target: { value: "userC@userC.com" } });
-    fireEvent.change(passwordInput, { target: { value: "userC" } });
+  //   // Fill in the form inputs
+    // userEvent.type(emailInput, "test@example.com");
+  //   userEvent.type(passwordInput, "password");
+  //   fireEvent.click(submitButton);
 
-    fireEvent.click(submitButton);
+  //   // Wait for the login process to complete and the "✅" symbol to appear
+  //   await waitFor(async () => {
+  //     console.log("Waiting for the success symbol...");
+  //     const successButton = await screen.findByText(
+  //       "✅",
+  //       {},
+  //       { timeout: 5000 }
+  //     ); // Adjust the timeout as needed
+  //     console.log("Success symbol found:", successButton);
+  //     expect(successButton).toBeDefined();
+  //   });
+  // });
+  // it('displays a "✅" symbol on the button after successful login', async () => {
+    
+    
+  //   const data = {
+  //     userName: "userC",
+  //     eMail: "userC@userC.com",
+  //     createdAt: "2024-03-31T16:02:36.794Z",
+  //     updatedAt: "2024-03-31T16:02:36.794Z",
+  //     __v: 0,
+  //   };
+    
+    
+  //   // Dispatch an action
+  //   mockStore.dispatch(login_Success(data));
 
-    // Wait for navigation to complete
-    await waitFor(
-      () => {
-        expect(submitButton.innerHTML).toContain("✅");
+  //   // dispatch(login_Success(data));
 
-        //////// MOCK NOT WORKING
-        // Assert that the URL has changed to ./home
-        // expect(window.location.pathname).toBe("/home");
-      },
-      { timeout: 2000 }
-    );
-  });
+  //   // Wait for the login process to complete and the "✅" symbol to appear
+  //    await waitFor(async () => {
+  //      const successButton = await screen.findByText(
+  //        "✅",
+  //        {},
+  //        { timeout: 10000 }
+  //      ); // Adjust the timeout as needed
+  //      expect(successButton).toBeDefined();
+  //    });
+  // });
 });

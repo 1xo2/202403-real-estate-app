@@ -1,7 +1,9 @@
 import { cleanup, render, screen } from "@testing-library/react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { BrowserRouter } from "react-router-dom";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import RegisterPage from "../RegisterPage";
+import { Provider } from "react-redux";
+import { store } from "../../redux/store";
 
 afterEach(() => {
   cleanup();
@@ -9,7 +11,9 @@ afterEach(() => {
 beforeEach(() => {
   render(
     <BrowserRouter>
-      <RegisterPage />
+      <Provider store={store}>
+        <RegisterPage />
+      </Provider>
     </BrowserRouter>
   );
 });
@@ -23,10 +27,11 @@ describe("LogInPage", () => {
   });
   it("should have 3 excisable input text and a button", () => {
     const textInputs = screen.getAllByRole("textbox");
-    const button = screen.getByRole("button", { name: "Register" });
-    const registerLink = screen.getByRole("link", { name: "Register" });
+    const button = screen.getByRole("button", { name: /Register/i });
+    const logInLink = screen.getByRole("link", { name: "Log-In" });
+
     expect(textInputs.length).toBe(3);
     expect(button).toBeDefined();
-    expect(registerLink).toBeDefined();
+    expect(logInLink).toBeDefined();
   });
 });

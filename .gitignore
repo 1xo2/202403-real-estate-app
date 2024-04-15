@@ -33,3 +33,4 @@ client/.vercel
 client/.env
 client/.env.development
 client/.env.production
+client/info.txt
