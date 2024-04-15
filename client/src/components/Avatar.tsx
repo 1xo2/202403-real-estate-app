@@ -1,7 +1,6 @@
 
 import { useSelector } from 'react-redux';
 import { RootState } from '../redux/store';
-import { FaRegUserCircle } from "react-icons/fa";
 
 
 export default function Avatar() {
