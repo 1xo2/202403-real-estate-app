@@ -10,7 +10,7 @@ import {
   login_Success,
 } from "../redux/user/userSlice";
 import { isNull_Undefined_emptyString } from "../utils/stringManipulation";
-import OAuthGoogle from "./OAuthGoogle/OAuthGoogle";
+import OAuthGoogle from "./auth/OAuthGoogle/OAuthGoogle";
 import xss from "xss";
 import { fetchHeaders } from "../share/fetchHeaders";
 import { BD_fields } from "../share/enums";

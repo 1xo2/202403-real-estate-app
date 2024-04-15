@@ -1,11 +1,14 @@
 import { FaSearch } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import Avatar from "./Avatar";
+import { RootState } from "../redux/store";
+import { useSelector } from "react-redux";
 
 export default function Header() {
+  const { currentUser } = useSelector((state: RootState) => state.user);
   return (
     <header className="bg-slate-200 shadow-md">
-      <div className="flex justify-between items-center max-w-6xl max-auto p-3">
+      <div className="flex justify-between items-center max-w-7xl mx-auto p-3">
         {/*  LOGO  */}
         <h1 className="font-bold text-sm ms:text-xl flex flex-wrap ">
           <Link to={"/home"}>
@@ -38,11 +41,14 @@ export default function Header() {
             <Link to={"/about"}>About</Link>
           </li>
           <li>
-            <Link to={"/login"}>Log-In</Link>
+            <Link to={"/profile"}>
+              {currentUser ? (<Avatar user={currentUser} />) : (
+                'Log-In')
+              }</Link>
           </li>
         </ul>
-        {/*  AVATAR  */}
-        <Avatar />
+
+
       </div>
     </header>
   );

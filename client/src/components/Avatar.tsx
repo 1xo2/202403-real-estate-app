@@ -1,18 +1,19 @@
 
-import { useSelector } from 'react-redux';
-import { RootState } from '../redux/store';
 import { FaRegUserCircle } from 'react-icons/fa';
+import { IUser } from '../redux/user/userSlice';
 
+type props = {
+    user: IUser | null | undefined
+}
 
-export default function Avatar() {
-    const { currentUser } = useSelector((state: RootState) => state.user);
-    console.log('currentUser?.userPhoto:', currentUser?.userPhoto)
+export default function Avatar({ user }: props) {
+    const style = 'rounded-full w-7 h-7 object-cover'
     return (
         <div>
-            {
-                currentUser?.userPhoto ? (<img src={currentUser?.userPhoto} alt="avatar" />) :
-                    (<FaRegUserCircle />)
-            }
+            {user?.userPhoto ? (
+                <img className={style} src={user?.userPhoto} alt="avatar" />
+            ) : (
+                <FaRegUserCircle className={style} />)}
         </div>
     )
 }

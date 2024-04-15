@@ -1,9 +1,9 @@
 import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
 import { app } from "./firebase";
 import { useDispatch } from "react-redux";
-import { AppDispatch } from "../../redux/store";
-import { login_Success } from "../../redux/user/userSlice";
-import { fetchHeaders } from "../../share/fetchHeaders";
+import { AppDispatch } from "../../../redux/store";
+import { login_Success } from "../../../redux/user/userSlice";
+import { fetchHeaders } from "../../../share/fetchHeaders";
 import { useNavigate } from "react-router-dom";
 
 export default function OAuthGoogle() {
