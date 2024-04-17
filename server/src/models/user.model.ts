@@ -1,4 +1,4 @@
-import { BD_fields } from './../share/enums';
+import { eBD_fields } from './../share/enums';
 // import mongoose, { Model, Document } from "mongoose";
 import mongoose, { Document, Schema, model, Model } from "mongoose";
 
@@ -26,14 +26,14 @@ const userSchema = new mongoose.Schema<IUserDocument>(
       require: true,
       unique: true,
       // check length before use
-      maxlength: BD_fields.userName_maxlength,
+      maxlength: eBD_fields.userName_maxlength,
     },
     eMail: {
       type: String,
       require: true,
       unique: true,
       // check length before use
-      maxlength: BD_fields.eMail_maxlength,
+      maxlength: eBD_fields.eMail_maxlength,
     },
     password: {
       type: String,

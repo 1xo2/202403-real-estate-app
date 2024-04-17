@@ -1,6 +1,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* @import '../tailwind.config.js'; */
+
+
+/* Import Tailwind CSS */
+/* @import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities'; */
+
+.btnBig{
+  @apply focus:opacity-95 disabled:opacity-80 rounded-lg text-white p-3 uppercase relative
+}
+.btnIco{
+  @apply absolute right-6 h-6 w-8 inline
+}
 
 a {
   text-decoration: none;

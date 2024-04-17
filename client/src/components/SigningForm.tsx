@@ -1,6 +1,8 @@
 import React, { useState } from "react";
+import { IoShieldCheckmarkSharp } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
+import xss from "xss";
 import { IAppError } from "../errorHandlers/clientErrorHandler";
 import { AppDispatch, RootState } from "../redux/store";
 import {
@@ -9,15 +11,15 @@ import {
   login_Fail,
   login_Success,
 } from "../redux/user/userSlice";
+import { eBD_fields, eForms } from "../share/enums";
+import { fetchHeaders } from "../share/fetchHeaders";
 import { isNull_Undefined_emptyString } from "../utils/stringManipulation";
 import OAuthGoogle from "./auth/OAuthGoogle/OAuthGoogle";
-import xss from "xss";
-import { fetchHeaders } from "../share/fetchHeaders";
-import { BD_fields } from "../share/enums";
+import './SigningForm.css'
 
-type Props = { isRegister: boolean };
+type Props = { forms: eForms };
 
-export default function SigningForm({ isRegister }: Props) {
+export default function SigningForm({ forms }: Props) {
   const dispatch: AppDispatch = useDispatch();
   const { loading, error, currentUser } = useSelector(
     (state: RootState) => state.user
@@ -53,10 +55,14 @@ export default function SigningForm({ isRegister }: Props) {
       setIsValid((prevState) => ({
         ...prevState,
         isValidPassword: value.length > 4,
-      }));      
+      }));
     }
 
     console.log("formState:", isValid.formState);
+  };
+  const clickHandler_profileUL = (e: React.MouseEvent<HTMLUListElement, MouseEvent>) => {
+    const id = (e.target as HTMLLIElement).id;
+    console.log('id:', id);
   };
 
   const formSubmitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -71,7 +77,8 @@ export default function SigningForm({ isRegister }: Props) {
     try {
       dispatch(logIn_Start());
 
-      const apiPath = "/api/auth/" + (isRegister ? "register" : "login");
+      // const apiPath = "/api/auth/" + (isRegister ? "register" : "login");
+      const apiPath = "/api/auth/" + forms
       const res = await fetch(apiPath, {
         method: "post",
         body: sanitizedFormJson,
@@ -94,7 +101,8 @@ export default function SigningForm({ isRegister }: Props) {
       console.log("-------currentUser:", currentUser);
 
       setTimeout(() => {
-        if (isRegister) {
+        // if (isRegister) {
+        if (forms === eForms.register) {
           navigate("../login");
         } else {
           navigate("../home");
@@ -117,14 +125,14 @@ export default function SigningForm({ isRegister }: Props) {
           id="inputTextBox"
           className="flex flex-col gap-4"
         >
-          {isRegister && (
+          {(forms === eForms.register || forms === eForms.profile) && (
             <input
               id="userName"
               required
               type="text"
               placeholder="User Name"
               className="border p-3 gap-4"
-              maxLength={BD_fields.userName_maxlength}
+              maxLength={eBD_fields.userName_maxlength}
             />
           )}
           <input
@@ -134,53 +142,66 @@ export default function SigningForm({ isRegister }: Props) {
             type="email"
             placeholder="Email"
             className="border p-3 gap-4"
-            maxLength={BD_fields.eMail_maxlength}
+            maxLength={eBD_fields.eMail_maxlength}
           />
 
           <input
             id="password"
             data-testid="password-input"
             required
-            type={isRegister ? "text" : "password"}
+            type={(forms === eForms.register || forms === eForms.profile) ? "text" : "password"}
             placeholder="Password"
             className="border p-3 gap-4"
             maxLength={10}
           />
         </div>
-
+        {/* USER MESSAGE */}
         {!isValid.isValidEmail && (
           <p className="text-red-500">Invalid email format</p>
         )}
         {!isValid.isValidPassword && (
           <p className="text-red-500">Invalid password length</p>
         )}
+
+        {/* BTN reg/log/ update */}
         <button
-          disabled={
-            loading || !isValid.isValidEmail || !isValid.isValidPassword
-          }
+          disabled={loading || !isValid.isValidEmail || !isValid.isValidPassword}
           type="submit"
-          className={`${
-            loading ||
-            ((!isValid.isValidEmail || !isValid.isValidPassword) &&
-              "cursor-not-allowed")
-          }  'focus:opacity-95 disabled:opacity-80 rounded-lg bg-slate-700 text-white p-3 uppercase'`}
-        >
-          {isRegister ? "Register" : "Log-In"}
-          {loading && " proc..."}
-          {currentUser?.userName && " ✅"}
+          className={`${loading || ((!isValid.isValidEmail || !isValid.isValidPassword) && "cursor-not-allowed")}  
+           bg-slate-700 btnBig `}>
+
+          {/* button text */}
+          {forms} {forms === eForms.profile && ' update'}
+          {loading && <span>&nbsp;proc...</span>}
+          {/* button ico */}
+          {currentUser?.userName && forms !== eForms.profile && <IoShieldCheckmarkSharp className='btnIco' />}
         </button>
-        <OAuthGoogle />
+
+        {/* BTN Create listing */}
+        {(forms === eForms.register || forms === eForms.login) ? <OAuthGoogle /> : (
+          <button className="btnBig bg-green-800" type="button" >create listing</button>
+        )}
       </form>
-      <div className=" flex gap-3 my-3 ">
-        <p>Have an account?</p>
-        <span className="text-blue-700">
-          {isRegister ? (
-            <Link to={"../login"}>Log-In</Link>
-          ) : (
-            <Link to={"../register"}>Register</Link>
-          )}
-        </span>
-      </div>
+      {/* LINKS */}
+      {forms !== eForms.profile ? (
+        <div className=" flex gap-3 my-3 ">
+          <p>Have an account?</p>
+          <span className="text-blue-700">
+
+            {forms === eForms.register ? (
+              <Link to={"../login"}>Log-In</Link>
+            ) : (
+              <Link to={"../register"}>Register</Link>
+            )}
+          </span>
+        </div>
+      ) : (
+        <ul id='ulProfile' className="my-3 gap-3" onClick={clickHandler_profileUL}>
+          <li className="border-b-2 " ><span id="showListing"> Show Listing</span> </li>
+          <li className="text-right"><span id="logOut">Log-Out</span></li>
+          <li className="text-right" ><span id="deleteAccount" >Delete Account</span></li>
+        </ul>
+      )}
       {!isNull_Undefined_emptyString(error?.msg) && (
         <p className="text-red-700 p-3 border-l-4 border-red-700 ">
           {error?.msg}

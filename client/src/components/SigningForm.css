@@ -1,0 +1,10 @@
+#ulProfile {
+    line-height: 2em;
+    list-style-type: disc;
+    list-style-position: inside;
+}
+
+#ulProfile>li>span {
+    cursor: pointer;
+    /* display: inline;     */
+}
