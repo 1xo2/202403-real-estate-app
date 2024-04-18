@@ -5,11 +5,12 @@ import { __Client_AvatarLocalStorage } from '../share/consts';
 import { User } from 'firebase/auth';
 
 type props = {
-    user: IUser | null | undefined,
-    cssClass?: string
+    user: IUser | null | undefined;
+    cssClass: string;
+    onClick?: () => void;
 }
 
-export default function Avatar({ user, cssClass }: props) {
+export default function Avatar({ user, cssClass, onClick }: props) {
     let userLocalImage;
     if (user && !user.userPhoto) {
         // avatar get from OAUth or localStorage - not db
@@ -24,8 +25,8 @@ export default function Avatar({ user, cssClass }: props) {
 
     
     return userImage ? (
-        <img className={style} src={userImage} alt="avatar" />
+        <img className={style} src={userImage} alt="avatar" onClick={onClick}/>
     ) : (
-        <FaRegUserCircle className={style} />
+            <FaRegUserCircle className={style} onClick={onClick} />
     );
 }

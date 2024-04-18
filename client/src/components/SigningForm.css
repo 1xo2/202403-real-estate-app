@@ -1,3 +1,4 @@
+
 #ulProfile {
     line-height: 2em;
     list-style-type: disc;
@@ -7,4 +8,10 @@
 #ulProfile>li>span {
     cursor: pointer;
     /* display: inline;     */
+}
+.li-rtl{
+    direction: rtl;
+}
+.li-rtl:hover{
+    color: red;
 }

@@ -1,0 +1,10 @@
+.list-triangle{
+    position: relative;
+    margin: 1.5em;
+}
+
+.list-triangle li::before{        
+    content: '\▷ ';
+    position: absolute;
+    left: -1.5em;
+}

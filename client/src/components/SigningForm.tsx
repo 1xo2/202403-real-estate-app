@@ -172,6 +172,7 @@ export default function SigningForm({ forms }: Props) {
 
           {/* button text */}
           {forms} {forms === eForms.profile && ' update'}
+          
           {loading && <span>&nbsp;proc...</span>}
           {/* button ico */}
           {currentUser?.userName && forms !== eForms.profile && <IoShieldCheckmarkSharp className='btnIco' />}
@@ -198,8 +199,8 @@ export default function SigningForm({ forms }: Props) {
       ) : (
         <ul id='ulProfile' className="my-3 gap-3" onClick={clickHandler_profileUL}>
           <li className="border-b-2 " ><span id="showListing"> Show Listing</span> </li>
-          <li className="text-right"><span id="logOut">Log-Out</span></li>
-          <li className="text-right" ><span id="deleteAccount" >Delete Account</span></li>
+          <li className="text-right li-rtl"><span id="logOut">Log-Out</span></li>
+          <li className="text-right li-rtl" ><span id="deleteAccount" >Delete Account</span></li>
         </ul>
       )}
       {!isNull_Undefined_emptyString(error?.msg) && (
