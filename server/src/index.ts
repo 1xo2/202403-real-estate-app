@@ -2,10 +2,11 @@ import dotenv from "dotenv";
 import express, {
   Application
 } from "express";
-import { connectToDatabase } from "./src/middleware/db";
-import errorMiddleware from "./src/middleware/errorHandling/errorMiddleware";
-import authRouter from "./src/routes/auth.route";
-import userRouter from "./src/routes/user.route";
+import { connectToDatabase } from "../src/middleware/db";
+import errorMiddleware from "../src/middleware/errorHandling/errorMiddleware";
+import authRouter from "../src/routes/auth.route";
+import userRouter from "../src/routes/user.route";
+import cookieParser from "cookie-parser";
 
 
 //For env File
@@ -16,6 +17,8 @@ connectToDatabase()
 
 const app: Application = express();
 app.use(express.json());
+
+app.use(cookieParser()) // verify user by cookie token.
 
 const port = process.env.PORT || 8000;
 app.listen(port, () => {

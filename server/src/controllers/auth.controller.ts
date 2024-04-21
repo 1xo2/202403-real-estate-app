@@ -1,3 +1,5 @@
+import { ISanitizedUser, IUserResponse } from './../../typings/userTypes';
+import { __SERVER_ACCESS_TOKEN } from './../share/constants';
 import bcrypt from "bcryptjs";
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
@@ -6,21 +8,9 @@ import errorHandler from "../middleware/errorHandling/errorHandler";
 import UserModel, { IUserDocument } from "../models/user.model";
 import { isNull_Undefined_emptyString } from "../utils/stringManipulation";
 
-interface IUserResponse {
-  userName?: string;
-  eMail?: string;
-  password?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
-interface ISanitizedUser {
-  userName?: string;
-  eMail?: string;
-  password?: string;
-  userPhoto?: string;
-}
 
-const JWT_SECRET = process.env?.JWT_SECRET || "fff22-0ff";
+
+
 
 // Register
 //////////
@@ -28,7 +18,7 @@ export const signup_controller = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> => {  
+): Promise<void> => {
   // Sanitize the req.body object using xss
   const sanitizedBody: string = xss(JSON.stringify(req.body));
   const { eMail, password, userName } = JSON.parse(sanitizedBody) as ISanitizedUser;
@@ -61,10 +51,15 @@ export const logIn_controller = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> => {  
+): Promise<void> => {
 
+  //#region   SECURITY
+  if (isNull_Undefined_emptyString(process.env?.JWT_SECRET)) {
+    throw new Error('Internal Server Error, env missing')
+    next()
+  }
   // Sanitize the req.body object using xss
-  const sanitizedBody: string = xss(JSON.stringify(req.body));  
+  const sanitizedBody: string = xss(JSON.stringify(req.body));
   const { eMail, password } = JSON.parse(sanitizedBody) as ISanitizedUser;
 
   try {
@@ -74,8 +69,12 @@ export const logIn_controller = async (
     ) {
       return next(errorHandler("request.body is not ok", "err:df0fpp", 500));
     }
+    //#endregion
+
 
     const validUser = await UserModel.findOne({ eMail });
+
+    //#region  VALIDATE USER
     if (!validUser)
       return next(errorHandler("User not found", "signIn-x", 500));
 
@@ -86,19 +85,20 @@ export const logIn_controller = async (
 
     if (!validPassword)
       return next(errorHandler("Wrong Credentials", "signIn-d", 401));
+    //#endregion
 
-    const token = jwt.sign({ id: validUser._id }, JWT_SECRET);
+
+    const token = jwt.sign({ id: validUser._id.toString() }, process.env.JWT_SECRET);
 
     const { password: pass, _id: theID, ...rest } = validUser.toObject();
 
+
     res
-      // cookie info are accessible just from server - not react/client
-      .cookie("access_token", token, { httpOnly: true })
+      // httpOnly: cookie accessible from server ONLY - not react/client
+      .cookie(__SERVER_ACCESS_TOKEN, token, { httpOnly: true })
       .status(200)
       .json(rest);
-    // .json("Session Pass Granted");
   } catch (error: any) {
-    // Set status code to 500 and pass the error to the error handling middleware
     res.status(500);
     next(error);
   }
@@ -111,6 +111,12 @@ export const google_controller = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
+
+  //#region   SECURITY
+  if (isNull_Undefined_emptyString(process.env?.JWT_SECRET)) {
+    throw new Error('Internal Server Error, env missing')
+    next()
+  }
   // Sanitize the req.body object using xss
   const sanitizedBody: string = xss(JSON.stringify(req.body));
 
@@ -124,13 +130,17 @@ export const google_controller = async (
     if (isNull_Undefined_emptyString(eMail)) {
       return next(errorHandler("request.body is not ok", "err:df0fpp", 500));
     }
-
+    //#endregion
+    
+    
     const validUser = (await UserModel.findOne({ eMail })) as IUserDocument;
 
     if (validUser) {
       console.log("enter known user by google :");
 
-      const token = jwt.sign({ id: validUser._id }, JWT_SECRET);
+      
+     
+      const token = jwt.sign({ id: validUser._id.toString() }, process.env.JWT_SECRET);
 
       console.log("validUser.toObject();:", validUser.toObject());
 
@@ -144,7 +154,7 @@ export const google_controller = async (
 
       res
         // cookie info are accessible just from server - not react/client
-        .cookie("access_token", token, { httpOnly: true })
+        .cookie(__SERVER_ACCESS_TOKEN, token, { httpOnly: true })
         .status(200)
         .json(restResponseUser);
     } else {
@@ -165,7 +175,9 @@ export const google_controller = async (
         password: hashedPassword,
       });
       await newUser.save();
-      const token = jwt.sign({ id: newUser._id }, JWT_SECRET);
+
+    
+      const token = jwt.sign({ id: newUser._id.toString() }, process.env.JWT_SECRET);
       const { password: pass, ...rest } = newUser.toObject();
       // cookie info are accessible just from server - not react/client
       res

@@ -1,6 +1,6 @@
 import { eBD_fields } from './../share/enums';
 // import mongoose, { Model, Document } from "mongoose";
-import mongoose, { Document, Schema, model, Model } from "mongoose";
+import mongoose from "mongoose";
 
 
 // Interface for user document fields

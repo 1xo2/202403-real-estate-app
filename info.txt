@@ -1,16 +1,4 @@
-# Real Estate app
-
-## Client:
-React TS Jest Cypress Tailwind 
-
-## server:
-ExpressJS, MongoDB
-
-full CICD with Github.Action 
-
-
-
-## -------- app last structure (20Apr/2024)
+-------- app last structure (20Apr/2024)
 
 D:\real-estate-app/
 │   D:\ client/
@@ -130,4 +118,3 @@ D:\real-estate-app/
 │   │   └── tsconfig.json
 │   │   D:\ server\typings/
 │   │   │   └── index.d.ts
-

@@ -7,6 +7,7 @@ import { describe, expect, it, vi } from "vitest";
 import { createStore } from "@reduxjs/toolkit";
 import { rootReducer } from "../../redux/store";
 import SigningForm from "../SigningForm";
+import { eForms } from "../../share/enums";
 
 
 const resObj = JSON.stringify({
@@ -40,7 +41,7 @@ describe("SigningForm component", () => {
     render(
       <BrowserRouter>
         <Provider store={store}>
-          <SigningForm isRegister={false} />
+          <SigningForm forms={eForms.login} />
         </Provider>
       </BrowserRouter>
     );

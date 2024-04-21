@@ -6,7 +6,7 @@ import { User } from 'firebase/auth';
 
 type props = {
     user: IUser | null | undefined;
-    cssClass: string;
+    cssClass?: string;
     onClick?: () => void;
 }
 

@@ -1,4 +1,4 @@
-.list-triangle{
+/* .list-triangle{
     position: relative;
     margin: 1.5em;
 }
@@ -7,4 +7,15 @@
     content: '\▷ ';
     position: absolute;
     left: -1.5em;
+} */
+.ul-msg, .msg-err, .msg-prog {
+    border-left: thick solid;
+    padding-left: 11px;
+    margin: 6px 0;
+}
+.msg-err {
+    border-left: thick solid red;
+}
+.msg-prog {
+    border-left: thick solid green;
 }

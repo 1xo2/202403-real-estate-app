@@ -11,6 +11,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import SigningForm from "../SigningForm";
 import { Provider } from "react-redux";
 import { store } from "../../redux/store";
+import { eForms } from "../../share/enums";
 
 
 // const mockedUsedNavigate = vi.fn();
@@ -47,7 +48,7 @@ beforeEach(() => {
   render(
     <BrowserRouter>
       <Provider store={store}>
-          <SigningForm isRegister={true} />
+        <SigningForm forms={eForms.register} />
       </Provider>
     </BrowserRouter>
   );

@@ -1,5 +1,5 @@
 
-import { Store, configureStore } from "@reduxjs/toolkit";
+import { configureStore } from "@reduxjs/toolkit";
 // import { rootReducer } from "../../redux/store";
 import { vi } from "vitest";
 import { rootReducer } from "../../../redux/store";

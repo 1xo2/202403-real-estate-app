@@ -21,6 +21,7 @@ export default function Header() {
           {/* <div className="flex justify-center items-center"> */}
           <div className="center-flex">
             <input
+              id='searchBox'
               type="text"
               placeholder="Search..."
               className="w-24 sm:w-64 bg-transparent mr-2 outline-none"

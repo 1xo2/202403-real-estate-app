@@ -2,13 +2,13 @@
   "name": "server",
   "version": "1.0.0",
   "description": "api for RealEstate app.",
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
   "scripts": {
     "test": "test",
     "b": "npx tsc",
-    "start": "tsc node dist/index.js",
-    "d": "nodemon dist/index.js",
-    "dd": "ts-node-dev ./index.ts"
+    "start": "tsc node dist/src/index.js",
+    "d": "nodemon dist/src/index.js",
+    "dd": "ts-node-dev ./src/index.ts"
   },
   "repository": {
     "type": "git",
@@ -22,9 +22,11 @@
   "homepage": "https://github.com/1xo2/202403-real-estate-app#readme",
   "dependencies": {
     "@types/bcryptjs": "^2.4.6",
+    "@types/cookie-parser": "^1.4.7",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/mongoose": "^5.11.97",
     "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.2.3",

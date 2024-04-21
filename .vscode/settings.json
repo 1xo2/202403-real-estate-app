@@ -3,6 +3,7 @@
         "consts",
         "dompurify",
         "maxlength",
+        "nodemon",
         "picocolors",
         "reduxjs",
         "signup",

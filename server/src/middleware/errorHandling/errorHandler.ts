@@ -24,12 +24,12 @@ export default function errorHandler(
   name: string = "Unknown Error",
   statusCode: number = 500
 ): CustomError {
-  const err = new CustomError(
+  throw new CustomError(
     message,
     name,
     statusCode
   );
-  return err;
+  
 }
 
 // export  function errorHandler2({

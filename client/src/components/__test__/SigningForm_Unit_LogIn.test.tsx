@@ -12,12 +12,12 @@ import {
   beforeEach,
   describe,
   expect,
-  it,
-  vi
+  it
 } from "vitest";
 // import mockStore from "../../test/__mocks__/redux";
-import SigningForm from "../SigningForm";
+import { eForms } from "../../share/enums";
 import mockStore from "../../test/__mocks__/redux/redux";
+import SigningForm from "../SigningForm";
 
 let emailInput: HTMLElement,
   submitButton: HTMLButtonElement,
@@ -36,7 +36,7 @@ beforeEach(() => {
   render(
     <BrowserRouter>q
       <Provider store={mockStore}>
-        <SigningForm isRegister={false} />
+        <SigningForm forms={eForms.login} />
       </Provider>
     </BrowserRouter>
   );
