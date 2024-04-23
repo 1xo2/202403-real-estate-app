@@ -42,6 +42,7 @@ export default function Header() {
             <Link to={"/about"}>About</Link>
           </li>
           <li>
+            {/* its point to profile and profile will redirect to login if not auth */}
             <Link to={"/profile"}>
               {currentUser ? (<Avatar user={currentUser} />) : (
                 'Log-In')

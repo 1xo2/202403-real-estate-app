@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.2.3",
+    "@types/redux-persist": "^4.3.1",
     "@types/uuid": "^9.0.8",
     "bootstrap": "^5.3.3",
     "firebase": "^10.11.0",
@@ -28,6 +29,7 @@
     "react-redux": "^9.1.0",
     "react-router-dom": "^6.22.3",
     "react-select": "^5.8.0",
+    "redux-persist": "^6.0.0",
     "uuid": "^9.0.1",
     "xss": "^1.0.15"
   },
@@ -52,7 +54,7 @@
     "tailwindcss": "^3.4.1",
     "typescript": "^5.4.3",
     "vite": "^5.2.3",
-    "vitest": "^1.4.0",
+    "vitest": "^1.5.0",
     "vitest-fetch-mock": "^0.2.2"
   },
   "test": {

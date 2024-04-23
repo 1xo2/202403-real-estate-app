@@ -2,6 +2,8 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import Header from "../Header";
+import { Provider } from "react-redux";
+import { store } from "../../redux/store";
 
 afterEach(() => {
   cleanup();
@@ -9,7 +11,9 @@ afterEach(() => {
 beforeEach(() => {
   render(
     <BrowserRouter>
-      <Header />
+      <Provider store={store}>
+        <Header />
+      </Provider>
     </BrowserRouter>
   );
 });
@@ -21,7 +25,8 @@ describe("Header Component", () => {
     expect(aLogin).toBeDefined();
 
     fireEvent.click(aLogin);
-    expect(window.location.pathname).toBe("/login");
+    {/* its point to profile and profile will redirect to login if not auth */ }
+    expect(window.location.pathname).toBe("/profile");
   });
   it("should render links about & home responsively", () => {
     const aHome = screen.getByText("Home");

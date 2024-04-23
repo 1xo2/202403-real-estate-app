@@ -55,7 +55,7 @@ beforeEach(() => {
   emailInput = screen.getByPlaceholderText("Email");
   passwordInput = screen.getByPlaceholderText("Password");
   userNameInput = screen.getByPlaceholderText("User Name");
-  submitButton = screen.getByRole("button", { name: "Register" });
+  submitButton = screen.getByRole("button", { name: "register" });
   LogInLink = screen.getByRole("link", { name: "Log-In" });
 });
 // beforeAll(() => {
@@ -65,7 +65,7 @@ beforeEach(() => {
 
 describe("LogInPage", () => {
   it("should render page correctly", () => {
-    expect(screen.getAllByText("Register")).toBeDefined();
+    expect(screen.getAllByText("register")).toBeDefined();
   });
 });
 

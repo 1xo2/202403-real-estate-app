@@ -51,7 +51,7 @@ describe("SigningForm component", () => {
     const passwordInput: HTMLInputElement =
       screen.getByPlaceholderText("Password");
     const submitButton: HTMLButtonElement = screen.getByRole("button", {
-      name: /Log-In/i,
+      name: /login/i,
     });
 
     // Test email input
@@ -64,10 +64,10 @@ describe("SigningForm component", () => {
     );
 
     // Test password input
-    userEvent.type(passwordInput, "test.example.com");
+    userEvent.type(passwordInput, "max10DisOK");
     await waitFor(
       () => {
-        expect(passwordInput.value).toBe("test.example.com");
+        expect(passwordInput.value).toBe("max10DisOK");
       },
       { timeout: 3000 }
     );

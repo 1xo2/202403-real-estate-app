@@ -42,7 +42,7 @@ beforeEach(() => {
   );
   emailInput = screen.getByPlaceholderText("Email");
   passwordInput = screen.getByPlaceholderText("Password");
-  submitButton = screen.getByRole("button", { name: /Log-In/i });
+  submitButton = screen.getByRole("button", { name: /LogIn/i });
   registerLink = screen.getByRole("link", { name: "Register" });
 });
 
