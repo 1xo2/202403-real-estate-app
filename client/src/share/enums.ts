@@ -11,5 +11,5 @@ export enum eBD_fields {
 export enum eForms {
   register ="register",
   login ='login',
-  profile ='profile'
+  profile ='update'
 }

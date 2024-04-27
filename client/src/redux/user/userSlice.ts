@@ -8,7 +8,9 @@ export interface IUser {
   createdAt: string;
   updatedAt: string;
   __v: number;
+  _id: string;
   userPhoto?:string;
+  source?: 'local' | 'google';
 }
 
 export interface IUserState {
@@ -51,11 +53,16 @@ export const userSlice = createSlice({
     logIn_End: (state) => {
       state.loading = false;
     },
+    profile_updateAvatar:(state, action:PayloadAction<string>) => {
+      if (state.currentUser) {
+        state.currentUser.userPhoto = action.payload;
+      }
+    }
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { logIn_Start, login_Success, login_Fail, logIn_End } =
+export const { logIn_Start, login_Success, login_Fail, logIn_End, profile_updateAvatar } =
   userSlice.actions;
 
 export default userSlice.reducer;

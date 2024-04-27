@@ -1,7 +1,7 @@
 
 import Avatar from "../components/Avatar";
-import { useSelector } from "react-redux";
-import { RootState } from "../redux/store";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../redux/store";
 import PageContainer from "../components/PageContainer";
 import SigningForm from "../components/SigningForm";
 import { eForms } from "../share/enums";
@@ -9,9 +9,12 @@ import { useEffect, useRef, useState } from "react";
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
 import { app } from "../components/auth/OAuthGoogle/firebase";
 import '../pages/ProfilePage.css'
+import { setAvatar_localStorage } from "../utils/localStorageManager";
+import { profile_updateAvatar } from "../redux/user/userSlice";
 
 export default function ProfilePage() {
   const { currentUser } = useSelector((state: RootState) => state.user);
+  const dispatch: AppDispatch = useDispatch();
   const refFile = useRef<HTMLInputElement>(null)
 
   const fileIniState = { error: '', progress: '', downloadURL: '' }
@@ -29,7 +32,8 @@ export default function ProfilePage() {
 
     if (e?.target.files && e?.target.files.length > 0 && e.target.files[0].type.startsWith('image/')) {
 
-      setFile(e.target.files[0]);      
+      setFile(e.target.files[0]);
+      fileUploadHandler(e.target.files[0])
     } else {
       setFileMsg(
         (state) => {
@@ -38,7 +42,7 @@ export default function ProfilePage() {
             error: 'Upload is cancel: Only images are allowed.'
           }
         })
-      
+
     }
   };
 
@@ -56,11 +60,11 @@ export default function ProfilePage() {
       }
 
       const
-        storage = getStorage(app),               
+        storage = getStorage(app),
         fileName = (`${currentFile.name.split('.')[0]}_${new Date().getTime()}.${currentFile.name.split('.')[1]}`).replace(/\s+/g, '_'),
-        storageRef = ref(storage, 'theFolder/'+fileName),
+        storageRef = ref(storage, ('user_' +   currentUser?._id || 'noUserID') + '/' + fileName),
         uploadTask = uploadBytesResumable(storageRef, currentFile);
-        console.log('storage:', storage)
+      console.log('storage:', storage)
 
 
       uploadTask.on('state_changed', (snapshot) => {
@@ -114,10 +118,26 @@ export default function ProfilePage() {
     }
   }
 
+  // useEffect(() => {
+  //   console.log('useEffect:')
+  //   file && fileUploadHandler(file)
+  // }, [file])
+
   useEffect(() => {
-    console.log('useEffect:')
-    file && fileUploadHandler(file)
-  }, [file])
+    if (fileMsg.error === '' && fileMsg.downloadURL !== '') {
+      // set local storage
+      currentUser?._id && setAvatar_localStorage(currentUser._id, fileMsg.downloadURL)
+      dispatch(profile_updateAvatar(fileMsg.downloadURL))
+      // reset state
+      setFileMsg(fileIniState)
+      setFile(undefined)
+    
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fileMsg?.downloadURL]);
+
+
+
 
 
   return (

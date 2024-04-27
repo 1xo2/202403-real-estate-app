@@ -1,5 +1,3 @@
-import { ISanitizedUser, IUserResponse } from './../../typings/userTypes';
-import { __SERVER_ACCESS_TOKEN } from './../share/constants';
 import bcrypt from "bcryptjs";
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
@@ -7,6 +5,8 @@ import xss from "xss";
 import errorHandler from "../middleware/errorHandling/errorHandler";
 import UserModel, { IUserDocument } from "../models/user.model";
 import { isNull_Undefined_emptyString } from "../utils/stringManipulation";
+import { ISanitizedUser, IUserResponse } from './../../typings/userTypes';
+import { __SERVER_ACCESS_TOKEN } from './../share/constants';
 
 
 
@@ -88,9 +88,11 @@ export const logIn_controller = async (
     //#endregion
 
 
-    const token = jwt.sign({ id: validUser._id.toString() }, process.env.JWT_SECRET);
+    const token = jwt.sign({ id: validUser._id.toString()}, process.env.JWT_SECRET);
+    
 
-    const { password: pass, _id: theID, ...rest } = validUser.toObject();
+    // const { password: pass, _id: theID, ...rest } = validUser.toObject();
+    const { password: pass, ...rest } = validUser.toObject();
 
 
     res
@@ -131,18 +133,17 @@ export const google_controller = async (
       return next(errorHandler("request.body is not ok", "err:df0fpp", 500));
     }
     //#endregion
-    
-    
+
+
     const validUser = (await UserModel.findOne({ eMail })) as IUserDocument;
 
     if (validUser) {
-      console.log("enter known user by google :");
+      console.log("\nenter known user by google :");
 
-      
-     
+
+
       const token = jwt.sign({ id: validUser._id.toString() }, process.env.JWT_SECRET);
-
-      console.log("validUser.toObject();:", validUser.toObject());
+      
 
       // Extract only the necessary fields for the response
       const restResponseUser: IUserResponse = {
@@ -150,6 +151,7 @@ export const google_controller = async (
         eMail: validUser.eMail,
         createdAt: validUser.createdAt,
         updatedAt: validUser.updatedAt,
+        _id: validUser._id.toString(),        
       };
 
       res
@@ -176,14 +178,14 @@ export const google_controller = async (
       });
       await newUser.save();
 
-    
+
       const token = jwt.sign({ id: newUser._id.toString() }, process.env.JWT_SECRET);
       const { password: pass, ...rest } = newUser.toObject();
       // cookie info are accessible just from server - not react/client
       res
         .cookie("accept_token", token, { httpOnly: true })
         .status(200)
-        .json(rest);
+        .json({ ...rest, _id: newUser._id.toString() });
     }
   } catch (error: any) {
     // Set status code to 500 and pass the error to the error handling middleware

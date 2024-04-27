@@ -1,1 +1,1 @@
-export const __Client_AvatarLocalStorage = 'userImg'
+export const __Client_AvatarLocalStorage = 'userImg0098s'

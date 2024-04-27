@@ -8,5 +8,6 @@
         "reduxjs",
         "signup",
         "testid"
-    ]
+    ],
+    "CodeGPT.apiKey": "CodeGPT Plus Beta"
 }

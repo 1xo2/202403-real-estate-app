@@ -7,6 +7,7 @@ import { login_Success } from "../../../redux/user/userSlice";
 import { __Client_AvatarLocalStorage } from "../../../share/consts";
 import { fetchHeaders } from "../../../share/fetchHeaders";
 import { app } from "./firebase";
+import { setAvatar_localStorage } from "../../../utils/localStorageManager";
 
 export default function OAuthGoogle() {
   const dispatch: AppDispatch = useDispatch();
@@ -29,13 +30,17 @@ export default function OAuthGoogle() {
         });
       //
       const data = await res.json();
-      console.log("google data:", data);
-      dispatch(login_Success({ ...data, userPhoto: result.user.photoURL }));
+      
+      // console.log("-- google data:", data);
+      // console.log('-- result:', result)
 
-      localStorage.setItem(__Client_AvatarLocalStorage, JSON.stringify({
-        eMail: result.user.email,
-        userPhoto: result.user.photoURL,
-      }));
+      dispatch(login_Success({ ...data, userPhoto: result.user.photoURL, source: 'google' }));
+      
+
+      if (data._id && result.user.photoURL)
+        setAvatar_localStorage(data._id, result.user.photoURL)
+      // if (result.user.email && result.user.photoURL)
+      //   setAvatar_localStorage(result.user.email, result.user.photoURL)
 
       navigate('/home')
       //

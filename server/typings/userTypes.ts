@@ -5,6 +5,7 @@ export interface IUserResponse {
     password?: string;
     createdAt?: Date;
     updatedAt?: Date;
+    _id?: string;    
 }
 export interface ISanitizedUser {
     userName?: string;
