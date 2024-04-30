@@ -1,8 +1,12 @@
+import PageContainer from "../components/PageContainer"
 
 type Props = {}
 
-export default function HomePage({}: Props) {
+export default function HomePage({ }: Props) {
   return (
-    <div>HomePage</div>
+    <PageContainer h1={"About Page"}>
+
+      <div>HomePage</div>
+    </PageContainer>
   )
 }

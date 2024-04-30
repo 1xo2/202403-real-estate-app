@@ -94,7 +94,8 @@ export const logIn_controller = async (
     // const { password: pass, _id: theID, ...rest } = validUser.toObject();
     const { password: pass, ...rest } = validUser.toObject();
 
-
+    // console.log('Token:', token);
+    // console.log('__SERVER_ACCESS_TOKEN:', __SERVER_ACCESS_TOKEN)
     res
       // httpOnly: cookie accessible from server ONLY - not react/client
       .cookie(__SERVER_ACCESS_TOKEN, token, { httpOnly: true })

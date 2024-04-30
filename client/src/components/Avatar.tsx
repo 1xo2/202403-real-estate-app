@@ -20,6 +20,7 @@ export default function Avatar({ user, cssClass, onClick }: props) {
     //     // }        
     // }
 
+    
     const userLocalImage = getAvatar_localStorage(user?._id)
     const userImage = userLocalImage || user?.userPhoto ;
     const style = cssClass || 'rounded-full w-7 h-7 object-cover'

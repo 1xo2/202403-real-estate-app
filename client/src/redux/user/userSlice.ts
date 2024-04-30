@@ -38,8 +38,8 @@ export const userSlice = createSlice({
       state.loading = false;
       state.error = null;
       try {
-        console.log('**action:', action)
-        console.log('**action.payload:', action.payload)
+        // console.log('**action:', action)
+        // console.log('**action.payload:', action.payload)
         state.currentUser = action.payload;
       } catch (error) {
         console.error("login_Success error:", error);

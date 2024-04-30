@@ -16,7 +16,6 @@ import {
 import { eBD_fields, eForms } from "../share/enums";
 import { fetchHeaders } from "../share/fetchHeaders";
 import { isNull_Undefined_emptyString } from "../utils/stringManipulation";
-import './SigningForm.css';
 import OAuthGoogle from "./auth/OAuthGoogle/OAuthGoogle";
 
 type Props = { forms: eForms };
@@ -71,11 +70,7 @@ export default function SigningForm({ forms }: Props) {
 
     console.log("formState:", isValid.formState);
   };
-  const clickHandler_profileUL = (e: React.MouseEvent<HTMLUListElement, MouseEvent>) => {
-    const id = (e.target as HTMLLIElement).id;
-    console.log('id:', id);
-  };
-
+  
   const formSubmitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const sanitizedFormJson = xss(JSON.stringify(isValid.formState));
@@ -140,12 +135,12 @@ export default function SigningForm({ forms }: Props) {
 
   useEffect(() => {
 
-    if (currentUser?.source === 'google') {
+    if (forms === eForms.profile && currentUser?.source === 'google') {
       disableFormChildren(true);
       setIsValid((pre) => ({ ...pre, errorMsg: 'cant update google profile' }));
     }
 
-  }, [currentUser]);
+  }, [currentUser, forms]);
 
 
   return (
@@ -237,7 +232,7 @@ export default function SigningForm({ forms }: Props) {
 
 
       {/* LINKS */}
-      {forms !== eForms.profile ? (
+      {forms !== eForms.profile && (
         <div className=" flex gap-3 my-3 ">
           <p>Have an account?</p>
           <span className="text-blue-700">
@@ -249,12 +244,6 @@ export default function SigningForm({ forms }: Props) {
             )}
           </span>
         </div>
-      ) : (
-        <ul id='ulProfile' className="my-3 gap-3" onClick={clickHandler_profileUL}>
-          <li className="border-b-2 " ><span id="showListing"> Show Listing</span> </li>
-          <li className="text-right li-rtl"><span id="logOut">Log-Out</span></li>
-          <li className="text-right li-rtl" ><span id="deleteAccount" >Delete Account</span></li>
-        </ul>
       )}
       {!isNull_Undefined_emptyString(error?.msg) && (
         <p className="text-red-700 p-3 border-l-4 border-red-700 ">
