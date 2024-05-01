@@ -23,7 +23,7 @@ beforeEach(() => {
 // })
 describe("LogInPage", () => {
   it("should render page correctly", () => {
-    expect(screen.getAllByText("Register")).toBeDefined();
+    expect(screen.getAllByText(/Register/i)).toBeDefined();
   });
   it("should have 3 excisable input text and a button", () => {
     const textInputs = screen.getAllByRole("textbox");

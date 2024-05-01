@@ -1,5 +1,6 @@
 export interface IAppError {
-  msg: string;
+  message?: string;
+  msg?: string;
   statusCode?: number;
   name?: string;
 }

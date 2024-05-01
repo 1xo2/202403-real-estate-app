@@ -64,7 +64,9 @@ describe("--integration test-- LogInPage component", () => {
 
     expect(emailInput).toBeDefined();
     expect(passwordInput).toBeDefined();
-    expect(screen.getByRole("heading", { name: "Log-In" })).toBeDefined();
+    // expect(screen.getByRole("heading", { name: "Log-In" })).toBeDefined();
+    expect(screen.getByRole("heading", { name: /Log-In/i })).toBeDefined();
+
     expect(screen.getByText("Have an account?")).toBeDefined();
   });
   it("should validate email correctly", async () => {

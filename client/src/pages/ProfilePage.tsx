@@ -8,11 +8,13 @@ import ModalDialogOkCancel from "../components/dialogs/ModalDialog/ModalDialogOk
 import UpdateModal from "../components/dialogs/UpdateModal/UpdateModal";
 import '../pages/ProfilePage.css';
 import { AppDispatch, RootState } from "../redux/store";
-import { profile_updateAvatar } from "../redux/user/userSlice";
+import { loading_end, loading_start, logOutOrDeletion_Success, logOutOrDeletion_fail, profile_updateAvatar } from "../redux/user/userSlice";
 import { eForms } from "../share/enums";
 import { fetchHeaders } from "../share/fetchHeaders";
 import { firebase_deleteDirectory, firebase_fileUploadHandler } from "../share/firebase/storage/imageStorageManager";
 import { setAvatar_localStorage } from "../utils/localStorageManager";
+import { IAppError } from "../errorHandlers/clientErrorHandler";
+import { loader } from "../components/dialogs/Loader";
 
 
 
@@ -20,21 +22,36 @@ export default function ProfilePage() {
 
   const { currentUser } = useSelector((state: RootState) => state.user);
   const dispatch: AppDispatch = useDispatch();
+  const { loading } = useSelector((state: RootState) => state.user);
   const refFile = useRef<HTMLInputElement>(null)
 
   const fileIniState = { error: '', progress: '', downloadURL: '' }
   const [fileMsg, setFileMsg] = useState(fileIniState)
-  
+
   const [isDialogVisible, setIsDialogVisible] = useState(false);
-  const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false);
+
+  // async function loader(fun: () => Promise<void>) {
+  //   try {
+  //     dispatch(loading_start())
+  //     await fun()
+  //   } catch (error) {
+  //     console.error('error:', error)
+  //     dispatch(logOutOrDeletion_fail(error as IAppError))
+  //   } finally {
+  //     console.log('loader: finally:')
+  //     dispatch(loading_end())
+  //   }
+  // }
+
 
 
   const handleOK_dialogBox_DELETION = async () => {
     console.log("OK clicked");
+    await loader(async () => {
+      // try {
+      // setIsUpdateModalVisible(true);
+      // dispatch(loading_start());
 
-    try {
-      setIsUpdateModalVisible(true);
-      
       // delete firedatabase images directory
       const result_firebaseDelete = await firebase_deleteDirectory(currentUser?._id)
       setFileMsg((state) => {
@@ -45,26 +62,32 @@ export default function ProfilePage() {
       })
 
       // delete DB account
-      // const res = 
-      await fetch('/api/user/delete/' + currentUser?._id, {
+      const res = await fetch('/api/user/delete/' + currentUser?._id, {
         method: "delete",
         headers: fetchHeaders
       });
 
-      // const data = await res.json();
-      // console.log('data:', data)
-
+      const data = await res.json();
+      console.log('data:', data)
+      if (data.success === false) {
+        dispatch(logOutOrDeletion_fail(data as IAppError))
+      } else {
+        dispatch(logOutOrDeletion_Success())
+      }
 
       // delete localstorage
       localStorage.clear()
-      setIsUpdateModalVisible(false);
-      window.location.reload();
+    }, dispatch, logOutOrDeletion_fail,);
+    // dispatch(loading_end());
+    window.location.reload();
 
 
-    } catch (error) {
-      console.log('error:', error)
+    // } catch (error) {
+    //   console.log('error:', error)
 
-    }
+    //   dispatch(loading_end());
+    //   dispatch(logOutOrDeletion_fail(error as IAppError));
+    // }
   };
 
 
@@ -77,10 +100,35 @@ export default function ProfilePage() {
       if (id === 'deleteAccount') {
         setIsDialogVisible(true);
       } else if (id === 'logOut') {
-        // localStorage.clear();
-        // window.location.reload();
-        // cant use clear since the avatar url is there.
-        // clear the access_token.
+
+        // try {
+
+        //   dispatch(loading_start());
+        await loader(async () => {
+
+          const res = await fetch('/api/auth/logout', {
+            method: "get",
+            headers: fetchHeaders
+          });
+          const data = await res.json();
+          console.log('data:', data)
+          if (data.success === false) {
+            dispatch(logOutOrDeletion_fail(data.error as IAppError))
+          } else {
+            dispatch(logOutOrDeletion_Success())
+          }
+
+          // dispatch(loading_end());
+          // window.location.reload();
+        }, dispatch, logOutOrDeletion_fail,)
+
+        // } catch (error) {
+        //   console.error('error:', error)
+        //   dispatch(logOutOrDeletion_fail(error as IAppError))
+        //   dispatch(loading_end());
+        // }
+
+
       } else if (id === 'showListings') {
         // navigate('/listings')
       }
@@ -197,7 +245,7 @@ export default function ProfilePage() {
           onOK={handleOK_dialogBox_DELETION} type="danger" isDialogVisible={isDialogVisible} setIsDialogVisible={setIsDialogVisible} />
       }
 
-      <UpdateModal isOpen={isUpdateModalVisible} />
+      <UpdateModal isOpen={loading} />
     </PageContainer>
 
 

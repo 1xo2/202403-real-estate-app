@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { IoCloudDone, IoEye, IoShieldCheckmarkSharp } from "react-icons/io5";
 import { MdRemoveDone } from "react-icons/md";
 import { RxEyeClosed } from "react-icons/rx";
@@ -26,7 +26,9 @@ export default function SigningForm({ forms }: Props) {
   const { loading, error, currentUser } = useSelector(
     (state: RootState) => state.user
   );
-
+  // const refEmail = useRef<HTMLInputElement | null>(null);
+  // const refPassword = useRef<HTMLInputElement | null>(null);
+  // const refUserName = useRef<HTMLInputElement | null>(null);
 
   // form validations //
   const [isValid, setIsValid] = useState({
@@ -70,10 +72,20 @@ export default function SigningForm({ forms }: Props) {
 
     console.log("formState:", isValid.formState);
   };
-  
+
   const formSubmitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const sanitizedFormJson = xss(JSON.stringify(isValid.formState));
+
+
+    // need to test if default value of 3-party will not raise onChange event: so no value, then use the below code:
+
+    // const sanitizedFormJson2 = xss(JSON.stringify({
+    //   userName: refUserName.current?.value,
+    //   password: refPassword.current?.value,
+    //   eMail: refEmail.current?.value ||''
+    // }));
+    // console.log('sanitizedFormJson--2:', sanitizedFormJson2)
 
     try {
 
@@ -163,6 +175,7 @@ export default function SigningForm({ forms }: Props) {
               className="border p-3 gap-4"
               maxLength={eBD_fields.userName_maxlength}
               defaultValue={currentUser?.userName}
+            // ref={refUserName}            
             />
           )}
           <input
@@ -174,6 +187,7 @@ export default function SigningForm({ forms }: Props) {
             className="border p-3 gap-4"
             maxLength={eBD_fields.eMail_maxlength}
             defaultValue={currentUser?.eMail}
+          // ref={refEmail}
           />
           {/* password */}
           <div className="relative flex items-center">
@@ -185,6 +199,7 @@ export default function SigningForm({ forms }: Props) {
               placeholder="Password"
               className="border p-3 gap-4 w-full"
               maxLength={10}
+            // ref={refPassword}
             />
             {formLooks.passwordVisible ? (
               <IoEye

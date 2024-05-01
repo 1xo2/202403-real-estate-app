@@ -6,11 +6,19 @@ export const setAvatar_localStorage = (_id: string, photoURL: string) => {
 
     localStorage.setItem(__Client_AvatarLocalStorage + _id, photoURL);
 }
+// export const removeAvatar_localStorage = (_id: string | undefined) => {
+//     if (isNull_Undefined_emptyString(_id))
+//         return// false
+//     localStorage.removeItem(__Client_AvatarLocalStorage + _id);
+
+// }
 export const getAvatar_localStorage = (_id: string | '' | null | undefined) => {
     if (isNull_Undefined_emptyString(_id))
         return null
     return localStorage.getItem(__Client_AvatarLocalStorage + _id) || ''
 }
+
+
 // the avatar is associate with the by client email + key
 // export const updateAvatar_localStorage = (oldEmail: string, newEmail: string) => {
 //     try {

@@ -10,6 +10,6 @@ beforeEach(() => {
 });
 describe("AboutPage", () => {
   it("should render page correctly", () => {
-    expect(screen.getByText("AboutPage")).toBeDefined()
+    expect(screen.getByText("About Page")).toBeDefined()
   });
 });

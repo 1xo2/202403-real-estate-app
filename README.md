@@ -10,20 +10,20 @@ full CICD with Github.Action
 
 
 
-## -------- app last structure (20Apr/2024)
+## -------- app last structure (1May/2024)
 
-D:\real-estate-app/
-│   D:\ client/
+/
+│   /client/
 │   │   └── .eslintrc.cjs
-│   │   D:\ client\cypress/
-│   │   │   D:\ client\cypress\downloads/
-│   │   │   D:\ client\cypress\e2e/
+│   │   /client/cypress/
+│   │   │   /client/cypress/downloads/
+│   │   │   /client/cypress/e2e/
 │   │   │   │   └── note_home.cy.ts.txt
 │   │   │   │   └── UserSigning.cy.ts
-│   │   │   D:\ client\cypress\fixtures/
+│   │   │   /client/cypress/fixtures/
 │   │   │   │   └── example.json
-│   │   │   D:\ client\cypress\screenshots/
-│   │   │   D:\ client\cypress\support/
+│   │   │   /client/cypress/screenshots/
+│   │   │   /client/cypress/support/
 │   │   │   │   └── commands.ts
 │   │   │   │   └── component-index.html
 │   │   │   │   └── component.ts
@@ -36,98 +36,107 @@ D:\real-estate-app/
 │   │   └── package-lock.json
 │   │   └── package.json
 │   │   └── postcss.config.js
-│   │   D:\ client\public/
+│   │   /client/public/
 │   │   └── README.md
 │   │   └── setupVitest.ts
-│   │   D:\ client\src/
+│   │   /client/src/
 │   │   │   └── App.tsx
-│   │   │   D:\ client\src\assets/
-│   │   │   D:\ client\src\components/
-│   │   │   │   D:\ client\src\components\auth/
-│   │   │   │   │   D:\ client\src\components\auth\OAuthGoogle/
+│   │   │   /client/src/assets/
+│   │   │   /client/src/components/
+│   │   │   │   /client/src/components/auth/
+│   │   │   │   │   /client/src/components/auth/OAuthGoogle/
 │   │   │   │   │   │   └── firebase.ts
 │   │   │   │   │   │   └── OAuthGoogle.tsx
 │   │   │   │   │   └── PrivateRoute.tsx
 │   │   │   │   └── Avatar.tsx
 │   │   │   │   └── Header.tsx
 │   │   │   │   └── PageContainer.tsx
-│   │   │   │   └── SigningForm.css
 │   │   │   │   └── SigningForm.tsx
-│   │   │   │   D:\ client\src\components\__test__/
+│   │   │   │   /client/src/components/__test__/
 │   │   │   │   │   └── Header.test.tsx
 │   │   │   │   │   └── signingForm2.test.tsx.txt
 │   │   │   │   │   └── signingForm_UnitT_3.test.tsx
 │   │   │   │   │   └── SigningForm_Unit_LogIn.test.tsx
 │   │   │   │   │   └── SigningForm_Unit_Register.test.tsx
-│   │   │   D:\ client\src\errorHandlers/
+│   │   │   /client/src/errorHandlers/
 │   │   │   │   └── clientErrorHandler.ts
 │   │   │   │   └── ErrorBoundary.tsx
 │   │   │   └── index.css
 │   │   │   └── main.tsx
-│   │   │   D:\ client\src\pages/
+│   │   │   /client/src/pages/
 │   │   │   │   └── AboutPage.tsx
 │   │   │   │   └── HomePage.tsx
 │   │   │   │   └── LogInPage.tsx
 │   │   │   │   └── ProfilePage.css
 │   │   │   │   └── ProfilePage.tsx
 │   │   │   │   └── RegisterPage.tsx
-│   │   │   │   D:\ client\src\pages\__test__/
+│   │   │   │   /client/src/pages/__test__/
 │   │   │   │   │   └── AboutPage.test.tsx
 │   │   │   │   │   └── HomePage.test.tsx
 │   │   │   │   │   └── LogInPage_integration.test.tsx
 │   │   │   │   │   └── ProfilePage.test.tsx
 │   │   │   │   │   └── RegisterPage.test.tsx
-│   │   │   D:\ client\src\redux/
+│   │   │   /client/src/redux/
 │   │   │   │   └── store.ts
-│   │   │   │   D:\ client\src\redux\user/
+│   │   │   │   /client/src/redux/user/
 │   │   │   │   │   └── userSlice.ts
-│   │   │   D:\ client\src\share/
+│   │   │   /client/src/share/
 │   │   │   │   └── consts.ts
 │   │   │   │   └── enums.ts
 │   │   │   │   └── fetchHeaders.ts
-│   │   │   D:\ client\src\test/
+│   │   │   │   /client/src/share/firebase/
+│   │   │   │   │   /client/src/share/firebase/OAuthGoogle/
+│   │   │   │   │   │   └── firebase.ts
+│   │   │   │   │   │   └── OAuthGoogle.tsx
+│   │   │   │   │   /client/src/share/firebase/storage/
+│   │   │   │   │   │   └── imageStorageManager.ts
+│   │   │   /client/src/test/
 │   │   │   │   └── RenderRouteWithOutletContext.tsx
 │   │   │   │   └── setup.ts
-│   │   │   │   D:\ client\src\test\__mocks__/
-│   │   │   │   │   D:\ client\src\test\__mocks__\redux/
+│   │   │   │   /client/src/test/__mocks__/
+│   │   │   │   │   /client/src/test/__mocks__/redux/
 │   │   │   │   │   │   └── redux.ts
-│   │   │   D:\ client\src\utils/
+│   │   │   /client/src/utils/
+│   │   │   │   └── localStorageManager.ts
 │   │   │   │   └── stringManipulation.ts
 │   │   └── tailwind.config.js
 │   │   └── tsconfig.json
 │   │   └── tsconfig.node.json
 │   │   └── vite.config.ts
 │   │   └── vitest.config.ts
+│   └── info.txt
 │   └── package-lock.json
 │   └── package.json
 │   └── README.md
-│   D:\ server/
+│   /server/
 │   │   └── DBinfo.txt
-│   │   └── index.ts.txt
 │   │   └── nodemon.json
 │   │   └── package-lock.json
 │   │   └── package.json
-│   │   D:\ server\src/
-│   │   │   D:\ server\src\controllers/
+│   │   /server/src/
+│   │   │   /server/src/controllers/
 │   │   │   │   └── auth.controller.ts
 │   │   │   │   └── user.controller.ts
 │   │   │   └── index.ts
-│   │   │   D:\ server\src\middleware/
+│   │   │   /server/src/middleware/
 │   │   │   │   └── db.ts
-│   │   │   │   D:\ server\src\middleware\errorHandling/
+│   │   │   │   /server/src/middleware/errorHandling/
 │   │   │   │   │   └── errorHandler.ts
 │   │   │   │   │   └── errorMiddleware.ts
-│   │   │   D:\ server\src\models/
+│   │   │   /server/src/models/
 │   │   │   │   └── user.model.ts
-│   │   │   D:\ server\src\routes/
+│   │   │   /server/src/routes/
 │   │   │   │   └── auth.route.ts
 │   │   │   │   └── user.route.ts
-│   │   │   D:\ server\src\share/
+│   │   │   /server/src/share/
+│   │   │   │   └── constants.ts
 │   │   │   │   └── enums.ts
-│   │   │   D:\ server\src\utils/
+│   │   │   /server/src/utils/
 │   │   │   │   └── stringManipulation.ts
 │   │   │   │   └── verifyUser.ts
 │   │   └── tsconfig.json
-│   │   D:\ server\typings/
+│   │   /server/typings/
+│   │   │   └── express.d.ts
 │   │   │   └── index.d.ts
+│   │   │   └── userTypes.ts
 

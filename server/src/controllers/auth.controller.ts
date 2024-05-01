@@ -88,8 +88,8 @@ export const logIn_controller = async (
     //#endregion
 
 
-    const token = jwt.sign({ id: validUser._id.toString()}, process.env.JWT_SECRET);
-    
+    const token = jwt.sign({ id: validUser._id.toString() }, process.env.JWT_SECRET);
+
 
     // const { password: pass, _id: theID, ...rest } = validUser.toObject();
     const { password: pass, ...rest } = validUser.toObject();
@@ -144,7 +144,7 @@ export const google_controller = async (
 
 
       const token = jwt.sign({ id: validUser._id.toString() }, process.env.JWT_SECRET);
-      
+
 
       // Extract only the necessary fields for the response
       const restResponseUser: IUserResponse = {
@@ -152,7 +152,7 @@ export const google_controller = async (
         eMail: validUser.eMail,
         createdAt: validUser.createdAt,
         updatedAt: validUser.updatedAt,
-        _id: validUser._id.toString(),        
+        _id: validUser._id.toString(),
       };
 
       res
@@ -194,3 +194,28 @@ export const google_controller = async (
     next(error);
   }
 };
+
+export const logout_controller = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  
+  try {
+    
+    console.log('enter logout_controller:')
+
+    res.clearCookie(__SERVER_ACCESS_TOKEN);
+    res.clearCookie('accept_token');
+
+    res
+      .status(200)
+      .json("User logged out successfully");
+
+
+  } catch (error) {
+    next(error)
+    console.error('error:', error)
+
+  }
+}
