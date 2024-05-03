@@ -6,6 +6,7 @@ import { connectToDatabase } from "../src/middleware/db";
 import errorMiddleware from "../src/middleware/errorHandling/errorMiddleware";
 import authRouter from "../src/routes/auth.route";
 import userRouter from "../src/routes/user.route";
+import listingRouter from "../src/routes/listing.route";
 import cookieParser from "cookie-parser";
 
 
@@ -27,6 +28,7 @@ app.listen(port, () => {
 
 app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
+app.use("/api/listing", listingRouter);
 
 
 // Error handling middleware
