@@ -10,7 +10,8 @@
 @import 'tailwindcss/utilities'; */
 
 .btnBig{
-  @apply focus:opacity-95 disabled:opacity-80 rounded-lg text-white p-3 uppercase relative
+  @apply hover:opacity-95 disabled:opacity-80 rounded-lg
+   text-white p-3 uppercase relative text-center cursor-pointer
 }
 .btnIco{
   @apply absolute right-6 h-6 w-8 inline
@@ -21,7 +22,7 @@ a {
 }
 a:hover {
   text-decoration: underline;
-  background-color: transparent !important;
+  /* background-color: transparent !important; */
 }
 body {
   background-color: rgb(241, 245, 241);

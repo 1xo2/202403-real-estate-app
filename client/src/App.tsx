@@ -7,6 +7,7 @@ import ProfilePage from "./pages/ProfilePage";
 import RegisterPage from "./pages/RegisterPage";
 
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import CreateListingPage from "./pages/listing/CreateListingPage/CreateListingPage";
 
 function App() {
   return (
@@ -20,7 +21,9 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route element={<PrivateRoute />} >
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/listings-create" element={<CreateListingPage />} />
         </Route>
+        
       </Routes>
     </BrowserRouter>
   );

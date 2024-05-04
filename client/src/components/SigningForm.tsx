@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { IoCloudDone, IoEye, IoShieldCheckmarkSharp } from "react-icons/io5";
 import { MdRemoveDone } from "react-icons/md";
 import { RxEyeClosed } from "react-icons/rx";
@@ -241,7 +241,8 @@ export default function SigningForm({ forms }: Props) {
 
         {/* BTN Create listing */}
         {(forms === eForms.register || forms === eForms.login) ? <OAuthGoogle /> : (
-          <button id='btnSelectListing' className="btnBig bg-green-800" type="button" >create listing</button>
+          <Link to={'../listings-create'} id='btnSelectListing'           
+            className="btnBig bg-green-800 hover:no-underline" type="button" >create listings</Link>
         )}
       </form>
 

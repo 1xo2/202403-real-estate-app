@@ -92,7 +92,7 @@ export default function ProfilePage() {
 
 
 
-  const eventBabel_clickHandler = async (e: React.MouseEvent<HTMLUListElement, MouseEvent>) => {
+  const eventBubble_clickHandler = async (e: React.MouseEvent<HTMLUListElement, MouseEvent>) => {
     try {
       const id = (e.target as HTMLLIElement).id;
       console.log('id:', id);
@@ -232,7 +232,7 @@ export default function ProfilePage() {
         <SigningForm forms={eForms.profile} />
       </div>
 
-      <ul id='ulProfile' className="my-3 gap-3" onClick={eventBabel_clickHandler}>
+      <ul id='ulProfile' className="my-3 gap-3" onClick={eventBubble_clickHandler}>
         <li className="border-b-2 " ><span id="showListings"> Show Listing</span> </li>
         <li className="text-right li-rtl"><span id="logOut">Log-Out</span></li>
         <li className="text-right li-rtl" ><span id="deleteAccount" >Delete Account</span></li>
