@@ -8,17 +8,30 @@
     position: absolute;
     left: -1.5em;
 } */
-.ul-msg, .msg-err, .msg-prog {
-    border-left: thick solid;
+.ul-msg,
+.msg-err,
+.msg-prog {
+    border-left: thick solid rgba(154, 154, 158, 0.61);
     padding-left: 11px;
     margin: 6px 0;
+    /* list-style: inside; */
 }
+
 .msg-err {
     border-left: thick solid red;
 }
+
 .msg-prog {
     border-left: thick solid green;
 }
+
+.ul-msg li img {
+    width: 25%;
+    /* margin: 0 auto; */
+    -webkit-box-shadow: 0px 10px 13px -7px #000000, 5px 5px 15px 5px rgba(0, 0, 0, 0);
+    box-shadow: 0px 10px 13px -7px #000000, 5px 5px 15px 5px rgba(0, 0, 0, 0);
+}
+
 
 #ulProfile {
     line-height: 2em;

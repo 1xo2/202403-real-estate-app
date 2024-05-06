@@ -7,6 +7,7 @@ import ProfilePage from "./pages/ProfilePage";
 import RegisterPage from "./pages/RegisterPage";
 
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 import CreateListingPage from "./pages/listing/CreateListingPage/CreateListingPage";
 
 function App() {
@@ -23,8 +24,9 @@ function App() {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/listings-create" element={<CreateListingPage />} />
         </Route>
-        
       </Routes>
+        <ToastContainer />
+      {/* <ModalDialog_PortalRendering_OkCancel /> */}
     </BrowserRouter>
   );
 }

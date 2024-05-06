@@ -4,29 +4,30 @@ import { useDispatch, useSelector } from "react-redux";
 import Avatar from "../components/Avatar";
 import PageContainer from "../components/PageContainer";
 import SigningForm from "../components/SigningForm";
+import { loader } from "../components/dialogs/Loader";
 import ModalDialogOkCancel from "../components/dialogs/ModalDialog/ModalDialogOkCancel";
 import UpdateModal from "../components/dialogs/UpdateModal/UpdateModal";
+import { IAppError } from "../errorHandlers/clientErrorHandler";
 import '../pages/ProfilePage.css';
 import { AppDispatch, RootState } from "../redux/store";
-import { loading_end, loading_start, logOutOrDeletion_Success, logOutOrDeletion_fail, profile_updateAvatar } from "../redux/user/userSlice";
+import { logOutOrDeletion_Success, logOutOrDeletion_fail, profile_updateAvatar } from "../redux/user/userSlice";
 import { eForms } from "../share/enums";
 import { fetchHeaders } from "../share/fetchHeaders";
-import { firebase_deleteDirectory, firebase_fileUploadHandler } from "../share/firebase/storage/imageStorageManager";
+import { IFileMsgState, firebase_delete, firebase_fileUploadHandler, validateFilesForUpload } from "../share/firebase/storage/imageStorageManager";
 import { setAvatar_localStorage } from "../utils/localStorageManager";
-import { IAppError } from "../errorHandlers/clientErrorHandler";
-import { loader } from "../components/dialogs/Loader";
+import { isNull_Undefined_emptyString } from "../utils/stringManipulation";
 
 
 
 export default function ProfilePage() {
 
-  const { currentUser } = useSelector((state: RootState) => state.user);
+  const { currentUser, loading } = useSelector((state: RootState) => state.user);
   const dispatch: AppDispatch = useDispatch();
-  const { loading } = useSelector((state: RootState) => state.user);
+
   const refFile = useRef<HTMLInputElement>(null)
 
-  const fileIniState = { error: '', progress: '', downloadURL: '' }
-  const [fileMsg, setFileMsg] = useState(fileIniState)
+  const fileIniState: IFileMsgState = { error: '', progress: '', downloadURL: '' }
+  const [fileMsg, setFileMsg] = useState<IFileMsgState[]>([fileIniState])
 
   const [isDialogVisible, setIsDialogVisible] = useState(false);
 
@@ -53,7 +54,7 @@ export default function ProfilePage() {
       // dispatch(loading_start());
 
       // delete firedatabase images directory
-      const result_firebaseDelete = await firebase_deleteDirectory(currentUser?._id)
+      const result_firebaseDelete = await firebase_delete(currentUser?._id, 'root')
       setFileMsg((state) => {
         return {
           ...state,
@@ -146,22 +147,34 @@ export default function ProfilePage() {
 
   const eventHandler_FileOnClick = () => {
     // setFile(undefined)
-    setFileMsg(fileIniState)  //  file msg reset
+    setFileMsg([fileIniState])  //  file msg reset
     refFile.current?.click()
   }
 
-  const eventHandler_fileOnChange = (e: React.ChangeEvent<HTMLInputElement> | undefined) => {
+  const eventHandler_fileOnChange = async (e: React.ChangeEvent<HTMLInputElement> | undefined) => {
+    const isOK = validateFilesForUpload(e)
 
-    if (e?.target.files && e?.target.files.length > 0 && e.target.files[0].type.startsWith('image/')) {
+    if (isOK === 'ok') {
+      try {
+        if (!e?.target.files) return
 
-      // setFile(e.target.files[0]);
-      fileUploadHandler(e.target.files[0])
+        await firebase_fileUploadHandler({ currentFile: e.target.files[0], currentUserID: currentUser?._id, setFileMsgArr: setFileMsg, dirName: 'avatar', fileIndex: 0 });
+
+        if (!isNull_Undefined_emptyString(fileMsg[0].downloadURL)) {
+          currentUser?._id && setAvatar_localStorage(currentUser?._id, fileMsg[0].downloadURL);
+          // Dispatch action to update avatar in Redux store
+          dispatch(profile_updateAvatar(fileMsg[0].downloadURL));
+        }
+      } catch (error) {
+        console.error('fileUploadHandler | error:', error)
+        setFileMsg((state) => { return { ...state, error: 'Error: ' + error } })
+      }
     } else {
       setFileMsg(
         (state) => {
           return {
             ...state,
-            error: 'Upload is cancel: Only images are allowed.'
+            error: isOK
           }
         })
 
@@ -169,45 +182,18 @@ export default function ProfilePage() {
   };
 
 
-  const fileUploadHandler = async (currentFile: File) => {
-    try {
-      if (currentFile.size >= 2 * 1024 * 1024) {
-        setFileMsg((state) => {
-          return {
-            ...state,
-            error: 'Error: file size exceeding the 2mb limit'
-          }
-        })
-        return;
-      }
 
-      await firebase_fileUploadHandler({ currentFile, currentUserID: currentUser?._id, setFileMsg, dispatch });
-
-    } catch (error) {
-      console.error('fileUploadHandler | error:', error)
-      setFileMsg((state) => {
-        return {
-          ...state,
-          error: 'Error: ' + error
-        }
-      })
-      // setFile(undefined)
-    }
-  }
 
 
   useEffect(() => {
-    if (fileMsg.error === '' && fileMsg.downloadURL !== '') {
+    if (fileMsg[0].error === '' && fileMsg[0].downloadURL !== '') {
       // set local storage
-      currentUser?._id && setAvatar_localStorage(currentUser._id, fileMsg.downloadURL)
-      dispatch(profile_updateAvatar(fileMsg.downloadURL))
-      // reset state
-      // setFileMsg(fileIniState)
-      // setFile(undefined)
+      currentUser?._id && setAvatar_localStorage(currentUser._id, fileMsg[0].downloadURL || '')
+      dispatch(profile_updateAvatar(fileMsg[0].downloadURL || ''));
 
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fileMsg?.downloadURL]);
+  }, [fileMsg[0]?.downloadURL]);
 
 
 
@@ -220,9 +206,9 @@ export default function ProfilePage() {
       <div className="flex flex-col">
 
         <ul className="ul-msg" >
-          {fileMsg.error && <li className="msg-err" key='fileMsg.error' >{fileMsg.error} </li>}
-          {fileMsg.progress && <li className="msg-prog" key='fileMsg.progress' >{fileMsg.progress} </li>}
-          {fileMsg.downloadURL && <li key='fileMsg.downloadURL'> <img src={fileMsg.downloadURL} alt='new image' /></li>}
+          {fileMsg[0].error && <li className="msg-err" key='fileMsg[0].error' >{fileMsg[0].error} </li>}
+          {fileMsg[0].progress && <li className="msg-prog" key='fileMsg.progress' >{fileMsg[0].progress} </li>}
+          {fileMsg[0].downloadURL && <li key='fileMsg[0].downloadURL'> <img src={fileMsg[0].downloadURL} alt='new image' /></li>}
         </ul>
 
         <Avatar user={currentUser}
@@ -238,7 +224,7 @@ export default function ProfilePage() {
         <li className="text-right li-rtl" ><span id="deleteAccount" >Delete Account</span></li>
       </ul>
 
-      //  OverlayDialog
+      
       <input type="file" ref={refFile} hidden accept="image/*" onChange={eventHandler_fileOnChange} ></input>
       {
         isDialogVisible && <ModalDialogOkCancel message={'Are you sure you want to delete your account?'}

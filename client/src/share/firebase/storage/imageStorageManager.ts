@@ -1,24 +1,96 @@
 import { deleteObject, getDownloadURL, getStorage, listAll, ref, uploadBytesResumable } from "firebase/storage";
 import { app } from "../../../components/auth/OAuthGoogle/firebase";
-import { AppDispatch } from "../../../redux/store";
-import { profile_updateAvatar } from "../../../redux/user/userSlice";
-import { setAvatar_localStorage } from "../../../utils/localStorageManager";
 import { isNull_Undefined_emptyString } from "../../../utils/stringManipulation";
 
-type FileMsgState = {
-    error: string;
-    progress: string;
-    downloadURL: string;
-};
-type FirebaseFileUploadHandlerParams = {
-    currentFile: File;
+export interface IFileMsgState {
+    error?: string;
+    progress?: string;
+    downloadURL?: string;
+}
+interface IFilePath {
     currentUserID: string | undefined | null;
-    setFileMsg: React.Dispatch<React.SetStateAction<FileMsgState>>;
-    dispatch: AppDispatch;
+    currentFile: File;
+    dirName: 'avatar' | 'listing' | 'root';
+}
+interface IFileUploadHandler {
+    setFileMsgArr: React.Dispatch<React.SetStateAction<IFileMsgState[] | null>>
+    fileIndex: number
+}
+interface IFireBaseFileUploadHandler extends IFilePath, IFileUploadHandler { }
+
+interface IFileMsgUpdater extends IFileUploadHandler, IFileMsgState { }
+
+/**
+ * Validates images (2mb, amount) for upload.
+ *
+ * @param {React.ChangeEvent<HTMLInputElement> | undefined} e - The event object.
+ * @param {number} maxUpload - The maximum number of files allowed for upload. Default is 6.
+ * @return {string} The validation result.
+ */
+export const validateFilesForUpload = (e: React.ChangeEvent<HTMLInputElement> | undefined, maxUpload: number = 6): string => {
+    if (!e || !e.target.files) return "No files selected";
+
+    const fileArr = Array.from(e?.target.files || [])
+    const isQuantity = fileArr.length <= maxUpload
+    if (isQuantity) {
+        const allFilesAreImages = fileArr.every(file => file.type.startsWith('image/'));
+        if (allFilesAreImages) {
+            const isSize = fileArr.every(file => file.size < 2 * 1024 * 1024);
+            if (isSize) {
+                return 'ok'
+            } else {
+                return 'Error: file size exceeding the 2mb limit'
+            }
+        } else {
+            return 'Upload is cancel: Only images are allowed.'
+        }
+    } else {
+        return `Upload is cancel: Max of ${maxUpload} images are allowed.`
+    }
+
 };
 
+const createFileName = ({ currentUserID, currentFile, dirName }: IFilePath) => {
 
-export const firebase_deleteDirectory = async (_id: string | undefined) => {
+    const fileName = `${currentFile.name.split('.')[0]}_${new Date().getTime()}.${currentFile.name.split('.')[1]}`.replace(/\s+/g, '_');
+    const filePath = `user_${currentUserID || 'noUserID'}/${dirName}/${fileName}`;
+    return filePath;
+}
+
+const updateFileMsg = ({ fileIndex, setFileMsgArr, error = undefined, progress = undefined, downloadURL = undefined }: IFileMsgUpdater
+) => {
+
+    setFileMsgArr(prevState => {
+        const updatedFileMsgArr = [...prevState || []];
+
+        if (updatedFileMsgArr[fileIndex] === undefined) {
+            updatedFileMsgArr[fileIndex] = {}; // Initialize if not already defined
+        }
+
+        if (error !== undefined) {
+            updatedFileMsgArr[fileIndex].error = error;
+        }
+        if (progress !== undefined) {
+            updatedFileMsgArr[fileIndex].progress = progress;
+        }
+        if (downloadURL !== undefined) {
+            updatedFileMsgArr[fileIndex].downloadURL = downloadURL;
+        }
+
+        return updatedFileMsgArr;
+    });
+};
+
+/**
+ * Deletes a directory OR file of uploaded images from Firebase storage.
+ * 
+ *
+ * @param {string | undefined} _id - The ID of the user whose images are being deleted.
+ * @param {IFilePath['dirName']} dirName - The name of the directory to delete.
+ * @param {string} [fileName] - The name of the file to delete within the directory.
+ * @return {Promise<{ error: string, progress: string } | { error: string }>} - A promise that resolves to an object with an error message if an error occurred, or a progress message if the deletion was successful.
+ */
+export const firebase_delete = async (_id: string | undefined, dirName: IFilePath['dirName'], fileUrl?: string) => {
     // Delete directory of uploaded images
     try {
         console.log('_id:', _id)
@@ -29,13 +101,21 @@ export const firebase_deleteDirectory = async (_id: string | undefined) => {
         }
 
         const storage = getStorage(app);
-        // const directoryRef = ref(storage, 'user_' + _id || 'noUserID');
-        const directoryRef = ref(storage, 'user_' + _id || 'noUserID');
+        if (fileUrl) {
 
+            const storageRef = ref(storage, fileUrl);
+            await deleteObject(storageRef);
 
-        const listResult = await listAll(directoryRef);        
-        for (const itemRef of listResult.items) {
-            await deleteObject(itemRef);
+        } else {
+
+            const directoryRef = ref(storage, 'user_' + _id || 'noUserID');
+            const listResult = await listAll(directoryRef);
+
+            for (const itemRef of listResult.items) {
+                if (itemRef.fullPath.includes(dirName)) {
+                    await deleteObject(itemRef);
+                }
+            }
         }
 
         // Delete the directory itself
@@ -48,133 +128,74 @@ export const firebase_deleteDirectory = async (_id: string | undefined) => {
             progress: 'Images directory deleted successfully'
         }
 
-        // setFileMsg((state) => {
-        //     return {
-        //         ...state,
-        //         progress: 'Images directory deleted successfully'
-        //     }
-        // })
 
     } catch (error) {
         console.error('Error deleting Images directory:', error);
         return {
             error: 'Error deleting Images directory'
         }
-
-
-        // setFileMsg((state) => {
-        //     return {
-        //         ...state,
-        //         error: 'Error deleting Images directory'
-        //     }
-        // })
-
     }
 }
 
-// this is not a pure function since it modifies the state.
-export const firebase_fileUploadHandler = async ({currentFile, currentUserID, setFileMsg, dispatch}: FirebaseFileUploadHandlerParams) => {
+export const firebase_getDirUrls = async (_id: string | undefined, dirName: IFilePath['dirName']) => {
+    if (isNull_Undefined_emptyString(_id)) {
+        throw new Error('id is null or undefined');
+    }
+
     try {
         const storage = getStorage(app);
-        const fileName = `${currentFile.name.split('.')[0]}_${new Date().getTime()}.${currentFile.name.split('.')[1]}`.replace(/\s+/g, '_');
-        const storageRef = ref(storage, `user_${currentUserID || 'noUserID'}/${fileName}`);
+        const directoryRef = ref(storage, `user_${_id}/${dirName}`);
+
+        const listResult = await listAll(directoryRef);
+        const fileUrls: string[] = [];
+
+        for (const item of listResult.items) {
+            // Get download URL for each file
+            const downloadURL = await getDownloadURL(item);
+            fileUrls.push(downloadURL);
+        }
+
+        return fileUrls;
+    } catch (error) {
+        console.error("Error fetching directory URLs:", error);
+        throw error; // Rethrow the error
+    }
+}
+
+
+// this is not a pure function since it modifies the state.
+export const firebase_fileUploadHandler = async ({ currentFile, currentUserID, setFileMsgArr, dirName, fileIndex }: IFireBaseFileUploadHandler) => {
+
+    try {
+        const storage = getStorage(app);
+        const filePath = createFileName({ currentUserID, currentFile, dirName });
+        const storageRef = ref(storage, filePath);
         const uploadTask = uploadBytesResumable(storageRef, currentFile);
 
         uploadTask.on('state_changed', (snapshot) => {
             // Handle upload progress
             const progress = `Upload Progress: ${(snapshot.bytesTransferred / snapshot.totalBytes) * 100}%`;
-            setFileMsg((state) => ({
-                ...state,
-                progress,
-            }));
+            updateFileMsg({ fileIndex, setFileMsgArr, progress });
+
         }, (err) => {
-            // Handle upload error
-            setFileMsg((state) => ({
-                ...state,
-                error: 'Error: ' + err.message,
-            }));
+            updateFileMsg({ fileIndex, setFileMsgArr, error: getError(err) });
         }, () => {
             getDownloadURL(uploadTask.snapshot.ref)
                 .then((downloadURL) => {
-                    currentUserID && setAvatar_localStorage(currentUserID, downloadURL);
-                    // Dispatch action to update avatar in Redux store
-                    dispatch(profile_updateAvatar(downloadURL));
-                    // Reset file message state
-                    setFileMsg((state) => ({
-                        ...state,
-                        downloadURL,
-                    }));
+                    updateFileMsg({ fileIndex, setFileMsgArr, downloadURL });
                 })
                 .catch((error) => {
                     console.error('Firebase Storage Error:', error);
-                    setFileMsg((state) => ({
-                        ...state,
-                        error: 'Error: ' + error.message,
-                    }));
+                    updateFileMsg({ fileIndex, setFileMsgArr, error: getError(error) });
                 });
         });
 
     } catch (error) {
         console.error('fileUploadHandler | error:', error);
-        setFileMsg((state) => ({
-            ...state,
-            error: 'Error: ' + error,
-        }));
+        updateFileMsg({ fileIndex, setFileMsgArr, error: getError(error) });
     }
 }
 
-
-
-
-// await firebase_fileUploadHandler(currentFile, currentUser?._id, setFileMsg, dispatch);
-
-// return
-
-// const
-//   storage = getStorage(app),
-//   fileName = (`${currentFile.name.split('.')[0]}_${new Date().getTime()}.${currentFile.name.split('.')[1]}`).replace(/\s+/g, '_'),
-//   storageRef = ref(storage, ('user_' + currentUser?._id || 'noUserID') + '/' + fileName),
-//   uploadTask = uploadBytesResumable(storageRef, currentFile);
-
-
-// console.log('user_ + currentUser?._id:', 'user_' + currentUser?._id)
-
-
-// uploadTask.on('state_changed', (snapshot) => {
-//   const prog = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-//   console.log('Upload Progress:', prog.toFixed(0) + '%');
-
-//   setFileMsg((state) => {
-//     return {
-//       ...state,
-//       progress: 'Upload Progress: ' + prog.toFixed(0) + '%'
-//     }
-//   })
-// }, (err) => {
-//   console.log('error:', err)
-
-//   setFileMsg((state) => {
-//     return {
-//       ...state,
-//       error: 'Error: ' + err.message
-//     }
-//   })
-//   setFile(undefined)
-// }, () => {
-
-//   getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-//     setFileMsg((state) => {
-//       return {
-//         ...state,
-//         downloadURL
-//       }
-//     })
-//   }).catch((error) => {
-//     console.error('Firebase Storage Error:', error);
-//     setFileMsg((state) => ({
-//       ...state,
-//       error: 'Error: ' + error.message  // Include the error message in the state
-//     }));
-//   });
-
-// });
+const getError = (error: any) => {
+    return (error instanceof Error && error.message) ? error.message : String(error);
+}

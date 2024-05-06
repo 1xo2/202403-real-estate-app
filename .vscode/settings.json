@@ -10,7 +10,8 @@
         "picocolors",
         "reduxjs",
         "signup",
-        "testid"
+        "testid",
+        "toastify"
     ],
     "CodeGPT.apiKey": "CodeGPT Plus Beta"
 }
