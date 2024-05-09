@@ -10,20 +10,20 @@ full CICD with Github.Action
 
 
 
-## -------- app last structure (1May/2024)
+## -------- app last structure (9May/2024)
 ```
 /
-│   /client/
+│   \client/
 │   │   └── .eslintrc.cjs
-│   │   /client/cypress/
-│   │   │   /client/cypress/downloads/
-│   │   │   /client/cypress/e2e/
+│   │   \client\cypress/
+│   │   │   \client\cypress\downloads/
+│   │   │   \client\cypress\e2e/
 │   │   │   │   └── note_home.cy.ts.txt
 │   │   │   │   └── UserSigning.cy.ts
-│   │   │   /client/cypress/fixtures/
+│   │   │   \client\cypress\fixtures/
 │   │   │   │   └── example.json
-│   │   │   /client/cypress/screenshots/
-│   │   │   /client/cypress/support/
+│   │   │   \client\cypress\screenshots/
+│   │   │   \client\cypress\support/
 │   │   │   │   └── commands.ts
 │   │   │   │   └── component-index.html
 │   │   │   │   └── component.ts
@@ -36,15 +36,15 @@ full CICD with Github.Action
 │   │   └── package-lock.json
 │   │   └── package.json
 │   │   └── postcss.config.js
-│   │   /client/public/
+│   │   \client\public/
 │   │   └── README.md
 │   │   └── setupVitest.ts
-│   │   /client/src/
+│   │   \client\src/
 │   │   │   └── App.tsx
-│   │   │   /client/src/assets/
-│   │   │   /client/src/components/
-│   │   │   │   /client/src/components/auth/
-│   │   │   │   │   /client/src/components/auth/OAuthGoogle/
+│   │   │   \client\src\assets/
+│   │   │   \client\src\components/
+│   │   │   │   \client\src\components\auth/
+│   │   │   │   │   \client\src\components\auth\OAuthGoogle/
 │   │   │   │   │   │   └── firebase.ts
 │   │   │   │   │   │   └── OAuthGoogle.tsx
 │   │   │   │   │   └── PrivateRoute.tsx
@@ -52,51 +52,60 @@ full CICD with Github.Action
 │   │   │   │   └── Header.tsx
 │   │   │   │   └── PageContainer.tsx
 │   │   │   │   └── SigningForm.tsx
-│   │   │   │   /client/src/components/__test__/
+│   │   │   │   \client\src\components\__test__/
 │   │   │   │   │   └── Header.test.tsx
 │   │   │   │   │   └── signingForm2.test.tsx.txt
 │   │   │   │   │   └── signingForm_UnitT_3.test.tsx
 │   │   │   │   │   └── SigningForm_Unit_LogIn.test.tsx
 │   │   │   │   │   └── SigningForm_Unit_Register.test.tsx
-│   │   │   /client/src/errorHandlers/
+│   │   │   \client\src\errorHandlers/
 │   │   │   │   └── clientErrorHandler.ts
 │   │   │   │   └── ErrorBoundary.tsx
 │   │   │   └── index.css
 │   │   │   └── main.tsx
-│   │   │   /client/src/pages/
+│   │   │   \client\src\pages/
 │   │   │   │   └── AboutPage.tsx
 │   │   │   │   └── HomePage.tsx
+│   │   │   │   \client\src\pages\listing/
+│   │   │   │   │   \client\src\pages\listing\CreateListingPage/
+│   │   │   │   │   │   └── CreateListingPage.css
+│   │   │   │   │   │   └── CreateListingPage.tsx
 │   │   │   │   └── LogInPage.tsx
 │   │   │   │   └── ProfilePage.css
 │   │   │   │   └── ProfilePage.tsx
 │   │   │   │   └── RegisterPage.tsx
-│   │   │   │   /client/src/pages/__test__/
+│   │   │   │   \client\src\pages\__test__/
 │   │   │   │   │   └── AboutPage.test.tsx
+│   │   │   │   │   └── CreateListingPage.test.tsx
 │   │   │   │   │   └── HomePage.test.tsx
 │   │   │   │   │   └── LogInPage_integration.test.tsx
 │   │   │   │   │   └── ProfilePage.test.tsx
 │   │   │   │   │   └── RegisterPage.test.tsx
-│   │   │   /client/src/redux/
+│   │   │   \client\src\redux/
 │   │   │   │   └── store.ts
-│   │   │   │   /client/src/redux/user/
+│   │   │   │   \client\src\redux\user/
 │   │   │   │   │   └── userSlice.ts
-│   │   │   /client/src/share/
+│   │   │   \client\src\share/
 │   │   │   │   └── consts.ts
 │   │   │   │   └── enums.ts
 │   │   │   │   └── fetchHeaders.ts
-│   │   │   │   /client/src/share/firebase/
-│   │   │   │   │   /client/src/share/firebase/OAuthGoogle/
+│   │   │   │   \client\src\share\firebase/
+│   │   │   │   │   \client\src\share\firebase\OAuthGoogle/
 │   │   │   │   │   │   └── firebase.ts
 │   │   │   │   │   │   └── OAuthGoogle.tsx
-│   │   │   │   │   /client/src/share/firebase/storage/
+│   │   │   │   │   \client\src\share\firebase\storage/
 │   │   │   │   │   │   └── imageStorageManager.ts
-│   │   │   /client/src/test/
+│   │   │   │   └── toast.ts
+│   │   │   │   \client\src\share\types/
+│   │   │   │   │   └── listings.ts
+│   │   │   \client\src\test/
+│   │   │   │   └── customMatchers.ts
 │   │   │   │   └── RenderRouteWithOutletContext.tsx
 │   │   │   │   └── setup.ts
-│   │   │   │   /client/src/test/__mocks__/
-│   │   │   │   │   /client/src/test/__mocks__/redux/
+│   │   │   │   \client\src\test\__mocks__/
+│   │   │   │   │   \client\src\test\__mocks__\redux/
 │   │   │   │   │   │   └── redux.ts
-│   │   │   /client/src/utils/
+│   │   │   \client\src\utils/
 │   │   │   │   └── localStorageManager.ts
 │   │   │   │   └── stringManipulation.ts
 │   │   └── tailwind.config.js
@@ -108,35 +117,39 @@ full CICD with Github.Action
 │   └── package-lock.json
 │   └── package.json
 │   └── README.md
-│   /server/
+│   \server/
 │   │   └── DBinfo.txt
 │   │   └── nodemon.json
 │   │   └── package-lock.json
 │   │   └── package.json
-│   │   /server/src/
-│   │   │   /server/src/controllers/
+│   │   \server\src/
+│   │   │   \server\src\controllers/
 │   │   │   │   └── auth.controller.ts
+│   │   │   │   └── listing.controller.ts
 │   │   │   │   └── user.controller.ts
 │   │   │   └── index.ts
-│   │   │   /server/src/middleware/
+│   │   │   \server\src\middleware/
 │   │   │   │   └── db.ts
-│   │   │   │   /server/src/middleware/errorHandling/
+│   │   │   │   \server\src\middleware\errorHandling/
 │   │   │   │   │   └── errorHandler.ts
 │   │   │   │   │   └── errorMiddleware.ts
-│   │   │   /server/src/models/
+│   │   │   \server\src\models/
+│   │   │   │   └── listing.model.ts
 │   │   │   │   └── user.model.ts
-│   │   │   /server/src/routes/
+│   │   │   \server\src\routes/
 │   │   │   │   └── auth.route.ts
+│   │   │   │   └── listing.route.ts
 │   │   │   │   └── user.route.ts
-│   │   │   /server/src/share/
+│   │   │   \server\src\share/
 │   │   │   │   └── constants.ts
 │   │   │   │   └── enums.ts
-│   │   │   /server/src/utils/
+│   │   │   \server\src\utils/
 │   │   │   │   └── stringManipulation.ts
 │   │   │   │   └── verifyUser.ts
 │   │   └── tsconfig.json
-│   │   /server/typings/
+│   │   \server\typings/
 │   │   │   └── express.d.ts
 │   │   │   └── index.d.ts
 │   │   │   └── userTypes.ts
+
 ```

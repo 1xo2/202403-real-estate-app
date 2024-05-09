@@ -5,7 +5,9 @@ import './UpdateModal.css';
 type UpdateModalProps = {
     isOpen: boolean;
 };
-
+/////////////////
+/// use loader
+/////////////////
 
 export default function UpdateModal({ isOpen }: UpdateModalProps) {
 
@@ -26,3 +28,6 @@ export default function UpdateModal({ isOpen }: UpdateModalProps) {
     );
 }
 
+/////////////////
+/// use loader
+/////////////////

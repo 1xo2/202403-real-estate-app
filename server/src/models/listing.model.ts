@@ -5,8 +5,9 @@ export interface IListingFields {
     name: string;
     description: string;
     address: string;
-    price?: number;
-    priceDiscounted: number;
+    price: number;
+    priceDiscounted?: number;
+    bedrooms: number;
     bathrooms: number;
     furnished: boolean;
     parking: boolean;
@@ -45,6 +46,10 @@ const listingSchema = new mongoose.Schema({
         required: true
     },
     bathrooms: {
+        type: Number,
+        required: true
+    },
+    bedrooms: {
         type: Number,
         required: true
     },

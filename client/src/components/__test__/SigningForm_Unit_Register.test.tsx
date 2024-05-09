@@ -111,6 +111,7 @@ describe("SigningForm Component", () => {
     fireEvent.click(submitButton);
 
     // Wait for the validation error message to appear
+    // "please fill out this field"
     await waitFor(() => {
       expect(document.querySelector('[id="eMail"]:invalid')).toBeDefined();
     });
