@@ -8,6 +8,11 @@ import { store } from '../../redux/store';
 import { toBeDisabled } from '../../test/customMatchers';
 
 
+///////////////////
+// todo:
+// 1. discount price cant be higher then price. 
+// 2. 
+///////////////////
 
 
 afterEach(() => {

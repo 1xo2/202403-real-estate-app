@@ -1,27 +1,29 @@
 import { useState } from 'react';
 import { FaDeleteLeft } from 'react-icons/fa6';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import xss from 'xss';
 import PageContainer from '../../../components/PageContainer';
+import { loader } from '../../../components/dialogs/Loader';
 import UpdateModal from '../../../components/dialogs/UpdateModal/UpdateModal';
+import { IAppError } from '../../../errorHandlers/clientErrorHandler';
 import { AppDispatch, RootState } from '../../../redux/store';
-import { general_failure, loading_end, loading_start } from '../../../redux/user/userSlice';
+import { general_failure, loading_start } from '../../../redux/user/userSlice';
+import { __Client_FirebaseStorageDomain } from '../../../share/consts';
+import { fetchHeaders } from '../../../share/fetchHeaders';
 import { IFileMsgState, firebase_delete, firebase_fileUploadHandler, firebase_getDirUrls, validateFilesForUpload } from '../../../share/firebase/storage/imageStorageManager';
 import { toastBody } from '../../../share/toast';
+import { IListingFields } from '../../../share/types/listings';
 import { isNull_Undefined_emptyString } from '../../../utils/stringManipulation';
 import './CreateListingPage.css';
-import { IListingFields } from '../../../share/types/listings';
-import { loader } from '../../../components/dialogs/Loader';
-import xss from 'xss';
-import { fetchHeaders } from '../../../share/fetchHeaders';
-import { IAppError } from '../../../errorHandlers/clientErrorHandler';
-import { __Client_FirebaseStorageDomain } from '../../../share/consts';
 
 export default function CreateListingPage() {
     //  POLICY: 
     //  1. user first have to load images and once, if less then 7, user can upload.
 
+    const navigate = useNavigate();
     const { currentUser, loading } = useSelector((state: RootState) => state.user);
     const dispatch: AppDispatch = useDispatch();
     const [fileMsgArr, setFileMsgArr] = useState<IFileMsgState[] | null>(null);
@@ -39,7 +41,7 @@ export default function CreateListingPage() {
         type: "rent",
         offer: false,
         imageUrl: [],
-        userRef: ""
+        FK_User: ""
     })
     const optionArr = ["Sell", "Rent", "Parking", "Furnished", "Offer"]
 
@@ -192,7 +194,7 @@ export default function CreateListingPage() {
             }
             const sanitizedFormJson = xss(JSON.stringify({
                 ...formDataSpaceOptimized,
-                userRef: currentUser?._id
+                FK_User: currentUser?._id
             }));
 
             //#endregion
@@ -213,8 +215,14 @@ export default function CreateListingPage() {
             }
 
             toast.success('Listing created successfully', toastBody);
+            
+            setTimeout(() => {
+                navigate(`./listing/${data._id}`);
+            }, 1000);
 
         }, dispatch)
+
+
     }
 
     return (
@@ -250,7 +258,7 @@ export default function CreateListingPage() {
                     <div className='section mt-6' >
                         {
                             optionArr.map((option: string, index: number) => (
-                                <div key={option} id={`div_${option}`} className='ctrl-warper' >                                    
+                                <div key={option} id={`div_${option}`} className='ctrl-warper' >
                                     {/* eslint-disable-next-line react/jsx-props-no-spreading */}
                                     <input type="checkbox"
                                         checked={

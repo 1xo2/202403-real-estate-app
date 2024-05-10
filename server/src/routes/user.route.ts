@@ -8,4 +8,5 @@ userRouter.get("/test", test);
 userRouter.post("/update/:id", verifyUser_byCookie, updateUserInfo);
 userRouter.delete("/delete/:id", verifyUser_byCookie, deleteUser);
 
+
 export default userRouter;

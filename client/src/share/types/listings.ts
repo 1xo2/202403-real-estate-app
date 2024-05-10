@@ -11,7 +11,7 @@ export interface IListingFields {
     type: 'rent' | 'sale';
     offer: boolean;
     imageUrl: Array<string>;
-    userRef: string;
+    FK_User: string;
     createdAt?: Date;
     updatedAt?: Date;
 }

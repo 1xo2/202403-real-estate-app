@@ -14,7 +14,7 @@ export interface IListingFields {
     type: string;
     offer: boolean;
     imageUrl: Array<string>;
-    userRef: string;
+    FK_User: string;
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -72,7 +72,7 @@ const listingSchema = new mongoose.Schema({
         type: Array,
         required: true
     },
-    userRef: {
+    FK_User: {
         type: String,
         required: true
     }
@@ -95,10 +95,11 @@ export default ListingModel
 //     "price": 500,
 //     "priceDiscounted": 400,
 //     "bathrooms": 4,
+//     "bedrooms": 3,
 //     "furnished": true,
 //     "parking": true,
 //     "type": "house",
 //     "offer": true,
 //     "imageUrl": ["url1", "url2"],
-//     "userRef": "user id"
+//     "FK_User": "user id"
 // }
