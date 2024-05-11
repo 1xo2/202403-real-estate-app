@@ -16,6 +16,11 @@ import { fetchHeaders } from "../share/fetchHeaders";
 import { IFileMsgState, firebase_delete, firebase_fileUploadHandler, validateFilesForUpload } from "../share/firebase/storage/imageStorageManager";
 import { setAvatar_localStorage } from "../utils/localStorageManager";
 import { isNull_Undefined_emptyString } from "../utils/stringManipulation";
+import { IListingFields } from "../share/types/listings";
+import { __Client_FirebaseStorageDomain } from "../share/consts";
+import Card from "../components/card/Card";
+import { toast } from "react-toastify";
+import { toastBody } from "../share/toast";
 
 
 
@@ -30,28 +35,43 @@ export default function ProfilePage() {
   const [fileMsg, setFileMsg] = useState<IFileMsgState[]>([fileIniState])
 
   const [isDialogVisible, setIsDialogVisible] = useState(false);
-
-  // async function loader(fun: () => Promise<void>) {
-  //   try {
-  //     dispatch(loading_start())
-  //     await fun()
-  //   } catch (error) {
-  //     console.error('error:', error)
-  //     dispatch(logOutOrDeletion_fail(error as IAppError))
-  //   } finally {
-  //     console.log('loader: finally:')
-  //     dispatch(loading_end())
-  //   }
-  // }
+  const [listingsList, setListingsList] = useState<IListingFields[]>([])
 
 
+
+  const deleteListing = async (id: string) => {
+    loader(async () => {
+
+      if (isNull_Undefined_emptyString(id))
+        throw new Error("id is null or undefined. n:sad9jja-ssa3ad");
+
+      console.log('id:', id)
+      const res = await fetch('/api/listing/delete/' + id, {
+        method: "delete",
+        headers: fetchHeaders
+      });
+
+      const data = await res.json();
+      console.log('data:', data)
+
+
+      if (res.status === 200) {
+        setListingsList((state) => {
+          return state.filter((item) => item._id !== id)
+        })
+        toast.success('The listing Deleted successfully', toastBody)
+      } else {
+        console.error('res:', data.message)
+        toast.error('Error deleting listing', toastBody)
+      }
+
+
+    }, dispatch);
+  }
 
   const handleOK_dialogBox_DELETION = async () => {
     console.log("OK clicked");
     await loader(async () => {
-      // try {
-      // setIsUpdateModalVisible(true);
-      // dispatch(loading_start());
 
       // delete firedatabase images directory
       const result_firebaseDelete = await firebase_delete(currentUser?._id, 'root')
@@ -79,19 +99,9 @@ export default function ProfilePage() {
       // delete localstorage
       localStorage.clear()
     }, dispatch, logOutOrDeletion_fail,);
-    // dispatch(loading_end());
     window.location.reload();
 
-
-    // } catch (error) {
-    //   console.log('error:', error)
-
-    //   dispatch(loading_end());
-    //   dispatch(logOutOrDeletion_fail(error as IAppError));
-    // }
   };
-
-
 
   const eventBubble_clickHandler = async (e: React.MouseEvent<HTMLUListElement, MouseEvent>) => {
     try {
@@ -131,7 +141,18 @@ export default function ProfilePage() {
 
 
       } else if (id === 'showListings') {
-        // navigate('/listings')
+        loader(async () => {
+
+          const res = await fetch('/api/listing/list/' + currentUser?._id, {
+            method: "get",
+            headers: fetchHeaders,
+          })
+
+          const data = await res.json();
+          console.log('data:', data)
+          setListingsList(data)
+
+        }, dispatch)
       }
 
     } catch (error) {
@@ -224,11 +245,23 @@ export default function ProfilePage() {
         <li className="text-right li-rtl" ><span id="deleteAccount" >Delete Account</span></li>
       </ul>
 
-      
+
       <input type="file" ref={refFile} hidden accept="image/*" onChange={eventHandler_fileOnChange} ></input>
       {
         isDialogVisible && <ModalDialogOkCancel message={'Are you sure you want to delete your account?'}
           onOK={handleOK_dialogBox_DELETION} type="danger" isDialogVisible={isDialogVisible} setIsDialogVisible={setIsDialogVisible} />
+      }
+      {/* LISTINGS LIST */}
+      {
+        listingsList.length > 0 && <div>
+          {
+            <h2>My Listings</h2> &&
+            listingsList.map((ad) => (
+              <Card key={ad._id} {...ad} deleteListing={deleteListing} />
+            ))
+
+          }
+        </div>
       }
 
       <UpdateModal isOpen={loading} />

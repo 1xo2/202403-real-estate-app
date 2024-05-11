@@ -14,4 +14,5 @@ export interface IListingFields {
     FK_User: string;
     createdAt?: Date;
     updatedAt?: Date;
+    _id: string;
 }

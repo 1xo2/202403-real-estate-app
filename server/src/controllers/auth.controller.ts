@@ -7,6 +7,7 @@ import UserModel, { IUserDocument } from "../models/user.model";
 import { isNull_Undefined_emptyString } from "../utils/stringManipulation";
 import { ISanitizedUser, IUserResponse } from './../../typings/userTypes';
 import { __SERVER_ACCESS_TOKEN } from './../share/constants';
+import envManager from "../middleware/envManager";
 
 
 
@@ -88,7 +89,7 @@ export const logIn_controller = async (
     //#endregion
 
 
-    const token = jwt.sign({ id: validUser._id.toString() }, process.env.JWT_SECRET);
+    const token = jwt.sign({ id: validUser._id.toString() }, envManager.JWT_SECRET);
 
 
     // const { password: pass, _id: theID, ...rest } = validUser.toObject();
@@ -143,7 +144,7 @@ export const google_controller = async (
 
 
 
-      const token = jwt.sign({ id: validUser._id.toString() }, process.env.JWT_SECRET);
+      const token = jwt.sign({ id: validUser._id.toString() }, envManager.JWT_SECRET);
 
 
       // Extract only the necessary fields for the response
@@ -180,7 +181,7 @@ export const google_controller = async (
       await newUser.save();
 
 
-      const token = jwt.sign({ id: newUser._id.toString() }, process.env.JWT_SECRET);
+      const token = jwt.sign({ id: newUser._id.toString() }, envManager.JWT_SECRET);
       const { password: pass, ...rest } = newUser.toObject();
       // cookie info are accessible just from server - not react/client
       res
