@@ -37,7 +37,8 @@ jobs:
       - name: (4) Run Cypress (run specific test)
         run: |
           cd client
-          npm run cypress:run -- --spec "cypress/e2e/note_home.cy.ts"
+          npm run cypress:run -- --spec "cypress/e2e/UserSigning.cy.ts"
+          # npm run cypress:run -- --spec "cypress/e2e/note_home.cy.ts"
 
       - name: (5) Build Project
         run: |
