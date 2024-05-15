@@ -31,7 +31,7 @@ export default function ListingPage({ isCreate }: Props) {
     //  1. user first have to load images and once, if less then 7, user can upload.
     const { listingId } = useParams()
 
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
     const { currentUser, loading } = useSelector((state: RootState) => state.user);
     const dispatch: AppDispatch = useDispatch();
 
