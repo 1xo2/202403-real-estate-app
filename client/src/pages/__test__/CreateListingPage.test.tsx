@@ -24,7 +24,7 @@ let nameInput: HTMLInputElement,
     rentInput: HTMLInputElement,
     priceInput: HTMLInputElement,
     priceDiscountedInput: HTMLInputElement,
-    bedroomsInput: HTMLInputElement,
+    // bedroomsInput: HTMLInputElement,
     bathroomsInput: HTMLInputElement,
     furnishedInput: HTMLInputElement,
     parkingInput: HTMLInputElement,
@@ -48,7 +48,7 @@ beforeEach(() => {
     descriptionInput = screen.getByPlaceholderText('Description') as HTMLInputElement;
     addressInput = screen.getByPlaceholderText('Address') as HTMLInputElement;
     priceInput = screen.getByPlaceholderText('Price') as HTMLInputElement;
-    bedroomsInput = screen.getByPlaceholderText('Bedrooms') as HTMLInputElement;
+    // bedroomsInput = screen.getByPlaceholderText('Bedrooms') as HTMLInputElement;
     bathroomsInput = screen.getByPlaceholderText('Bathrooms') as HTMLInputElement;
     furnishedInput = screen.getByLabelText('Furnished') as HTMLInputElement;
     parkingInput = screen.getByLabelText('Parking') as HTMLInputElement;

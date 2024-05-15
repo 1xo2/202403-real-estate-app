@@ -16,9 +16,9 @@ import { fetchHeaders } from '../../share/fetchHeaders';
 import { IFileMsgState, firebase_delete, firebase_fileUploadHandler, firebase_getDirUrls, validateFilesForUpload } from '../../share/firebase/storage/imageStorageManager';
 import { toastBody } from '../../share/toast';
 import { IListingFields } from '../../share/types/listings';
+import { get_localStorage, set_localStorage } from '../../utils/localStorageManager';
 import { isNull_Undefined_emptyString } from '../../utils/stringManipulation';
 import styles from './ListingPage.module.css';
-import { get_localStorage, set_localStorage } from '../../utils/localStorageManager';
 
 
 type Props = {
