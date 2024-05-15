@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { FaDeleteLeft } from 'react-icons/fa6';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import xss from 'xss';
