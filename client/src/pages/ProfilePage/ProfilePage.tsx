@@ -30,7 +30,7 @@ export default function ProfilePage() {
   const refFile = useRef<HTMLInputElement>(null)
 
   const fileIniState: IFileMsgState = { error: '', progress: '', downloadURL: '' }
-  const [fileMsg, setFileMsg] = useState<IFileMsgState[]>([fileIniState])
+  const [fileMsg, setFileMsg] = useState<IFileMsgState[] | null>([fileIniState])
 
   const [isDialogVisible, setIsDialogVisible] = useState(false);
   const [listingsList, setListingsList] = useState<IListingFields[]>([])
@@ -74,11 +74,16 @@ export default function ProfilePage() {
       // delete firedatabase images directory
       const result_firebaseDelete = await firebase_delete(currentUser?._id, 'root')
       setFileMsg((state) => {
-        return {
-          ...state,
-          ...result_firebaseDelete
+        if (!state) {
+          return null; // Return null if state is null
+        } else {
+          return {
+            ...state,
+            ...result_firebaseDelete // Merge result_firebaseDelete with existing state
+          };
         }
-      })
+      });
+
 
       // delete DB account
       const res = await fetch('/api/user/delete/' + currentUser?._id, {
@@ -175,23 +180,34 @@ export default function ProfilePage() {
 
         await firebase_fileUploadHandler({ currentFile: e.target.files[0], currentUserID: currentUser?._id, setFileMsgArr: setFileMsg, dirName: 'avatar', fileIndex: 0 });
 
-        if (!isNull_Undefined_emptyString(fileMsg[0].downloadURL)) {
+        if (fileMsg && !isNull_Undefined_emptyString(fileMsg && fileMsg[0].downloadURL)) {
           currentUser?._id && set_localStorage(currentUser?._id, "Avatar", fileMsg[0].downloadURL);
           // Dispatch action to update avatar in Redux store
-          dispatch(profile_updateAvatar(fileMsg[0].downloadURL));
+          dispatch(profile_updateAvatar(fileMsg[0].downloadURL as string));
         }
       } catch (error) {
         console.error('fileUploadHandler | error:', error)
-        setFileMsg((state) => { return { ...state, error: 'Error: ' + error } })
+        setFileMsg((prevState) => {
+          if (!prevState) {
+            // case when prevState is null
+            return [{ error: 'Error: ' + error }];
+          } else {
+            // case when prevState is an array
+            return [...prevState, { error: 'Error: ' + error }];
+          }
+        });
+
       }
     } else {
-      setFileMsg(
-        (state) => {
-          return {
-            ...state,
-            error: isOK
-          }
-        })
+      setFileMsg((prevState) => {
+        if (!prevState) {
+          // If prevState is null, initialize it with an array containing the error message
+          return [{ error: isOK }];
+        } else {
+          // If prevState is an array, create a new array by appending the new error message to it
+          return [...prevState, { error: isOK }];
+        }
+      });
 
     }
   };
@@ -202,7 +218,8 @@ export default function ProfilePage() {
 
   useEffect(() => {
     // set fileMsg after upload
-    if (fileMsg[0].error === '' && fileMsg[0].downloadURL !== '') {
+
+    if (fileMsg && fileMsg[0].error === '' && fileMsg[0].downloadURL !== '') {
       // set local storage
       currentUser?._id && set_localStorage(currentUser._id, "Avatar", fileMsg[0].downloadURL || '')
       dispatch(profile_updateAvatar(fileMsg[0].downloadURL || ''));
@@ -218,7 +235,7 @@ export default function ProfilePage() {
     }, 0);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fileMsg[0]?.downloadURL]);
+  }, [fileMsg && fileMsg[0]?.downloadURL]);
 
 
 
@@ -229,9 +246,9 @@ export default function ProfilePage() {
       <div className="flex flex-col">
 
         <ul className={`${styles.ulMsg} ${styles.msgErr} ${styles.msgProg}`} >
-          {fileMsg[0].error && <li className={styles.msgErr} key='fileMsg[0].error' >{fileMsg[0].error} </li>}
-          {fileMsg[0].progress && <li className={styles.msgProg} key='fileMsg.progress' >{fileMsg[0].progress} </li>}
-          {fileMsg[0].downloadURL && <li key='fileMsg[0].downloadURL'> <img src={fileMsg[0].downloadURL} alt='new image' /></li>}
+          {fileMsg && fileMsg[0].error && <li className={styles.msgErr} key='fileMsg[0].error' >{fileMsg[0].error} </li>}
+          {fileMsg && fileMsg[0].progress && <li className={styles.msgProg} key='fileMsg.progress' >{fileMsg[0].progress} </li>}
+          {fileMsg && fileMsg[0].downloadURL && <li key='fileMsg[0].downloadURL'> <img src={fileMsg[0].downloadURL} alt='new image' /></li>}
         </ul>
 
         <Avatar user={currentUser}
