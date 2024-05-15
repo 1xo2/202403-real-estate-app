@@ -25,12 +25,12 @@ connectToDatabase()   // Connect to the database
 ///////////////
 // MIDDLEWARE
 ///////////////
-app.use(express.json());
-app.use(cookieParser())     // verify user by cookie token.
+app.use(helmetConfig());    // Content-Security-Policy header.
 app.use(compression());     // Use compression middleware
+app.use(cookieParser())     // verify user by cookie token.
+app.use(express.json());
 app.use(errorMiddleware);   // Error handling middleware
 app.use(getBodyParams_XSS_sanitized_verifyUser);    // Add middleware before route handlers
-app.use(helmetConfig());    // Content-Security-Policy header.
 
 
 

@@ -101,7 +101,7 @@ export default function SigningForm({ forms }: Props) {
       const data = await res.json();
 
       if (data.success === false) {
-        console.log("fetching data.status fail:", data.success);
+        console.log("fetching data.status fail:", data.message);
         dispatch(login_Fail(data as IAppError));
         return;
       }

@@ -14,5 +14,5 @@ export interface IListingFields {
     FK_User: string;
     createdAt?: Date;
     updatedAt?: Date;
-    _id: string;
+    _id?: string; // create no need id
 }

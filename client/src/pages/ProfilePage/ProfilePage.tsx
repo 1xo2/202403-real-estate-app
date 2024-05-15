@@ -1,27 +1,25 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import Avatar from "../components/Avatar";
-import PageContainer from "../components/PageContainer";
-import SigningForm from "../components/SigningForm";
-import { loader } from "../components/dialogs/Loader";
-import ModalDialogOkCancel from "../components/dialogs/ModalDialog/ModalDialogOkCancel";
-import UpdateModal from "../components/dialogs/UpdateModal/UpdateModal";
-import { IAppError } from "../errorHandlers/clientErrorHandler";
-import '../pages/ProfilePage.css';
-import { AppDispatch, RootState } from "../redux/store";
-import { logOutOrDeletion_Success, logOutOrDeletion_fail, profile_updateAvatar } from "../redux/user/userSlice";
-import { eForms } from "../share/enums";
-import { fetchHeaders } from "../share/fetchHeaders";
-import { IFileMsgState, firebase_delete, firebase_fileUploadHandler, validateFilesForUpload } from "../share/firebase/storage/imageStorageManager";
-import { setAvatar_localStorage } from "../utils/localStorageManager";
-import { isNull_Undefined_emptyString } from "../utils/stringManipulation";
-import { IListingFields } from "../share/types/listings";
-import { __Client_FirebaseStorageDomain } from "../share/consts";
-import Card from "../components/card/Card";
 import { toast } from "react-toastify";
-import { toastBody } from "../share/toast";
-
+import Avatar from "../../components/Avatar";
+import PageContainer from "../../components/PageContainer";
+import SigningForm from "../../components/SigningForm";
+import Card from "../../components/card/Card";
+import { loader } from "../../components/dialogs/Loader";
+import ModalDialogOkCancel from "../../components/dialogs/ModalDialog/ModalDialogOkCancel";
+import UpdateModal from "../../components/dialogs/UpdateModal/UpdateModal";
+import { IAppError } from "../../errorHandlers/clientErrorHandler";
+import { AppDispatch, RootState } from "../../redux/store";
+import { logOutOrDeletion_Success, logOutOrDeletion_fail, profile_updateAvatar } from "../../redux/user/userSlice";
+import { eForms } from "../../share/enums";
+import { fetchHeaders } from "../../share/fetchHeaders";
+import { IFileMsgState, firebase_delete, firebase_fileUploadHandler, validateFilesForUpload } from "../../share/firebase/storage/imageStorageManager";
+import { toastBody } from "../../share/toast";
+import { IListingFields } from "../../share/types/listings";
+import { get_localStorage, set_localStorage } from "../../utils/localStorageManager";
+import { isNull_Undefined_emptyString } from "../../utils/stringManipulation";
+import styles from './ProfilePage.module.css';
 
 
 export default function ProfilePage() {
@@ -91,7 +89,7 @@ export default function ProfilePage() {
       const data = await res.json();
       console.log('data:', data)
       if (data.success === false) {
-        dispatch(logOutOrDeletion_fail(data as IAppError))
+        dispatch(logOutOrDeletion_fail(data.message || data as IAppError))
       } else {
         dispatch(logOutOrDeletion_Success())
       }
@@ -106,15 +104,12 @@ export default function ProfilePage() {
   const eventBubble_clickHandler = async (e: React.MouseEvent<HTMLUListElement, MouseEvent>) => {
     try {
       const id = (e.target as HTMLLIElement).id;
-      console.log('id:', id);
 
       if (id === 'deleteAccount') {
         setIsDialogVisible(true);
       } else if (id === 'logOut') {
 
-        // try {
 
-        //   dispatch(loading_start());
         await loader(async () => {
 
           const res = await fetch('/api/auth/logout', {
@@ -124,44 +119,43 @@ export default function ProfilePage() {
           const data = await res.json();
           console.log('data:', data)
           if (data.success === false) {
-            dispatch(logOutOrDeletion_fail(data.error as IAppError))
+            dispatch(logOutOrDeletion_fail(data.message as IAppError))
           } else {
             dispatch(logOutOrDeletion_Success())
           }
 
-          // dispatch(loading_end());
+
           // window.location.reload();
         }, dispatch, logOutOrDeletion_fail,)
 
-        // } catch (error) {
-        //   console.error('error:', error)
-        //   dispatch(logOutOrDeletion_fail(error as IAppError))
-        //   dispatch(loading_end());
-        // }
 
 
       } else if (id === 'showListings') {
         loader(async () => {
 
-          const res = await fetch('/api/listing/list/' + currentUser?._id, {
-            method: "get",
-            headers: fetchHeaders,
-          })
+          // get listings localStorage || fetch
+          const storage = get_localStorage(currentUser?._id, 'listing')
+          if (storage) {
+            console.log('using localStorage:')
 
-          const data = await res.json();
-          console.log('data:', data)
-          setListingsList(data)
-
+            setListingsList(JSON.parse(storage))
+          } else {
+            console.log('using API:')
+            const res = await fetch('/api/listing/list/' + currentUser?._id, {
+              method: "get",
+              headers: fetchHeaders,
+            })
+            const data = await res.json();
+            console.log('data:', data)
+            setListingsList(data)
+            set_localStorage(currentUser?._id, 'listing', data)
+          }
         }, dispatch)
       }
 
     } catch (error) {
       console.error('error:', error)
-
     }
-
-
-
   };
 
 
@@ -173,7 +167,7 @@ export default function ProfilePage() {
   }
 
   const eventHandler_fileOnChange = async (e: React.ChangeEvent<HTMLInputElement> | undefined) => {
-    const isOK = validateFilesForUpload(e)
+    const isOK = await validateFilesForUpload(e)
 
     if (isOK === 'ok') {
       try {
@@ -182,7 +176,7 @@ export default function ProfilePage() {
         await firebase_fileUploadHandler({ currentFile: e.target.files[0], currentUserID: currentUser?._id, setFileMsgArr: setFileMsg, dirName: 'avatar', fileIndex: 0 });
 
         if (!isNull_Undefined_emptyString(fileMsg[0].downloadURL)) {
-          currentUser?._id && setAvatar_localStorage(currentUser?._id, fileMsg[0].downloadURL);
+          currentUser?._id && set_localStorage(currentUser?._id, "Avatar", fileMsg[0].downloadURL);
           // Dispatch action to update avatar in Redux store
           dispatch(profile_updateAvatar(fileMsg[0].downloadURL));
         }
@@ -207,12 +201,22 @@ export default function ProfilePage() {
 
 
   useEffect(() => {
+    // set fileMsg after upload
     if (fileMsg[0].error === '' && fileMsg[0].downloadURL !== '') {
       // set local storage
-      currentUser?._id && setAvatar_localStorage(currentUser._id, fileMsg[0].downloadURL || '')
+      currentUser?._id && set_localStorage(currentUser._id, "Avatar", fileMsg[0].downloadURL || '')
       dispatch(profile_updateAvatar(fileMsg[0].downloadURL || ''));
 
     }
+
+    // get local storage listing
+    setTimeout(async () => {
+      const storageListing = get_localStorage(currentUser?._id, 'listing');
+      if (storageListing)
+        setListingsList(JSON.parse(storageListing));
+
+    }, 0);
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fileMsg[0]?.downloadURL]);
 
@@ -221,14 +225,12 @@ export default function ProfilePage() {
 
 
   return (
-
-
     <PageContainer h1={"Profile Page"}>
       <div className="flex flex-col">
 
-        <ul className="ul-msg" >
-          {fileMsg[0].error && <li className="msg-err" key='fileMsg[0].error' >{fileMsg[0].error} </li>}
-          {fileMsg[0].progress && <li className="msg-prog" key='fileMsg.progress' >{fileMsg[0].progress} </li>}
+        <ul className={`${styles.ulMsg} ${styles.msgErr} ${styles.msgProg}`} >
+          {fileMsg[0].error && <li className={styles.msgErr} key='fileMsg[0].error' >{fileMsg[0].error} </li>}
+          {fileMsg[0].progress && <li className={styles.msgProg} key='fileMsg.progress' >{fileMsg[0].progress} </li>}
           {fileMsg[0].downloadURL && <li key='fileMsg[0].downloadURL'> <img src={fileMsg[0].downloadURL} alt='new image' /></li>}
         </ul>
 
@@ -239,10 +241,10 @@ export default function ProfilePage() {
         <SigningForm forms={eForms.profile} />
       </div>
 
-      <ul id='ulProfile' className="my-3 gap-3" onClick={eventBubble_clickHandler}>
+      <ul id='ulProfile' className={`${styles.ulProfile} my-3 gap-3`} onClick={eventBubble_clickHandler}>
         <li className="border-b-2 " ><span id="showListings"> Show Listing</span> </li>
-        <li className="text-right li-rtl"><span id="logOut">Log-Out</span></li>
-        <li className="text-right li-rtl" ><span id="deleteAccount" >Delete Account</span></li>
+        <li className={`text-right ${styles['li-rtl']}`}><span id="logOut">Log-Out</span></li>
+        <li className={`text-right ${styles['li-rtl']}`}><span id="deleteAccount" >Delete Account</span></li>
       </ul>
 
 
@@ -254,20 +256,17 @@ export default function ProfilePage() {
       {/* LISTINGS LIST */}
       {
         listingsList.length > 0 && <div>
-          {
-            <h2>My Listings</h2> &&
-            listingsList.map((ad) => (
-              <Card key={ad._id} {...ad} deleteListing={deleteListing} />
-            ))
+          <>
+            <h2  >My Listings</h2>
+            {listingsList.map((ad) => (
+              <Card key={ad._id} item={ad} deleteListing={deleteListing} />
+            ))}
+          </>
 
-          }
         </div>
       }
 
       <UpdateModal isOpen={loading} />
     </PageContainer>
-
-
-
   )
 }

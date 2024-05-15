@@ -1,34 +1,45 @@
 import { useState } from 'react';
 import { FaDeleteLeft } from 'react-icons/fa6';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import xss from 'xss';
-import PageContainer from '../../../components/PageContainer';
-import { loader } from '../../../components/dialogs/Loader';
-import UpdateModal from '../../../components/dialogs/UpdateModal/UpdateModal';
-import { IAppError } from '../../../errorHandlers/clientErrorHandler';
-import { AppDispatch, RootState } from '../../../redux/store';
-import { general_failure, loading_start } from '../../../redux/user/userSlice';
-import { __Client_FirebaseStorageDomain } from '../../../share/consts';
-import { fetchHeaders } from '../../../share/fetchHeaders';
-import { IFileMsgState, firebase_delete, firebase_fileUploadHandler, firebase_getDirUrls, validateFilesForUpload } from '../../../share/firebase/storage/imageStorageManager';
-import { toastBody } from '../../../share/toast';
-import { IListingFields } from '../../../share/types/listings';
-import { isNull_Undefined_emptyString } from '../../../utils/stringManipulation';
-import './CreateListingPage.css';
+import PageContainer from '../../components/PageContainer';
+import { loader } from '../../components/dialogs/Loader';
+import UpdateModal from '../../components/dialogs/UpdateModal/UpdateModal';
+import { IAppError } from '../../errorHandlers/clientErrorHandler';
+import { AppDispatch, RootState } from '../../redux/store';
+import { general_failure, loading_start } from '../../redux/user/userSlice';
+import { __Client_FirebaseStorageDomain } from '../../share/consts';
+import { fetchHeaders } from '../../share/fetchHeaders';
+import { IFileMsgState, firebase_delete, firebase_fileUploadHandler, firebase_getDirUrls, validateFilesForUpload } from '../../share/firebase/storage/imageStorageManager';
+import { toastBody } from '../../share/toast';
+import { IListingFields } from '../../share/types/listings';
+import { isNull_Undefined_emptyString } from '../../utils/stringManipulation';
+import styles from './ListingPage.module.css';
+import { get_localStorage, set_localStorage } from '../../utils/localStorageManager';
 
-export default function CreateListingPage() {
+
+type Props = {
+    isCreate: boolean
+}
+
+export default function ListingPage({ isCreate }: Props) {
+    // console.log('isCreate:', isCreate)
     //  POLICY: 
     //  1. user first have to load images and once, if less then 7, user can upload.
+    const { listingId } = useParams()
 
     const navigate = useNavigate();
     const { currentUser, loading } = useSelector((state: RootState) => state.user);
     const dispatch: AppDispatch = useDispatch();
-    const [fileMsgArr, setFileMsgArr] = useState<IFileMsgState[] | null>(null);
 
-    const [formData, setFormData] = useState<IListingFields>({
+    const { state } = useLocation();
+    const singleListing: IListingFields = state?.singleListing;
+
+    const [fileMsgArr, setFileMsgArr] = useState<IFileMsgState[] | null>(singleListing ? singleListing.imageUrl.map(url => ({ downloadURL: __Client_FirebaseStorageDomain + url })) : null);
+    const [formData, setFormData] = useState<IListingFields>(singleListing || {
         name: "",
         description: "",
         address: "",
@@ -41,12 +52,46 @@ export default function CreateListingPage() {
         type: "rent",
         offer: false,
         imageUrl: [],
-        FK_User: ""
+        FK_User: "",
+        _id: ''
     })
     const optionArr = ["Sell", "Rent", "Parking", "Furnished", "Offer"]
 
-    const eventHandler_loadFireBaseImages = async () => {
 
+
+
+    // useEffect(() => {
+    //     // console.log('enter useEffect: listingId:', listingId);
+    //     if (!isCreate && listingId) {
+    //         const fetchData = async () => {
+    //             try {
+    //                 const res = await fetch('/api/listing/single/' + listingId, {
+    //                     method: "get",
+    //                     headers: fetchHeaders
+    //                 });
+
+    //                 if (res.status === 200) {
+    //                     const data = await res.json();
+    //                     // console.log('useEffect data:', data)
+    //                     setFormData(() => {
+    //                         // console.log('useEffect prev:', prev)
+    //                         return data
+    //                     });
+
+    //                 }
+    //             } catch (error) {
+    //                 console.error('error:', error);
+    //             }
+    //         };
+
+    //         eventHandler_loadFireBaseImages();
+    //         fetchData();
+    //     }
+
+    // }, [listingId]);
+
+    const eventHandler_loadFireBaseImages = async () => {
+        console.log('useCallback:  eventHandler_loadFireBaseImages')
         loader(async () => {
 
             if (isNull_Undefined_emptyString(currentUser?._id)) {
@@ -54,10 +99,14 @@ export default function CreateListingPage() {
             }
 
             const result = await firebase_getDirUrls(currentUser?._id, 'listing');
-            console.log('result:', result)
+            // console.log('result:', result)
             setFileMsgArr(result.map((fullPath) => ({ error: '', progress: '', downloadURL: fullPath })));
+            if (result.length = 0) {
+                toast.info('No images found, \nPlease upload', toastBody)
+            }
         }, dispatch)
     }
+
 
     const eventHandler_fileDelete = async (fileIndex: number) => {
         loader(async () => {
@@ -117,7 +166,7 @@ export default function CreateListingPage() {
             }
             setFormData(prevState => {
                 const updatedState = { ...prevState, [fieldName]: fieldValue };
-                console.log('formData:', updatedState); // Log the updated state
+                // console.log('formData:', updatedState); // Log the updated state
                 return updatedState; // Return the updated state
             });
 
@@ -139,7 +188,7 @@ export default function CreateListingPage() {
         loader(async () => {
 
 
-            const isOk: string = validateFilesForUpload(e, 6 - (fileMsgArr?.length ?? 0))
+            const isOk: string = await validateFilesForUpload(e, 6 - (fileMsgArr?.length ?? 0))
             if (isOk !== 'ok') {
                 toast.error(isOk, toastBody);
                 return
@@ -149,9 +198,10 @@ export default function CreateListingPage() {
             const fileArr: File[] = Array.from(e.target.files)
 
 
-
-            await Promise.all(fileArr.map(async (file, fileIndex) => await firebase_fileUploadHandler(
-                { currentFile: file, currentUserID: currentUser?._id, setFileMsgArr, dirName: 'listing', fileIndex })))
+            await Promise.all(fileArr.map(async (file, fileIndex) =>
+                await firebase_fileUploadHandler({
+                    currentFile: file, currentUserID: currentUser?._id, setFileMsgArr, dirName: 'listing', fileIndex
+                })))
 
 
             toast.success('File Uploaded Successfully', toastBody);
@@ -163,16 +213,31 @@ export default function CreateListingPage() {
 
     const onFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log('formData:', formData);
+        // console.log('formData:', formData);
 
 
         loader(async () => {
 
-            //#region formData: verifying, sanitizing and DB - space optimization
 
-            if (!fileMsgArr || fileMsgArr?.length == 0 || !formData) {
+            //#region -- formData: verifying, sanitizing and DB - space optimization
+
+
+            if (!formData) {
                 throw new Error("error: id: sa9df80kkj-l2 ");
             }
+            if (!fileMsgArr || fileMsgArr?.length == 0) {
+                toast.warning('execution Aborted:\n\rPlease upload at least one image', toastBody)
+                return false;
+            }
+
+            let path;
+            if (isCreate) {
+                path = 'create';
+                delete formData._id
+            } else {
+                path = `update/${listingId}`;
+            }
+
 
             // DB - space optimization: removing url domain.
             const formDataSpaceOptimized = {
@@ -182,43 +247,60 @@ export default function CreateListingPage() {
                     return file.downloadURL.replace(__Client_FirebaseStorageDomain, '')
                 })
             }
-            // console.log('formDataSpaceOptimized:', formDataSpaceOptimized)
+
 
             if (formData.priceDiscounted && (formData.priceDiscounted > formData.price)) {
                 toast.warning('execution Aborted:\n\rDiscounted price cant be more than original price', toastBody)
                 return false;
             }
-            if (!fileMsgArr || fileMsgArr?.length == 0) {
-                toast.warning('execution Aborted:\n\rPlease upload at least one image', toastBody)
-                return false;
-            }
+
             const sanitizedFormJson = xss(JSON.stringify({
                 ...formDataSpaceOptimized,
                 FK_User: currentUser?._id
             }));
 
+
             //#endregion
 
 
-            const res = await fetch('/api/listing/create', {
+
+
+            // const path = isCreate ? 'create' : `update/${listingId}`;
+
+            const res = await fetch("/api/listing/" + path, {
                 method: "post",
                 body: sanitizedFormJson,
                 headers: fetchHeaders
             });
             const data = await res.json();
-            console.log('data:', data)
+            // console.log('fetch success data:', data)
 
             if (data.success === false) {
-                console.log("fetching data.status fail:", data.success);
+                console.error("fetching data.status fail:", data.message);
                 dispatch(general_failure(data as IAppError));
                 return;
             }
 
+
+            // updating localStorage
+            let storage = JSON.parse(get_localStorage(currentUser?._id, 'listing') || '');
+            if (storage && Array.isArray(storage)) {
+                storage.push(data);
+            } else {
+                storage = [data];
+            }
+            set_localStorage(currentUser?._id, 'listing', JSON.stringify(storage));
+
+
+
+
+
+
             toast.success('Listing created successfully', toastBody);
-            
-            setTimeout(() => {
-                navigate(`./listing/${data._id}`);
-            }, 1000);
+
+            // setTimeout(() => {
+            //     navigate(`./listings-edit/${data._id}`);
+            // }, 1000);
 
         }, dispatch)
 
@@ -226,9 +308,9 @@ export default function CreateListingPage() {
     }
 
     return (
-        <PageContainer h1={"Create Listing Page"} isWide={true} >
-            <form onSubmit={onFormSubmit} id="formListing" className='flex flex-col sm:flex-row gap-7' >
-                <div className='rap-side' onChange={eventBubble_formOnChange} >
+        <PageContainer h1={`${isCreate ? 'Create' : 'Edit'} Listing Page`} isWide={true} >
+            <form onSubmit={onFormSubmit} id="formListing" className={`${styles.formListing} flex flex-col sm:flex-row gap-7`} >
+                <div className={styles['rap-side']} onChange={eventBubble_formOnChange} >
                     {/* //////    INPUTS   //////// */}
                     <>
                         <input type="text"
@@ -242,7 +324,7 @@ export default function CreateListingPage() {
                             placeholder='Description'
                             rows={5}
                             required
-                            // className='p-3'
+                            defaultValue={formData.description}
                             id="txtDescription"
                             maxLength={62}
                         />
@@ -255,7 +337,7 @@ export default function CreateListingPage() {
                         />
                     </>
                     {/* //////    OPTIONS   //////// */}
-                    <div className='section mt-6' >
+                    <div className={`${styles['section']} mt-6`}>
                         {
                             optionArr.map((option: string, index: number) => (
                                 <div key={option} id={`div_${option}`} className='ctrl-warper' >
@@ -274,16 +356,18 @@ export default function CreateListingPage() {
                         }
                     </div>
                     {/* //////    NUMBERS   //////// */}
-                    <div className='section' >
-                        <div className="ctrl-warper">
-                            <input type="number" placeholder='Bedrooms' id="txtBedrooms" min={0} max={10} required defaultValue={formData.bedrooms} />
+                    <div className={styles['section']} >
+                        <div className={styles['ctrl-warper']}>
+                            <input type="number" placeholder='Bedrooms' id="txtBedrooms" min={0} max={10} required
+                                defaultValue={formData.bedrooms} value={formData.bedrooms} />
                             <span>Bedrooms</span>
                         </div>
-                        <div className="ctrl-warper">
-                            <input type="number" placeholder='Bathrooms' id="txtBathrooms" min={0} max={10} required defaultValue={formData.bathrooms} />
+                        <div className={styles['ctrl-warper']}>
+                            <input type="number" placeholder='Bathrooms' id="txtBathrooms" min={0} max={10} required
+                                defaultValue={formData.bathrooms} value={formData.bathrooms} />
                             <span>Bathrooms</span>
                         </div>
-                        <div className="ctrl-warper">
+                        <div className={styles['ctrl-warper']}>
                             <input type="number" placeholder='Price' id="txtPrice" min={0} required defaultValue={formData.price} />
                             <p className='flex flex-col'>Price
                                 {
@@ -295,8 +379,9 @@ export default function CreateListingPage() {
                         </div>
                         {
                             formData.offer && (
-                                <div className="ctrl-warper">
-                                    <input type="number" placeholder='Discounted Price' id="txtPriceDiscounted" name='priceDiscounted' min={0} required />
+                                <div className={styles['ctrl-warper']}>
+                                    <input type="number" placeholder='Discounted Price' id="txtPriceDiscounted" name='priceDiscounted' min={0} required
+                                        defaultValue={formData.priceDiscounted} value={formData.priceDiscounted} />
                                     <p className='flex flex-col' >Discounted Price
                                         {
                                             formData.type === 'rent' && (
@@ -312,23 +397,26 @@ export default function CreateListingPage() {
                     </div>
 
                 </div>
-                <div className="rap-side">
+                <div className={styles['rap-side']}>
                     {/* IMAGES CTRL */}
-                    <div className="section">
+                    <div className={styles['section']}>
                         <p className="font-semibold">Images:
                             <span className="font-normal font-gray-600">&nbsp;The first image will be the cover (max 6)</span></p>
-
-                        <div className="flex gap-3">
-                            <input type="file" disabled={loading || (fileMsgArr === null) || (fileMsgArr.length > 5)} onChange={eventHandler_fileOnChange} className='rounded border border-gray-300 p-3 w-full' id="images"
+                        {fileMsgArr && fileMsgArr.length == 0 && <p className="font-semibold">No images please upload.</p>}
+                        <div className="flex gap-3 w-full ">
+                            {/* File Input */}
+                            <input type="file" disabled={loading || !isCreate && ((fileMsgArr === null) || (fileMsgArr.length > 5))} onChange={eventHandler_fileOnChange} className='rounded border border-gray-300 p-3 w-full' id="images"
                                 accept='image/*' multiple placeholder='Add images' data-testid="file-input" />
-                            {/* POLICY: user first have to load images and once, if less then 7, user can upload */}
-                            <button disabled={loading || (fileMsgArr !== null)} onClick={eventHandler_loadFireBaseImages} className='p-3 border border-green-700 text-green-700 rounded uppercase hover:shadow-lg disabled:opacity-80 ' type="button">Load Images</button>
+                            {/* Load Images */}
+                            {!isCreate &&
+                                <button disabled={loading || (fileMsgArr !== null)} onClick={eventHandler_loadFireBaseImages} className='p-3 border border-green-700 text-green-700 rounded uppercase hover:shadow-lg disabled:opacity-80 ' type="button">Load Images</button>
+                            }
                         </div>
                     </div>
                     {/* IMAGES ARR */}
                     {fileMsgArr && fileMsgArr.map((fileMsg, index) => (
                         <div key={index}>
-                            <ul className="ul-msg">
+                            <ul className={styles['ul-msg']}>
                                 {fileMsg.error && <li key={`${index}-error`} className="msg-err">{fileMsg.error}</li>}
                                 {fileMsg.progress && <li key={`${index}-progress`} className="msg-prog">{fileMsg.progress}</li>}
                                 {fileMsg.downloadURL && <li key={`${index}-downloadURL`}>
@@ -344,8 +432,8 @@ export default function CreateListingPage() {
 
 
 
-                    {/* <img height={30} onClick={eventBubble_imgClick} src="https://firebasestorage.googleapis.com/v0/b/real-estate-app-b86a6.appspot.com/o/user_6634c000f5f9d3ffe20baba4%2Flisting%2FUntitled_1714989240996.png?alt=media&token=8ece5137-1723-42e2-9636-4828b9bab5ae" alt="image to delete" /> */}
-                    <button disabled={loading} type="submit" className='btnBig bg-slate-800 w-full mt-14' >Create Listing {loading && ' ...'} </button>
+                    <button disabled={loading} type="submit" className='btnBig bg-slate-800 w-full mt-14' >
+                        {isCreate ? 'Create' : 'Edit'} Listing {loading && ' ...'} </button>
                 </div>
 
             </form>

@@ -1,7 +1,7 @@
 
 import { FaRegUserCircle } from 'react-icons/fa';
 import { IUser } from '../redux/user/userSlice';
-import { getAvatar_localStorage } from '../utils/localStorageManager';
+import { get_localStorage } from '../utils/localStorageManager';
 
 type props = {
     user: IUser | null | undefined;
@@ -21,7 +21,7 @@ export default function Avatar({ user, cssClass, onClick }: props) {
     // }
 
     
-    const userLocalImage = getAvatar_localStorage(user?._id)
+    const userLocalImage = get_localStorage(user?._id, 'Avatar');
     const userImage = userLocalImage || user?.userPhoto ;
     const style = cssClass || 'rounded-full w-7 h-7 object-cover'
 

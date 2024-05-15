@@ -1,0 +1,57 @@
+.formListing input[type="number"],
+.formListing input[type="text"],
+.formListing textarea {
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    padding: 0.75rem;
+    margin-bottom: 1rem;    
+}
+
+.formListing .rap-side {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+.formListing .section {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+    align-items: flex-start;
+}
+
+.formListing .ctrl-warper {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.formListing .ctrl-warper input[type="number"] {
+    width: 5rem;
+}
+
+.ul-msg,
+.msg-err,
+.msg-prog {
+    border-left: thick solid rgba(154, 154, 158, 0.61);
+    padding-left: 11px;
+    margin: 6px 0;
+    /* list-style: inside; */
+}
+
+.msg-err {
+    border-left: thick solid red;
+}
+
+.msg-prog {
+    border-left: thick solid green;
+}
+
+.ul-msg li img {
+    width: 25%;    
+    -webkit-box-shadow: 0px 10px 13px -7px #000000, 5px 5px 15px 5px rgba(0, 0, 0, 0);
+    box-shadow: 0px 10px 13px -7px #000000, 5px 5px 15px 5px rgba(0, 0, 0, 0);
+}

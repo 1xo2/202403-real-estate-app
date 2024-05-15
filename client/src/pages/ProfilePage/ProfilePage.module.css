@@ -1,13 +1,4 @@
-/* .list-triangle{
-    position: relative;
-    margin: 1.5em;
-}
 
-.list-triangle li::before{        
-    content: '\▷ ';
-    position: absolute;
-    left: -1.5em;
-} */
 .ul-msg,
 .msg-err,
 .msg-prog {
@@ -33,13 +24,13 @@
 }
 
 
-#ulProfile {
+.ulProfile {
     line-height: 2em;
     list-style-type: disc;
     list-style-position: inside;
 }
 
-#ulProfile>li>span {
+.ulProfile>li>span {
     cursor: pointer;
     /* display: inline;     */
 }

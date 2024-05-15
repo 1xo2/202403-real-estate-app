@@ -1,11 +1,10 @@
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import CreateListingPage from '../listing/CreateListingPage/CreateListingPage';
-import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
+import { BrowserRouter } from 'react-router-dom';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { store } from '../../redux/store';
-import { toBeDisabled } from '../../test/customMatchers';
+import ListingPage from '../listing/ListingPage';
 
 
 ///////////////////
@@ -32,7 +31,7 @@ let nameInput: HTMLInputElement,
     offerInput: HTMLInputElement,
     fileInput: HTMLInputElement,
 
-    uploadImagesButton: HTMLButtonElement,
+    uploadImagesButton: HTMLButtonElement | null,
     CreateListingButton: HTMLButtonElement,
     submitButton: HTMLButtonElement;
 
@@ -40,7 +39,7 @@ beforeEach(() => {
     render(
         <BrowserRouter>
             <Provider store={store}>
-                <CreateListingPage />
+                <ListingPage isCreate={true} />
             </Provider>
         </BrowserRouter>
     )
@@ -58,9 +57,9 @@ beforeEach(() => {
     offerInput = screen.getByLabelText('Offer') as HTMLInputElement;
     submitButton = screen.getByText('Create Listing') as HTMLButtonElement;
     fileInput = screen.getByTestId('file-input') as HTMLInputElement & { toBeDisabled(): boolean };
-    uploadImagesButton = screen.getByRole('button', { name: /Load Images/i }) as HTMLButtonElement;
     CreateListingButton = screen.getByRole('button', { name: /Create Listing/i }) as HTMLButtonElement;
-
+    // on create its not visible
+    uploadImagesButton = screen.queryByRole('button', { name: /Load Images/i });
 });
 
 
@@ -82,7 +81,7 @@ describe('CreateListingPage component form validation', () => {
         expect(bathroomsInput).toBeDefined();
         expect(priceInput).toBeDefined();
         expect(fileInput).toBeDefined();
-        expect(uploadImagesButton).toBeDefined();
+        expect(uploadImagesButton).toBeNull();
         expect(CreateListingButton).toBeDefined();
     });
 

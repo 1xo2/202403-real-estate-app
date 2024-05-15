@@ -16,12 +16,11 @@ export async function loader(fun: () =>
         await fun()
     } catch (error) {
         console.error('error:', error)
-        dispatch(failRedux && failRedux(error as IAppError) || general_failure(error as IAppError))
-        toast.error((error as Error).message || 'Error deleting file', toastBody)
+        const appError = error as IAppError;
+        dispatch(failRedux ? failRedux(appError) : general_failure(appError));
+        const errorMessage = appError.message || 'Error deleting file';
+        toast.error(errorMessage, toastBody);
     } finally {
-        console.log('loader: finally:')
         dispatch(loading_end())
     }
-    // usage
-    // await loader(dispatch, async () => {})
 }

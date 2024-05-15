@@ -3,12 +3,12 @@ import PrivateRoute from "./components/auth/PrivateRoute";
 import AboutPage from "./pages/AboutPage";
 import HomePage from "./pages/HomePage";
 import LogInPage from "./pages/LogInPage";
-import ProfilePage from "./pages/ProfilePage";
+import ProfilePage from "./pages/ProfilePage/ProfilePage";
 import RegisterPage from "./pages/RegisterPage";
 
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import CreateListingPage from "./pages/listing/CreateListingPage/CreateListingPage";
+import ListingPage from "./pages/listing/ListingPage";
 
 function App() {
   return (
@@ -22,7 +22,8 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route element={<PrivateRoute />} >
           <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/listings-create" element={<CreateListingPage />} />
+          <Route path="/listings-edit/:listingId" element={<ListingPage isCreate={false} />} />
+          <Route path="/listings-create" element={<ListingPage isCreate={true} />} />
         </Route>
       </Routes>
         <ToastContainer />
