@@ -16,6 +16,7 @@ type Props = {
 
 // const Card = ({ name, description, imageUrl, _id = '', deleteListing }: Props) => {
 const Card = ({ item, deleteListing }: Props) => {
+    // console.log('item:', item)
     const { name, description, imageUrl, _id } = item
 
     if (isNull_Undefined_emptyString(_id))
@@ -24,13 +25,15 @@ const Card = ({ item, deleteListing }: Props) => {
 
     // Regular expression to match common image file extensions
     // const regex = /\.(jpg|jpeg|png|gif|bmp|svg)$/i;
-    
+
     const imageSrc = imageUrl.length > 0 && isURL_ImageFileExtension(imageUrl[0]) ? (__Client_FirebaseStorageDomain + imageUrl[0]) : svg;
 
 
     return (
         <div className={styles.card} key={_id} >
-            <img src={imageSrc} alt="Card Image" />
+            <Link to={`/listing-view/${_id}`} state={{ singleListing: item }} className={styles.btn}>
+                <img src={imageSrc} alt="Card Image" />
+            </Link>
             <div className={styles['card-content']}>
                 <h3>{name}</h3>
                 <p>{description}</p>

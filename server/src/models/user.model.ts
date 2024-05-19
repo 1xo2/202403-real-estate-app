@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 
 
 // Interface for user document fields
-interface IUserFields {
+export interface IUserFields {
   userName: string;
   eMail: string;
   password: string;

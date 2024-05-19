@@ -40,7 +40,7 @@ export const userSlice = createSlice({
     },
     login_Success: (state, action: PayloadAction<IUser>) => {
       try {
-        console.log('enter login_Success: redux')
+        // console.log('enter login_Success: redux')
         state.loading = false;
         state.error = null;
         state.currentUser = action.payload;

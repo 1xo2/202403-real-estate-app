@@ -9,6 +9,7 @@ import RegisterPage from "./pages/RegisterPage";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import ListingPage from "./pages/listing/ListingPage";
+import ListingView from "./pages/listing/ListingView";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/home" element={<HomePage />} />
+        <Route path="/listing-view/:listingId" element={<ListingView />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/login" element={<LogInPage />} />
         <Route path="/register" element={<RegisterPage />} />

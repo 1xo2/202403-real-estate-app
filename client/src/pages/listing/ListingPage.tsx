@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { FaDeleteLeft } from 'react-icons/fa6';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import xss from 'xss';
@@ -31,7 +31,7 @@ export default function ListingPage({ isCreate }: Props) {
     //  1. user first have to load images and once, if less then 7, user can upload.
     const { listingId } = useParams()
 
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
     const { currentUser, loading } = useSelector((state: RootState) => state.user);
     const dispatch: AppDispatch = useDispatch();
 
@@ -298,9 +298,9 @@ export default function ListingPage({ isCreate }: Props) {
 
             toast.success('Listing created successfully', toastBody);
 
-            // setTimeout(() => {
-            //     navigate(`./listings-edit/${data._id}`);
-            // }, 1000);
+            setTimeout(() => {
+                navigate(`./listing-view/${data._id}`);
+            }, 1000);
 
         }, dispatch)
 

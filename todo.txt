@@ -1,0 +1,7 @@
+on create:
+    image list scrool
+    get the total images uploaded
+    increase bedroom n
+    on sale: remove discount ini value  
+
+    nav after create: "/listings-create/listing-view/664a2700274fcde7f40e549b" 

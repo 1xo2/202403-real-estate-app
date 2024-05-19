@@ -234,7 +234,7 @@ export default function SigningForm({ forms }: Props) {
           {/* {forms} */}
           {loading ? 'LOADING...' : forms}
           {/* button ico */}
-          {forms === eForms.profile && formLooks.execStatus === 'Success' && <IoCloudDone className='btnIco' />}
+          {forms === eForms.profile && formLooks.execStatus === 'Success' && <IoCloudDone className='btnIco' id='icoProfileUpdate_CyTest' />}
           {forms === eForms.profile && formLooks.execStatus === 'Fail' && <MdRemoveDone className='btnIco' />}
           {currentUser?.userName && forms !== eForms.profile && <IoShieldCheckmarkSharp className='btnIco' />}
         </button>

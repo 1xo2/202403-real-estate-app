@@ -136,12 +136,20 @@ export default function ProfilePage() {
 
 
       } else if (id === 'showListings') {
+        
         loader(async () => {
-
           // get listings localStorage || fetch
           const storage = get_localStorage(currentUser?._id, 'listing')
           if (storage) {
-            console.log('using localStorage:')
+            /////////////////////
+            // the below code is for Cy testing.
+            // keep: 'using localStorage'
+            //////////////////////
+            console.log('using localStorage:', storage)
+            /////////////////////
+            // the above code is for Cy testing.
+            // keep: 'using localStorage'
+            //////////////////////
 
             setListingsList(JSON.parse(storage))
           } else {
@@ -151,8 +159,10 @@ export default function ProfilePage() {
               headers: fetchHeaders,
             })
             const data = await res.json();
-            console.log('data:', data)
+            // console.log('api data:', data)
+            
             setListingsList(data)
+            
             set_localStorage(currentUser?._id, 'listing', data)
           }
         }, dispatch)
@@ -254,7 +264,7 @@ export default function ProfilePage() {
         <Avatar user={currentUser}
           onClick={eventHandler_FileOnClick}
           cssClass="rounded-full self-center h-24 w-24 object-cover cursor-pointer mb-4 " />
-
+        {/* data update */}
         <SigningForm forms={eForms.profile} />
       </div>
 

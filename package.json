@@ -12,9 +12,10 @@
     "start:server": "cd server && npm start",
     "start:client": "cd client && npm run d",
     "start:cypress:run": "cd client && npm run cypress:run",
-    "start:cypress:open": "cd client && npm run c",
+    "cy-o": "cd client && npm run c-o",    
     "start": "npm-run-all --parallel start:server start:client",
     "go": "npm-run-all --parallel s-d c-d",
+    "go-s": "npm-run-all --parallel s-d c-d cy-o",
     "c-cr": "concurrently -n \"server,client,Cypress\" -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\"   \"npm run s-d -n server\" \"npm run c-d\"  \"npm run start:cypress:run\"  ",
     "c-co": "concurrently -n \"server,client,Cypress\" -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\"   \"npm run s-d -n server\" \"npm run c-d\"  \"npm run start:cypress:open\"  "
   },

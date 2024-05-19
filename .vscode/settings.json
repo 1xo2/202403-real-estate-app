@@ -7,11 +7,13 @@
         "hsts",
         "localstorage",
         "maxlength",
+        "mockuser",
         "nodemon",
         "nosniff",
         "picocolors",
         "reduxjs",
         "signup",
+        "swiper",
         "testid",
         "toastify"
     ],
