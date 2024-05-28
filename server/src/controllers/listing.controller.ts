@@ -91,13 +91,15 @@ export const deleteUsrListings_controller = async (req: Request, res: Response, 
         // getBodyParams_sanitized_verifyUser(req, res, next)
         const userID = req.userTokenCookie
         const listingID = req.params.id;
+        console.log('userID:', userID)
+        console.log('listingID:', listingID)
 
         const listings = await ListingModel.deleteOne({ FK_User: userID, _id: listingID })
 
         if (listings.deletedCount === 0) {
             res.status(404).json({ message: 'Listing not found' })
         }
-        res.status(200).json({ message: 'Listing deleted successfully' })
+        return res.status(200).json({ message: 'Listing deleted successfully' })
 
     } catch (error) {
         console.error('error:\n', error, '\n\n')

@@ -70,7 +70,6 @@ export default function SigningForm({ forms }: Props) {
       }));
     }
 
-    console.log("formState:", isValid.formState);
   };
 
   const formSubmitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -109,8 +108,8 @@ export default function SigningForm({ forms }: Props) {
       dispatch(login_Success(data));
       setFormLooks((prev) => ({ ...prev, execStatus: 'Success' }));
 
-      console.log("fetching data.success:", data);
-      console.log("-------currentUser:", currentUser);
+      // console.log("fetching data.success:", data);
+      // console.log("-------currentUser:", currentUser);
 
       setTimeout(() => {
         if (forms === eForms.register) {

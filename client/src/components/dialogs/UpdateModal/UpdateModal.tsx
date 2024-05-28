@@ -18,7 +18,7 @@ export default function UpdateModal({ isOpen }: UpdateModalProps) {
         <div className="modal-overlay">
             <div className="modal">
                 <div className="modal-header">
-                    <h2>Updating...</h2>
+                    <h2>&nbsp;&nbsp;Updating...</h2>
                 </div>
                 <div className="modal-body">
                     <Spinner />

@@ -9,7 +9,7 @@ export interface IListingFields {
     furnished: boolean;
     parking: boolean;
     type: 'rent' | 'sale';
-    offer: boolean;
+    offer?: boolean;
     imageUrl: Array<string>;
     FK_User: string;
     createdAt?: Date;

@@ -1,0 +1,68 @@
+.landscapeCard {
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    height: 9.1rem;
+    background-color: #FFF;
+    margin-bottom: 0.3rem;
+    margin: 11px 7px 7px 0;
+    box-shadow: 0px 5px 10px -8px #000000, 5px 5px 15px 5px rgba(0, 0, 0, 0);
+    transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+}
+
+.landscapeCard .lc-leftSide {
+    width: 42%;
+    position: relative;
+    height: 100%;
+    display: inline-block;
+    /* display: block;
+    float: left; */
+}
+
+.landscapeCard .lc-leftSide img {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+
+.landscapeCard .lc-leftSide span {
+    position: absolute;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.4);
+    padding: 4px 8px;
+    border-radius: 5px;
+    font-size: 12px;
+}
+
+.landscapeCard .lc-rightSide {
+    width: 58%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    float: right;
+    height: 100%;
+    padding: 0.5rem;
+    gap: 4px;
+}
+
+.landscapeCard .lc-header {
+    flex-shrink: 0;
+    color: gray;
+}
+
+.landscapeCard .lc-body {
+    flex-grow: 1;
+    /* Allow to grow and take remaining space */
+    text-align: center;
+    vertical-align: middle;
+    display: contents;
+}
+
+.landscapeCard .lc-crl {
+    flex-shrink: 0;
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: row-reverse;
+    justify-content: space-between;
+}

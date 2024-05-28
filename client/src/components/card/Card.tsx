@@ -11,7 +11,7 @@ type Props = {
     // imageUrl: Array<string>;
     // _id: string;
     item: IListingFields
-    deleteListing: (id: string) => void
+    deleteListing: (item: IListingFields) => void
 }
 
 // const Card = ({ name, description, imageUrl, _id = '', deleteListing }: Props) => {
@@ -20,7 +20,7 @@ const Card = ({ item, deleteListing }: Props) => {
     const { name, description, imageUrl, _id } = item
 
     if (isNull_Undefined_emptyString(_id))
-        throw new Error("id is null or undefined. n:sad9jja-ssa3");
+        throw new Error("id is null or undefined. n:sad9jja-ssa3-e");
 
 
     // Regular expression to match common image file extensions
@@ -31,7 +31,7 @@ const Card = ({ item, deleteListing }: Props) => {
 
     return (
         <div className={styles.card} key={_id} >
-            <Link to={`/listing-view/${_id}`} state={{ singleListing: item }} className={styles.btn}>
+            <Link to={`/listing-view/${_id}`} state={{ singleListing: item }}>
                 <img src={imageSrc} alt="Card Image" />
             </Link>
             <div className={styles['card-content']}>
@@ -39,7 +39,7 @@ const Card = ({ item, deleteListing }: Props) => {
                 <p>{description}</p>
                 <div className={styles["btn-wrap"]}>
                     <Link to={`/listings-edit/${_id}`} state={{ singleListing: item }} className={styles.btn}>Edit</Link>
-                    <Link to='#' onClick={() => deleteListing(_id)} className={styles.btn}>Delete</Link>
+                    <Link to='#' onClick={() => deleteListing(item)} className={styles.btn}>Delete</Link>
 
                 </div>
             </div>

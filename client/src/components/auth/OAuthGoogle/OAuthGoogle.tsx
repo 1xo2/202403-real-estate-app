@@ -5,8 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { AppDispatch } from "../../../redux/store";
 import { login_Success } from "../../../redux/user/userSlice";
 import { fetchHeaders } from "../../../share/fetchHeaders";
-import { set_localStorage } from "../../../utils/localStorageManager";
 import { app } from "./firebase";
+import { update_localStorage } from "../../../utils/localStorageManager";
 
 export default function OAuthGoogle() {
   const dispatch: AppDispatch = useDispatch();
@@ -31,11 +31,11 @@ export default function OAuthGoogle() {
       const data = await res.json();
 
       dispatch(login_Success({ ...data, userPhoto: result.user.photoURL, source: 'google' }));
-      
+
 
       if (data._id && result.user.photoURL)
-        set_localStorage(data._id,"Avatar", result.user.photoURL)
-      
+        update_localStorage({ _id: data._id, key: "Avatar", value: result.user.photoURL })
+
 
       navigate('/home')
       //

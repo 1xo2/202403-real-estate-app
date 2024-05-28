@@ -20,15 +20,15 @@ export default function Avatar({ user, cssClass, onClick }: props) {
     //     // }        
     // }
 
-    
-    const userLocalImage = get_localStorage(user?._id, 'Avatar');
-    const userImage = userLocalImage || user?.userPhoto ;
+
+    const userLocalImage = get_localStorage({ _id: user?._id, key: 'Avatar' });
+    const userImage = userLocalImage || user?.userPhoto;
     const style = cssClass || 'rounded-full w-7 h-7 object-cover'
 
-    
+
     return userImage ? (
-        <img className={style} src={userImage} alt="avatar" onClick={onClick}/>
+        <img className={style} src={userImage} alt="avatar" onClick={onClick} />
     ) : (
-            <FaRegUserCircle className={style} onClick={onClick} />
+        <FaRegUserCircle className={style} onClick={onClick} />
     );
 }

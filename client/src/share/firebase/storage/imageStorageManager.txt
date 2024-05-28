@@ -11,9 +11,10 @@ interface IFilePath {
     currentUserID: string | undefined | null;
     currentFile: File;
     dirName: 'avatar' | 'listing' | 'root';
+    dirEndPoint?: string
 }
 interface IFileUploadHandler {
-    setFileMsgArr: React.Dispatch<React.SetStateAction<IFileMsgState[]>>
+    setFileMsgArr: React.Dispatch<React.SetStateAction<IFileMsgState[] | null>>
     fileIndex: number
 }
 interface IFireBaseFileUploadHandler extends IFilePath, IFileUploadHandler { }
@@ -52,10 +53,12 @@ export const validateFilesForUpload = async (e: React.ChangeEvent<HTMLInputEleme
 
 };
 
-const createFileName = ({ currentUserID, currentFile, dirName }: IFilePath) => {
-
+const createFileName = ({ currentUserID, currentFile, dirName, dirEndPoint }: IFilePath) => {
+    // user_s9d8f79as/listing/s97f90a8sdf/a0s7fa.gif
+    // user_s9d8f79as/Avatar/s97f90a8sdf.gif
     const fileName = `${currentFile.name.split('.')[0]}_${new Date().getTime()}.${currentFile.name.split('.')[1]}`.replace(/\s+/g, '_');
-    const filePath = `user_${currentUserID || 'noUserID'}/${dirName}/${fileName}`;
+    const endDirPath = `${dirName}/${dirEndPoint}/`
+    const filePath = `user_${currentUserID || 'noUserID'}/` + endDirPath ? `${endDirPath}/${fileName}` : `/${fileName}`
     return filePath;
 }
 
@@ -165,13 +168,13 @@ export const firebase_getDirUrls = async (_id: string | undefined, dirName: IFil
 }
 
 
-
 // this is not a pure function since it modifies the state.
-export const firebase_fileUploadHandler = async ({ currentFile, currentUserID, setFileMsgArr, dirName, fileIndex }: IFireBaseFileUploadHandler) => {
-    return new Promise<void>((resolve, reject) => {
+export const firebase_fileUploadHandler = async ({ currentFile, currentUserID, setFileMsgArr, dirName, fileIndex, dirEndPoint }: IFireBaseFileUploadHandler) => {
+
     try {
+
         const storage = getStorage(app);
-        const filePath = createFileName({ currentUserID, currentFile, dirName });
+        const filePath = createFileName({ currentUserID, currentFile, dirName, dirEndPoint });
         const storageRef = ref(storage, filePath);
         const uploadTask = uploadBytesResumable(storageRef, currentFile);
 
@@ -179,62 +182,25 @@ export const firebase_fileUploadHandler = async ({ currentFile, currentUserID, s
             // Handle upload progress
             const progress = `Upload Progress: ${(snapshot.bytesTransferred / snapshot.totalBytes) * 100}%`;
             updateFileMsg({ fileIndex, setFileMsgArr, progress });
-            console.log(`Upload is ${progress}% done for fileIndex ${fileIndex}`);
-            
+
         }, (err) => {
             updateFileMsg({ fileIndex, setFileMsgArr, error: getError(err) });
-            reject(err);
         }, () => {
             getDownloadURL(uploadTask.snapshot.ref)
                 .then((downloadURL) => {
                     updateFileMsg({ fileIndex, setFileMsgArr, downloadURL });
-                    resolve();
                 })
                 .catch((error) => {
                     console.error('Firebase Storage Error:', error);
                     updateFileMsg({ fileIndex, setFileMsgArr, error: getError(error) });
-                    reject(error);
                 });
         });
 
     } catch (error) {
         console.error('fileUploadHandler | error:', error);
         updateFileMsg({ fileIndex, setFileMsgArr, error: getError(error) });
-        }
-    });
+    }
 }
-
-// export const firebase_fileUploadHandler = async ({ currentFile, currentUserID, setFileMsgArr, dirName, fileIndex }: IFireBaseFileUploadHandler) => {
-
-//     try {
-//         const storage = getStorage(app);
-//         const filePath = createFileName({ currentUserID, currentFile, dirName });
-//         const storageRef = ref(storage, filePath);
-//         const uploadTask = uploadBytesResumable(storageRef, currentFile);
-
-//         uploadTask.on('state_changed', (snapshot) => {
-//             // Handle upload progress
-//             const progress = `Upload Progress: ${(snapshot.bytesTransferred / snapshot.totalBytes) * 100}%`;
-//             updateFileMsg({ fileIndex, setFileMsgArr, progress });
-//             console.log(`Upload is ${progress}% done for fileIndex ${fileIndex}`);
-//         }, (err) => {
-//             updateFileMsg({ fileIndex, setFileMsgArr, error: getError(err) });
-//         }, () => {
-//             getDownloadURL(uploadTask.snapshot.ref)
-//                 .then((downloadURL) => {
-//                     updateFileMsg({ fileIndex, setFileMsgArr, downloadURL });
-//                 })
-//                 .catch((error) => {
-//                     console.error('Firebase Storage Error:', error);
-//                     updateFileMsg({ fileIndex, setFileMsgArr, error: getError(error) });
-//                 });
-//         });
-
-//     } catch (error) {
-//         console.error('fileUploadHandler | error:', error);
-//         updateFileMsg({ fileIndex, setFileMsgArr, error: getError(error) });
-//     }
-// }
 
 
 export function getMimeTypeFromFile(file: File): Promise<boolean> {

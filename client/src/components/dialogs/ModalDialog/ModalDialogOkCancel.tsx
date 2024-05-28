@@ -4,19 +4,30 @@ import "./ModalDialogOkCancel.css";
 
 type Props = {
     message: string
-    onOK: () => void
+    onOK?: () => void
     onCancel?: () => void
     type?: "info" | "danger" | "alert";
     isDialogVisible: boolean;
     setIsDialogVisible: React.Dispatch<React.SetStateAction<boolean>>;
 }
-
+/**
+ * Renders a modal dialog with an OK and Cancel button.
+ *
+ * @param {Props} props - The component props.
+ * @param {string} props.message - The message to be displayed in the dialog.
+ * @param {() => void} props.onOK - The function to be called when the OK button is clicked.
+ * @param {() => void} [props.onCancel] - The function to be called when the Cancel button is clicked.
+ * @param {"info" | "danger" | "alert"} [props.type="info"] - The type of the dialog, determining the icon and title.
+ * @param {boolean} props.isDialogVisible - Whether the dialog is visible or not.
+ * @param {React.Dispatch<React.SetStateAction<boolean>>} props.setIsDialogVisible - The function to set the visibility of the dialog.
+ * @return {JSX.Element | null} The modal dialog component or null if not visible.
+ */
 const ModalDialogOkCancel = ({ message, onOK, onCancel, type, isDialogVisible, setIsDialogVisible }: Props) => {
 
 
     const handleOK = () => {
         setIsDialogVisible(false);
-        onOK();
+        onOK && onOK();
     };
 
     const handleCancel = () => {

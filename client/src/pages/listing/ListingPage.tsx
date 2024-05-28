@@ -1,24 +1,25 @@
-import { useState } from 'react';
-import { FaDeleteLeft } from 'react-icons/fa6';
+import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useBeforeUnload, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import xss from 'xss';
 import PageContainer from '../../components/PageContainer';
+import CardLandscape from '../../components/card/CardLandscape';
 import { loader } from '../../components/dialogs/Loader';
+import ModalDialogOkCancel from '../../components/dialogs/ModalDialog/ModalDialogOkCancel';
 import UpdateModal from '../../components/dialogs/UpdateModal/UpdateModal';
 import { IAppError } from '../../errorHandlers/clientErrorHandler';
 import { AppDispatch, RootState } from '../../redux/store';
 import { general_failure, loading_start } from '../../redux/user/userSlice';
 import { __Client_FirebaseStorageDomain } from '../../share/consts';
 import { fetchHeaders } from '../../share/fetchHeaders';
-import { IFileMsgState, firebase_delete, firebase_fileUploadHandler, firebase_getDirUrls, validateFilesForUpload } from '../../share/firebase/storage/imageStorageManager';
+import { IFileMsgState, firebase_delete, firebase_fileUploadHandler, validateFilesForUpload } from '../../share/firebase/storage/imageStorageManager';
 import { toastBody } from '../../share/toast';
 import { IListingFields } from '../../share/types/listings';
-import { get_localStorage, set_localStorage } from '../../utils/localStorageManager';
-import { isNull_Undefined_emptyString } from '../../utils/stringManipulation';
+import { update_localStorage } from '../../utils/localStorageManager';
 import styles from './ListingPage.module.css';
+
 
 
 type Props = {
@@ -26,25 +27,26 @@ type Props = {
 }
 
 export default function ListingPage({ isCreate }: Props) {
-    // console.log('isCreate:', isCreate)
-    //  POLICY: 
-    //  1. user first have to load images and once, if less then 7, user can upload.
-    const { listingId } = useParams()
 
     const navigate = useNavigate();
-    const { currentUser, loading } = useSelector((state: RootState) => state.user);
-    const dispatch: AppDispatch = useDispatch();
-
+    const { listingId } = useParams()
     const { state } = useLocation();
     const singleListing: IListingFields = state?.singleListing;
 
-    const [fileMsgArr, setFileMsgArr] = useState<IFileMsgState[] | null>(singleListing ? singleListing.imageUrl.map(url => ({ downloadURL: __Client_FirebaseStorageDomain + url })) : null);
+    const { currentUser, loading } = useSelector((state: RootState) => state.user);
+    const dispatch: AppDispatch = useDispatch();
+
+
+    const [fileMsgArr, setFileMsgArr] = useState<IFileMsgState[]>(singleListing ? singleListing.imageUrl.map(url => ({ downloadURL: __Client_FirebaseStorageDomain + url })) : []);
+    const [fileArr, setFileArr] = useState<File[]>([])
+
+
     const [formData, setFormData] = useState<IListingFields>(singleListing || {
         name: "",
         description: "",
         address: "",
-        price: 500,
-        priceDiscounted: 400,
+        price: 1,
+        priceDiscounted: 0,
         bedrooms: 0,
         bathrooms: 0,
         furnished: false,
@@ -57,64 +59,157 @@ export default function ListingPage({ isCreate }: Props) {
     })
     const optionArr = ["Sell", "Rent", "Parking", "Furnished", "Offer"]
 
+    let totalImages: number = (fileMsgArr && fileMsgArr?.length || 0) + fileArr?.length // max 6 constant
+
+    const [uploadsComplete, setUploadsComplete] = useState(false); // State to track if firebase uploads/delete are complete - fb promise not working, and b4 db update
+    const [isOpenDialog, setIsOpenDialog] = useState(false)
+
+    const [isFileDeleted, setIsFileDeleted] = useState(false)
+    const [fileMsgArr_index, setFileMsgArr_index] = useState(0)  // for inserting on existing images in fileMsgArr
+    const isUploadsCompleteRef = useRef(false);
 
 
+    useEffect(() => {
+        if (isFileDeleted)
+            submitForm(true)
+    }, [isFileDeleted]);
 
     // useEffect(() => {
-    //     // console.log('enter useEffect: listingId:', listingId);
-    //     if (!isCreate && listingId) {
-    //         const fetchData = async () => {
-    //             try {
-    //                 const res = await fetch('/api/listing/single/' + listingId, {
-    //                     method: "get",
-    //                     headers: fetchHeaders
-    //                 });
+    //     const checkCondition = async () => {
 
-    //                 if (res.status === 200) {
-    //                     const data = await res.json();
-    //                     // console.log('useEffect data:', data)
-    //                     setFormData(() => {
-    //                         // console.log('useEffect prev:', prev)
-    //                         return data
-    //                     });
+    //         const fileMsgLength = fileMsgArr.filter(fileMsg => fileMsg.downloadURL).length
+    //         if (fileMsgArr.length && (fileMsgLength - fileMsgArr_index) === fileArr.length) {
+    //             console.log('All files uploaded.');
+    //             toast.success('File Uploaded Successfully zzz', toastBody);
+    //             setUploadsComplete(true);
+    //             isUploadsCompleteRef.current = true;
+    //         }
+    //     };
 
-    //                 }
-    //             } catch (error) {
-    //                 console.error('error:', error);
-    //             }
-    //         };
+    //     fileArr.length > 0 && checkCondition();
 
-    //         eventHandler_loadFireBaseImages();
-    //         fetchData();
-    //     }
+    // }, [fileMsgArr, fileArr.length]);
 
-    // }, [listingId]);
+    useEffect(() => {
+        if (fileArr.length > 0) {
+            const allFilesUploaded = fileMsgArr.filter(fileMsg => fileMsg.downloadURL).length === fileArr.length + fileMsgArr_index;
+            if (allFilesUploaded) {
+                toast.success('File Uploaded Successfully', toastBody);
+                setUploadsComplete(true);
+                isUploadsCompleteRef.current = true;
+            }
+        }
+    }, [fileMsgArr, fileArr.length, fileMsgArr_index]);
 
-    const eventHandler_loadFireBaseImages = async () => {
-        console.log('useCallback:  eventHandler_loadFireBaseImages')
-        loader(async () => {
 
-            if (isNull_Undefined_emptyString(currentUser?._id)) {
-                throw new Error('currentUser._id is null or undefined');
+    useEffect(() => {
+        if (fileArr.length > 0 && (uploadsComplete || isUploadsCompleteRef.current)) {
+            const allFilesUploaded = fileMsgArr.filter(fileMsg => fileMsg.downloadURL).length >= fileArr.length;
+            if (allFilesUploaded) {
+                setFileArr([]);
+                submitForm();
+            }
+        }
+    }, [uploadsComplete, fileMsgArr, fileArr.length]);
+
+
+    const removeSelectedFile_eventBubble = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+
+        const target = e.target as HTMLElement
+        let id = target.ariaLabel
+        if (!id) {
+            // svg from react-icons library
+            const parent = target.parentElement as HTMLElement;
+            id = parent.ariaLabel
+        }
+
+        if (!id || id.indexOf('btnRemoveSelectedFile_') === -1) return
+
+        const index = Number(target.id.split('_')[1]);
+
+        const newFiles = [...fileArr];
+        newFiles.splice(index, 1);
+        setFileArr(newFiles);
+    };
+
+
+    const uploadImages_eh = async () => {
+        // image urls will be set on setFileMsgArr
+
+        if (!fileArr.length) return;
+        setFileMsgArr_index(fileMsgArr.length); // for update on existing record
+
+
+        const promises = fileArr.map((file, fileIndex) => {
+            return firebase_fileUploadHandler({
+                currentFile: file, currentUserID: currentUser?._id, setFileMsgArr, dirName: 'listing', fileIndex: (fileIndex + fileMsgArr.length)
+            });
+        });
+
+        try {
+            // the firebase promise not working.
+            await Promise.all(promises)
+            console.log('firebase Promise.all is done.')
+        } catch (error) {
+            console.log('error:', error);
+            toast.error('File upload failed. Please try again.', toastBody);
+        }
+    };
+
+
+    const eventHandler_fileOnChange = async (e: React.ChangeEvent<HTMLInputElement> | undefined): Promise<void> => {
+
+        // loader(async () => {
+
+        try {
+
+            const isOk: string = await validateFilesForUpload(e, 6 - (fileArr?.length ?? 0))
+            if (isOk !== 'ok') {
+                toast.error(isOk, toastBody);
+                return
             }
 
-            const result = await firebase_getDirUrls(currentUser?._id, 'listing');
-            // console.log('result:', result)
-            setFileMsgArr(result.map((fullPath) => ({ error: '', progress: '', downloadURL: fullPath })));
-            if (result.length = 0) {
-                toast.info('No images found, \nPlease upload', toastBody)
-            }
-        }, dispatch)
-    }
+            if (!e?.target.files) return
 
 
-    const eventHandler_fileDelete = async (fileIndex: number) => {
+            setFileArr(prev =>
+                [...prev, ...Array.from(e.target.files || [])]);
+
+        } catch (error) {
+            console.log('error:', error)
+            toast.error('Error uploading file. Please try again.', toastBody);
+        }
+
+        // }, dispatch)
+
+
+    };
+    const firebaseFileDelete_eventBubble = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+
+        const target = e.target as HTMLElement
+        let id = target.ariaLabel
+        if (!id) {
+            // svg from react-icons library
+            const parent = target.parentElement as HTMLElement;
+            id = parent.ariaLabel
+        }
+        if (!id || id.indexOf('btnRemoveSelectedFile_') === -1) {
+            toast.error('Internal client error.', toastBody);
+            throw new Error('Internal server error. nu: 9s-fad8790ak-sd-fm;lf-sd0');
+        }
+
+
         loader(async () => {
+
+            const fileIndex: number = Number(id.split('_')[1]);
 
             if (!fileMsgArr) { throw new Error("error: id: sa9df80kkj-l "); }
 
-            dispatch(loading_start())
+
             const result = await firebase_delete(currentUser?._id, 'listing', fileMsgArr[fileIndex].downloadURL);
+
+
+
 
             setFileMsgArr(prevState => {
                 if (prevState === null) { throw new Error("error: id: s3a9d3f80kkj-l3 "); }
@@ -127,47 +222,50 @@ export default function ListingPage({ isCreate }: Props) {
                 }
                 return updatedFileMsgArr;
             });
+
+
+
+            if (result.error) {
+                toast.error(result.error, toastBody);
+                console.error('result.error: nu:sa09fkl8nsf8da-dk-sd8 ', result.error)
+                return
+            }
+
+            setIsFileDeleted(true)
+
             toast.success('file deleted successfully', toastBody)
         }, dispatch)
     }
+    //#endregion
 
-    /**
-     * Handles the eventBubble form change and updates the form data state accordingly.
-     *
-     * @param {React.MouseEvent<HTMLDivElement, MouseEvent>} e - The form change event.
-     */
+
     const eventBubble_formOnChange = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         try {
+            const target = e.target as HTMLInputElement
 
-            const target = e.target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
-            const { id, value, type, name } = target;
-            let fieldName: string, fieldValue: string | number | boolean;
+            const { id, value, type, name, checked } = target;
+            let fieldName = name || id.replace('txt', '').replace('chb_', '').toLowerCase();
+            let fieldValue: string | number | boolean =
+                type === 'checkbox' ?
+                    checked :
+                    type === 'number' ?
+                        Number(value) :
+                        value.toLocaleLowerCase();
 
-            if (type === 'checkbox') {
-                const isChecked = (e.target as HTMLInputElement).checked;
-                fieldValue = isChecked;
-
-                fieldName = id.replace('chb_', '').toLowerCase();
-
-                // convert rent and sell to type
-                if (fieldName === 'rent' || fieldName === 'sell') {
-                    if (isChecked) {
-                        fieldValue = fieldName
-                    } else {
-                        fieldValue = fieldName === 'rent' ? 'sell' : 'rent';
-                    }
-
-                    fieldName = 'type'
-                }
-
-            } else {
-                fieldName = name || id.replace('txt', '').toLowerCase()
-                fieldValue = type === 'number' ? Number(value) : value
+            if (type === 'checkbox' && (fieldName === 'sell' || fieldName === 'rent')) {
+                fieldValue = checked ? fieldName : (fieldName === 'rent' ? 'sell' : 'rent');
+                fieldName = 'type';
             }
+
+            if (fieldName === 'priceDiscounted' && (Number(formData.price) < Number(fieldValue))) {
+                toast.error('Discounted price cant be more than original price', toastBody)
+                return
+            }
+
             setFormData(prevState => {
                 const updatedState = { ...prevState, [fieldName]: fieldValue };
-                // console.log('formData:', updatedState); // Log the updated state
-                return updatedState; // Return the updated state
+                // console.log('formData:', updatedState);
+                return updatedState;
             });
 
         } catch (error) {
@@ -176,83 +274,82 @@ export default function ListingPage({ isCreate }: Props) {
         }
     }
 
-
-    /**
-     * Handles the file change event and uploads the selected files to Firebase storage.
-     *
-     * @param {React.ChangeEvent<HTMLInputElement> | undefined} e - The event object representing the file change event.
-     * @return {Promise<void>} A promise that resolves when all the files have been uploaded successfully.
-     */
-    const eventHandler_fileOnChange = async (e: React.ChangeEvent<HTMLInputElement> | undefined): Promise<void> => {
-
-        loader(async () => {
-
-
-            const isOk: string = await validateFilesForUpload(e, 6 - (fileMsgArr?.length ?? 0))
-            if (isOk !== 'ok') {
-                toast.error(isOk, toastBody);
-                return
-            }
-
-            if (!e?.target.files) return
-            const fileArr: File[] = Array.from(e.target.files)
-
-
-            await Promise.all(fileArr.map(async (file, fileIndex) =>
-                await firebase_fileUploadHandler({
-                    currentFile: file, currentUserID: currentUser?._id, setFileMsgArr, dirName: 'listing', fileIndex
-                })))
-
-
-            toast.success('File Uploaded Successfully', toastBody);
-
-        }, dispatch)
-
-
-    };
-
-    const onFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const formSubmit_eh = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         // console.log('formData:', formData);
 
 
+        if (!formData) {
+            throw new Error("error: id: sa9df80kkj-l2 ");
+        }
+        if (isCreate && fileArr.length == 0) {
+            toast.warning('execution Aborted: Please select at least one image, when ready upload it.', toastBody)
+            return false;
+        }
+
+
+        if (isCreate) {
+            dispatch(loading_start())
+            delete formData._id
+        }
+
+        if (fileArr.length > 0) {
+            uploadImages_eh();
+        } else {
+            submitForm()
+        }
+
+        // todo:
+        // if(formData.type === 'rent') {
+        //    delete formData.priceDiscounted 
+        // }
+
+        //#endregion
+
+    }
+
+    const submitForm = (isImgDeletion = false) => {
+
+        if (fileMsgArr?.length == 0) {
+            toast.error('Please upload at least one image.')
+            return false
+        }
+
+        // DB - space optimization: removing url domain.
         loader(async () => {
-
-
-            //#region -- formData: verifying, sanitizing and DB - space optimization
-
-
-            if (!formData) {
-                throw new Error("error: id: sa9df80kkj-l2 ");
-            }
-            if (!fileMsgArr || fileMsgArr?.length == 0) {
-                toast.warning('execution Aborted:\n\rPlease upload at least one image', toastBody)
-                return false;
-            }
 
             let path;
             if (isCreate) {
                 path = 'create';
                 delete formData._id
+                uploadImages_eh();
             } else {
                 path = `update/${listingId}`;
             }
-
-
-            // DB - space optimization: removing url domain.
-            const formDataSpaceOptimized = {
-                ...formData,
-                imageUrl: fileMsgArr.map((file: IFileMsgState) => {
-                    if (!file.downloadURL) throw new Error("error: id: sa9df80kkj-l3 ");
-                    return file.downloadURL.replace(__Client_FirebaseStorageDomain, '')
-                })
+           
+            if(formData.type === 'rent') {
+               delete formData.priceDiscounted 
+               delete formData.offer
             }
 
 
-            if (formData.priceDiscounted && (formData.priceDiscounted > formData.price)) {
-                toast.warning('execution Aborted:\n\rDiscounted price cant be more than original price', toastBody)
-                return false;
-            }
+
+            const imageUrl = fileMsgArr.map((file: IFileMsgState) => {
+                if (!file.downloadURL) throw new Error("error: id: sa9df80kkj-l3 ");
+                return file.downloadURL.replace(__Client_FirebaseStorageDomain, '')
+            })
+
+
+            const formDataSpaceOptimized = isImgDeletion ?
+                { imageUrl } :
+                {
+                    ...formData,
+                    imageUrl,
+                };
+
+
+
+            // console.log('formDataSpaceOptimized:', formDataSpaceOptimized)
 
             const sanitizedFormJson = xss(JSON.stringify({
                 ...formDataSpaceOptimized,
@@ -260,14 +357,12 @@ export default function ListingPage({ isCreate }: Props) {
             }));
 
 
-            //#endregion
-
-
-
-
-            // const path = isCreate ? 'create' : `update/${listingId}`;
-
-            const res = await fetch("/api/listing/" + path, {
+            // const res = await fetch("/api/listing/" + path, {
+            
+            const env = import.meta.env.VITE_APP_API_ENDPOINT;
+            const endPoint = env && env.includes('localhost') ? '' : env;
+            // const res = await fetch(`${endPoint}/api/listings/${path}`, {
+            const res = await fetch(endPoint + "/api/listing/" + path, {
                 method: "post",
                 body: sanitizedFormJson,
                 headers: fetchHeaders
@@ -277,39 +372,30 @@ export default function ListingPage({ isCreate }: Props) {
 
             if (data.success === false) {
                 console.error("fetching data.status fail:", data.message);
-                dispatch(general_failure(data as IAppError));
-                return;
+                // dispatch(general_failure(data as IAppError));
+                throw data
             }
 
 
             // updating localStorage
-            let storage = JSON.parse(get_localStorage(currentUser?._id, 'listing') || '');
-            if (storage && Array.isArray(storage)) {
-                storage.push(data);
-            } else {
-                storage = [data];
-            }
-            set_localStorage(currentUser?._id, 'listing', JSON.stringify(storage));
-
-
-
-
-
+            update_localStorage({ _id: currentUser?._id, key: 'listing', value: data });
 
             toast.success('Listing created successfully', toastBody);
 
-            setTimeout(() => {
-                navigate(`./listing-view/${data._id}`);
-            }, 1000);
+
+            !isImgDeletion && setTimeout(() => {
+                navigate(`/listing-view/${data._id}`);
+            }, 2000);
 
         }, dispatch)
-
-
     }
+
+
+
 
     return (
         <PageContainer h1={`${isCreate ? 'Create' : 'Edit'} Listing Page`} isWide={true} >
-            <form onSubmit={onFormSubmit} id="formListing" className={`${styles.formListing} flex flex-col sm:flex-row gap-7`} >
+            <form onSubmit={formSubmit_eh} id="formListing" className={`${styles.formListing} flex flex-col sm:flex-row gap-7`} >
                 <div className={styles['rap-side']} onChange={eventBubble_formOnChange} >
                     {/* //////    INPUTS   //////// */}
                     <>
@@ -400,36 +486,54 @@ export default function ListingPage({ isCreate }: Props) {
                 <div className={styles['rap-side']}>
                     {/* IMAGES CTRL */}
                     <div className={styles['section']}>
-                        <p className="font-semibold">Images:
-                            <span className="font-normal font-gray-600">&nbsp;The first image will be the cover (max 6)</span></p>
-                        {fileMsgArr && fileMsgArr.length == 0 && <p className="font-semibold">No images please upload.</p>}
                         <div className="flex gap-3 w-full ">
                             {/* File Input */}
-                            <input type="file" disabled={loading || !isCreate && ((fileMsgArr === null) || (fileMsgArr.length > 5))} onChange={eventHandler_fileOnChange} className='rounded border border-gray-300 p-3 w-full' id="images"
+                            <input type="file" disabled={loading} onChange={eventHandler_fileOnChange} className='rounded border border-gray-300 p-3 w-full' id="images"
                                 accept='image/*' multiple placeholder='Add images' data-testid="file-input" />
-                            {/* Load Images */}
-                            {!isCreate &&
-                                <button disabled={loading || (fileMsgArr !== null)} onClick={eventHandler_loadFireBaseImages} className='p-3 border border-green-700 text-green-700 rounded uppercase hover:shadow-lg disabled:opacity-80 ' type="button">Load Images</button>
-                            }
                         </div>
                     </div>
                     {/* IMAGES ARR */}
-                    {fileMsgArr && fileMsgArr.map((fileMsg, index) => (
-                        <div key={index}>
-                            <ul className={styles['ul-msg']}>
-                                {fileMsg.error && <li key={`${index}-error`} className="msg-err">{fileMsg.error}</li>}
-                                {fileMsg.progress && <li key={`${index}-progress`} className="msg-prog">{fileMsg.progress}</li>}
-                                {fileMsg.downloadURL && <li key={`${index}-downloadURL`}>
-                                    <div className="flex justify-between">
-                                        <img src={fileMsg.downloadURL} className='object-cover rounded-sm' alt='listing image' />
-                                        <FaDeleteLeft onClick={() => eventHandler_fileDelete(index)} className='cursor-pointer hover:text-red-500 text-2xl ' />
-                                    </div>
+                    <div className="overflow-auto">
+                        {/* File upload msg */}
+                        {fileMsgArr.length > 0 &&
+                            <div onClick={firebaseFileDelete_eventBubble}>
+                                {fileMsgArr.map((fileMsg, index) => (
+                                    <CardLandscape index={index} fileUrl={fileMsg.downloadURL} totalImages={fileMsgArr.length} firstCover={true} header={'info.'}
+                                        body={
+                                            <ul className={styles['ul-msg']}>
+                                                {fileMsg.error && <li key={`${index}-error`} className={styles['msg-err']}>{fileMsg.error}</li>}
+                                                {fileMsg.progress && <li key={`${index}-progress`} className={styles['msg-prog']}>{fileMsg.progress}</li>}
+                                            </ul>
+                                        }
+                                    />
+                                ))}
+                            </div>
+                        }
 
-                                </li>}
-                            </ul>
-                        </div>
-                    ))}
+                        {/* Selected Files For Upload */}
+                        {fileArr.length > 0 &&
+                            <div className="overflow-auto h-96 " onClick={removeSelectedFile_eventBubble}>
+                                <span className="font-light">(6/{totalImages}) Selected Files For Upload:</span >
+                                {
+                                    fileArr.map((file, index) => (
+                                        <CardLandscape key={file.name + index} index={index} file={file}
+                                            totalImages={fileArr.length} firstCover={true} header={'info.'}
+                                            body={
+                                                <p>
+                                                    File Name: {file.name}
+                                                    <br />
+                                                    File Size: {Math.round(file.size / 1024)} kb
+                                                </p>
+                                            }
+                                        />
+                                    ))
+                                }
 
+                            </div>
+                        }
+
+
+                    </div>
 
 
                     <button disabled={loading} type="submit" className='btnBig bg-slate-800 w-full mt-14' >
@@ -438,6 +542,8 @@ export default function ListingPage({ isCreate }: Props) {
 
             </form>
             <UpdateModal isOpen={loading} />
+            <ModalDialogOkCancel message='When you done with image deletion: Please click the form update button.'
+                type='danger' isDialogVisible={isOpenDialog} setIsDialogVisible={setIsOpenDialog} />
         </PageContainer>
     )
 }
