@@ -16,6 +16,7 @@ export class CustomError extends Error implements ICustomErrorProps {
     this.statusCode = statusCode;
     // this.message = message; // the supper overWrite the message
     this.msg = message;
+    Error.captureStackTrace(this, CustomError); // Captures the stack trace
   }
 }
 
@@ -23,13 +24,8 @@ export default function errorHandler(
   message: string,
   name: string = "Unknown Error",
   statusCode: number = 500
-): CustomError {
-  throw new CustomError(
-    message,
-    name,
-    statusCode
-  );
-  
+): CustomError { 
+  return new CustomError(message, name, statusCode); 
 }
 
 // export  function errorHandler2({

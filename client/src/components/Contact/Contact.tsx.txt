@@ -1,0 +1,86 @@
+import { useEffect, useState } from "react"
+import { IListingFields } from "../../share/types/listings"
+import { fetchHeaders } from "../../share/fetchHeaders"
+import { toast } from "react-toastify"
+import { toastBody } from "../../share/toast"
+import { IUser } from "../../redux/user/userSlice"
+
+type Props = {
+    formData: IListingFields
+    setErrorMsg: (value: React.SetStateAction<string>) => void
+}
+
+export default function Contact({ formData, setErrorMsg }: Props) {
+    const [corresponded, setCorresponded] = useState<IUser | null>()
+    const [exposeEmail, setExposeEmail] = useState(false)
+
+
+
+    // const messageChange_eh = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    //     const message = e.target.value
+    //     setMessage(message);
+    // }
+    // const createMailtoLink = () => {
+    //     const subject = encodeURIComponent(`Regarding ${formData.name}`)
+    //     const body = encodeURIComponent(message)
+    //     return `mailto:${corresponded?.eMail}?subject=${subject}&body=${body}`
+    // }
+    
+    const fetchData_corresponded = async () => {
+        try {
+            const res = await fetch('/api/user/' + formData.FK_User, {
+                method: "get",
+                headers: fetchHeaders
+            });
+            const data = await res.json();
+
+            if (res.status === 200) {
+                console.log('useEffect data:', data)
+                setCorresponded(data);
+            } else {
+                if (data.message) {
+                    toast.error(data.message || 'Internal Server Error', toastBody);
+                    setErrorMsg(data.message)
+                }
+
+                console.log('res:', res)
+            }
+        } catch (error) {
+            console.error('error:', error);
+        }
+    }
+
+    useEffect(() => {
+        // console.log('formData:', formData)
+        !corresponded && fetchData_corresponded()
+    }, [formData.FK_User])
+
+    return (
+        <div> {corresponded &&
+            (
+                <div className="flex flex-col gap-2 ">
+                    <p className="q">Contact {' '}
+                        <span className="font-semibold">{corresponded.userName}</span> For
+                        <span className="e"> {formData.name.toLocaleLowerCase()}</span>
+                    </p>
+                    {/* <textarea placeholder="Enter Your Message Here." name="message" id="message" rows={2}
+                        className="p-4 w-full rounded-sm "
+                        value={message} onChange={messageChange_eh} ></textarea> */}
+
+             
+                    {exposeEmail && <p className="">
+                        landlord email:
+                        <span className="font-semibold" > {corresponded.eMail}</span></p>}
+                
+                    <button type="button" onClick={() => setExposeEmail(true)} className="btnBig bg-slate-700">expose landlord emailp
+                    <CheckmarkIcon />
+                    </button>
+
+                </div>
+
+
+            )}
+
+        </div>
+    )
+}

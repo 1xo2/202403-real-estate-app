@@ -326,11 +326,11 @@ export default function ListingPage({ isCreate }: Props) {
             } else {
                 path = `update/${listingId}`;
             }
-           
-            if(formData.type === 'rent') {
-               delete formData.priceDiscounted 
-               delete formData.offer
-            }
+
+            // if (formData.type === 'rent') {
+            //     delete formData.priceDiscounted
+            //     delete formData.offer
+            // }
 
 
 
@@ -358,7 +358,7 @@ export default function ListingPage({ isCreate }: Props) {
 
 
             // const res = await fetch("/api/listing/" + path, {
-            
+
             const env = import.meta.env.VITE_APP_API_ENDPOINT;
             const endPoint = env && env.includes('localhost') ? '' : env;
             // const res = await fetch(`${endPoint}/api/listings/${path}`, {
@@ -384,8 +384,8 @@ export default function ListingPage({ isCreate }: Props) {
 
 
             !isImgDeletion && setTimeout(() => {
-                navigate(`/listing-view/${data._id}`);
-            }, 2000);
+                navigate(`/listing-view/${data._id}`, { state: { singleListing: data } });
+            }, 1000);
 
         }, dispatch)
     }
@@ -498,7 +498,7 @@ export default function ListingPage({ isCreate }: Props) {
                         {fileMsgArr.length > 0 &&
                             <div onClick={firebaseFileDelete_eventBubble}>
                                 {fileMsgArr.map((fileMsg, index) => (
-                                    <CardLandscape index={index} fileUrl={fileMsg.downloadURL} totalImages={fileMsgArr.length} firstCover={true} header={'info.'}
+                                    <CardLandscape key={index} index={index} fileUrl={fileMsg.downloadURL} totalImages={fileMsgArr.length} firstCover={true} header={'info.'}
                                         body={
                                             <ul className={styles['ul-msg']}>
                                                 {fileMsg.error && <li key={`${index}-error`} className={styles['msg-err']}>{fileMsg.error}</li>}

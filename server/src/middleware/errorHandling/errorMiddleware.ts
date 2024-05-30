@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from "express";
+import { NextFunction, Request, Response } from "express";
 import { wordsCap } from "../../utils/stringManipulation";
-import errorHandler, { CustomError } from "./errorHandler"; // Import CustomError type from errorHandler
+import { CustomError } from "./errorHandler"; // Import CustomError type from errorHandler
 
 
 const errorMiddleware = (
@@ -12,26 +12,22 @@ const errorMiddleware = (
 ) => {
   // Log the error
   console.error(err);
+  console.error(err.stack);
 
-  // const statusCode = res.statusCode || 500;
   // Get the status code from the error object if available
-  const statusCode =
-    err instanceof Error && (err as any).statusCode
-      ? (err as any).statusCode
-      : res.statusCode || 500;
+  const statusCode = err.statusCode || res.statusCode || 500;
+  const message = err.msg || "Internal Server Error.";
 
-  const message = err.message || "Internal Server Error.";
+  // const isDuplicateKeyErr =
+  //   err.message.includes("E11000") ||
+  //   err.message.includes("duplicate key") ||
+  //   err.name === "MongoServerError" ||
+  //   (err && (err as any).code === 11000);
 
-  const isDuplicateKeyErr =
-    err.message.includes("E11000") ||
-    err.message.includes("duplicate key") ||
-    err.name === "MongoServerError" ||
-    (err && (err as any).code === 11000);
-
-  let resAltMsg; //= "An error occurred while processing your request.";
-  if (isDuplicateKeyErr) {
-    resAltMsg = wordsCap("please try other user name");
-  }
+  // let resAltMsg; //= "An error occurred while processing your request.";
+  // if (isDuplicateKeyErr) {
+  //   resAltMsg = wordsCap("please try other user name");
+  // }
 
   // Logging to STDOUT/STDERR: Platform-as-a-Service (PaaS)
   console.error({
@@ -42,13 +38,18 @@ const errorMiddleware = (
     error: err,
   });
 
-  res.status(statusCode).json({
+  // Respond to client with error details
+  res.status(statusCode || 500).json({
+    // error: {
     success: false,
     statusCode,
-    message: resAltMsg || message,
+    // message: resAltMsg || message,
+    message: message,
     msg: err.msg,
-    //   errorName: err?.name,
-    //   error: err,
+    errorName: err?.name,
+    error: err,
+    // }
+
   });
 
   //   res.status(statusCode).json({

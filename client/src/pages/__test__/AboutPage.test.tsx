@@ -1,12 +1,17 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import AboutPage from "../AboutPage";
+import { BrowserRouter } from "react-router-dom";
 
 afterEach(() => {
   cleanup();
 });
 beforeEach(() => {
-  render(<AboutPage />);
+  render(
+    <BrowserRouter>
+      <AboutPage />
+    </BrowserRouter>
+  );
 });
 describe("AboutPage", () => {
   it("should render page correctly", () => {

@@ -74,7 +74,7 @@ export const getUsrListingById_controller = async (req: Request, res: Response, 
 
         const listings = await ListingModel.findOne({
             _id: listingID,
-            FK_User: req.userTokenCookie
+            // FK_User: req.userTokenCookie
         })
 
         if (!listings) return next(errorHandler('Listing not found', 'N:fd9jsd-fa49-f', 404))

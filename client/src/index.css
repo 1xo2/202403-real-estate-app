@@ -9,35 +9,40 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities'; */
 
-.btnBig{
-  @apply hover:opacity-95 disabled:opacity-80 rounded-lg
-   text-white p-3 uppercase relative text-center cursor-pointer
+.btnBig {
+  @apply hover:opacity-95 disabled:opacity-80 rounded-lg text-white p-3 uppercase relative text-center cursor-pointer
 }
-.btnIco{
+
+.btnIco {
   @apply absolute right-6 h-6 w-8 inline
 }
 
 a {
   text-decoration: none;
 }
+
 a:hover {
   text-decoration: underline;
   /* background-color: transparent !important; */
 }
+
 body {
   background-color: rgb(241, 245, 241);
 }
+
 .center-flex {
   display: flex;
   align-items: center;
   justify-items: center;
 }
+
 .divider {
   height: 2em;
   width: 2px;
   background-color: #bbb;
   margin: 0 12.5px;
 }
+
 .capitalize {
-    text-transform: capitalize;
-  }
+  text-transform: capitalize;
+}

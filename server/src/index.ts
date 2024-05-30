@@ -29,16 +29,8 @@ app.use(helmetConfig());    // Content-Security-Policy header.
 app.use(compression());     // Use compression middleware
 app.use(cookieParser())     // verify user by cookie token.
 app.use(express.json());
-app.use(errorMiddleware);   // Error handling middleware
 app.use(getBodyParams_XSS_sanitized_verifyUser);    // Add middleware before route handlers
 
-
-
-
-const port = envManager.PORT || 8000;
-app.listen(port, () => {
-  console.log(`Server is Fire at http://localhost:${port}`);
-});
 
 
 ///////////////
@@ -48,6 +40,13 @@ app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/listing", listingRouter);
 
+app.use(errorMiddleware);   // Error handling middleware
 
 
+
+
+const port = envManager.PORT || 8000;
+app.listen(port, () => {
+  console.log(`Server is Fire at http://localhost:${port}`);
+});
 
