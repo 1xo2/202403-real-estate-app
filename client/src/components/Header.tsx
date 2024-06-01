@@ -1,11 +1,45 @@
 import { FaSearch } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import Avatar from "./Avatar";
 import { RootState } from "../redux/store";
 import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
 
 export default function Header() {
   const { currentUser } = useSelector((state: RootState) => state.user);
+  const [searchTerm, setSearchTerm] = useState('')
+
+  const _SEARCH_TERM = 'searchTerm';
+  const navigate = useNavigate();
+  const params = useParams();
+
+
+  const formSubmit_eh = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    console.log('e:', e)
+
+    const urlParams = new URLSearchParams(location.search)
+    urlParams.set(_SEARCH_TERM, searchTerm);
+    const searchQuery = urlParams.toString();
+    navigate(`/search?${searchQuery}`)
+
+  }
+
+
+  const searchChange_eh = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value)
+  }
+
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search)
+    const searchTermFromUrl = urlParams.get(_SEARCH_TERM);
+    if (searchTermFromUrl)
+      setSearchTerm(searchTermFromUrl)
+
+  }, [location.search])
+
+
   return (
     <header className="bg-slate-200 shadow-md">
       <div className="flex justify-between items-center max-w-7xl mx-auto p-3">
@@ -17,20 +51,22 @@ export default function Header() {
           </Link>
         </h1>
         {/*  SEARCH-BOX  */}
-        <form action="" className="bg-slate-100 p-3 rounded-s ">
+        <form onSubmit={formSubmit_eh} action="" className="bg-slate-100 p-3 rounded-s ">
           {/* <div className="flex justify-center items-center"> */}
           <div className="center-flex">
             <input
+              value={searchTerm}
+              onChange={searchChange_eh}
               id='searchBox'
               type="text"
               placeholder="Search..."
               className="w-24 sm:w-64 bg-transparent mr-2 outline-none"
-            // className="w-24 sm:w-64 bg-transparent mr-2 border-r border-solid border-slate-400 outline-none"
             />
             {/* divider */}
-            {/* <div className="h-7 w-1 bg-gray-300  mx-3"></div> */}
             <div className="divider"></div>
-            <FaSearch className="text-slate-600 cursor-pointer "></FaSearch>
+            <button type="submit" title='search' >
+              <FaSearch className="text-slate-600 cursor-pointer "></FaSearch>
+            </button>
           </div>
         </form>
         {/*  LINKS  */}
