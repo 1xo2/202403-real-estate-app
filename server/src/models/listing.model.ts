@@ -25,6 +25,7 @@ export interface IListingDocument extends IListingFields, mongoose.Document { }
 // Interface for Listing MODEL methods
 export interface IListingModel extends mongoose.Model<IListingDocument> { }
 
+
 const listingSchema = new mongoose.Schema({
     name: {
         type: String,

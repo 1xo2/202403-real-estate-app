@@ -17,7 +17,7 @@ export function getBodyParams_XSS_sanitized_verifyUser(req: Request, res: Respon
             req.body = JSON.parse(xss(JSON.stringify(req.body)))
         }
         // Verify user authentication/authorization for private routes
-        if (isPublicRoute(req)) {
+        if (!isPublicRoute(req)) {
 
             if (!req.user) {
                 return next(errorHandler(__SERVER_ERROR_UNAUTHORIZED, 'User is not authorized.', 401));
@@ -39,9 +39,13 @@ export function getBodyParams_XSS_sanitized_verifyUser(req: Request, res: Respon
     }
 
     function isPublicRoute(req: Request): boolean {
-        // Add logic to determine if the route is private based on the request URL
+        // Define your public routes here
+        const publicRoutes = [
+            '/api/public/search',
+            '/api/publicRoute', // Add other public routes as needed
+        ];
 
-        return req.path.indexOf('/api/listings/get') !== -1;
+        return publicRoutes.includes(req.path);
     }
 
     // if (req.body) {
