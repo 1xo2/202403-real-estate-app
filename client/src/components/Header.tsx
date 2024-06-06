@@ -1,28 +1,25 @@
-import { FaSearch } from "react-icons/fa";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import Avatar from "./Avatar";
-import { RootState } from "../redux/store";
-import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
+import { FaSearch } from "react-icons/fa";
+import { useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { RootState } from "../redux/store";
+import Avatar from "./Avatar";
 
 export default function Header() {
   const { currentUser } = useSelector((state: RootState) => state.user);
   const [searchTerm, setSearchTerm] = useState('')
-
   const _SEARCH_TERM = 'searchTerm';
   const navigate = useNavigate();
-  const params = useParams();
 
-
+  
   const formSubmit_eh = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('e:', e)
+    
 
     const urlParams = new URLSearchParams(location.search)
     urlParams.set(_SEARCH_TERM, searchTerm);
     const searchQuery = urlParams.toString();
     navigate(`/search?${searchQuery}`)
-
   }
 
 
@@ -70,6 +67,7 @@ export default function Header() {
           </div>
         </form>
         {/*  LINKS  */}
+        {/* <img src="https://lh3.googleusercontent.com/a/ACg8ocLkzlDHeo-03Ix4_leXK9_IJQ08tLJGpfJJcQy8E4vnu775pQ=s96-c" alt="xxx" /> */}
         <ul className="flex gap-4 text-slate-700">
           <li className="hidden sm:inline">
             <Link to={"/home"}>Home</Link>

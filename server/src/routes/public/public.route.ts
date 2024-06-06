@@ -15,40 +15,55 @@ function parseQueryParameter(value: string | undefined, trueValue: any, falseVal
     }
 }
 
+
 publicRouter.get('/search', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const orderBy = req.query.sort as string || 'createdAt';
-        const ascending = 1;
+        const sortBy = req.query.sort as string || 'createdAt';        
+        const order = req.query.order === 'Descending' ? -1 : 1;
         const limit = parseInt(req.query.limit as string) || 9;
         const page = parseInt(req.query.page as string) || 1;
         const startIndex = (page - 1) * limit;
 
         let listingQuery: { [key: string]: any } = {};
 
-        listingQuery.offer = parseQueryParameter(req.query.offer as string, true, false);
-        listingQuery.furnished = parseQueryParameter(req.query.furnished as string, true, false);
-        listingQuery.parking = parseQueryParameter(req.query.parking as string, true, false);
-        // to select both rent and sale -> kip it false or undefined
-        listingQuery.type = parseQueryParameter(req.query.type as string, { $in: ['rent', 'sale'] }, req.query.type);
+        if (req.query.offer !== undefined) {
+            listingQuery.offer = parseQueryParameter(req.query.offer as string, true, false);
+        }
+        if (req.query.furnished !== undefined) {
+            listingQuery.furnished = parseQueryParameter(req.query.furnished as string, true, false);
+        }
+        if (req.query.parking !== undefined) {
+            listingQuery.parking = parseQueryParameter(req.query.parking as string, true, false);
+        }
+        if (req.query.type !== undefined) {
+            // to select both rent and sale -> kip it false or undefined
+            listingQuery.type = parseQueryParameter(req.query.type as string, { $in: ['rent', 'sale'] }, req.query.type);
+        }
+
 
 
         
-        const searchTerm = req.query.search as string || '';
+        // const search = req.query.search as string || '';
+        console.log('req.query:', req.query)
+        const searchTerm = req.query.searchTerm as string || '';
+        
         if (searchTerm) {
             const regex = new RegExp(searchTerm, 'i');
             listingQuery.$or = [
                 { name: regex },
                 { description: regex },
                 { address: regex },
-            ];
+            ];            
         }
 
-        const listings =
-            await ListingModel.find(listingQuery)
-                .sort({ [orderBy]: ascending })
+        console.log('listingQuery:', listingQuery)
+         const listings =
+            await ListingModel.find(listingQuery)                             
+                .sort({ [sortBy]: order }) 
                 .limit(limit)
                 .skip(startIndex);
 
+        // await ListingModel.find({ $or: [{ name: /island/i }, { description: /island/i }, { address: /island/i }] })
 
 
         return res.status(200).json(listings);

@@ -139,7 +139,7 @@ export default function ProfilePage() {
       } else if (id === 'showListings') {
 
         loader(async () => {
-          let data;
+          let data: IListingFields[];
           // get listings localStorage || fetch
           const storage = get_localStorage({ _id: currentUser?._id, key: 'listing' })
           console.log('data:', storage)
@@ -154,7 +154,9 @@ export default function ProfilePage() {
             // keep: 'using localStorage'
             //////////////////////
             data = JSON.parse(storage)
+
             setListingsList(data)
+
 
           } else {
             console.log('using API:')
@@ -162,8 +164,7 @@ export default function ProfilePage() {
               method: "get",
               headers: fetchHeaders,
             })
-            data = (await res.json()).reverse();
-            // console.log('api data:', data)
+            data = await res.json();
 
             setListingsList(data)
 
@@ -246,13 +247,13 @@ export default function ProfilePage() {
     // get local storage listing
     setTimeout(async () => {
       const storageListing = get_localStorage({ _id: currentUser?._id, key: 'listing' });
-      // console.log('storageListing:', storageListing)
+
       if (storageListing) {
-        // const list = Object.values(JSON.parse(storageListing)) as IListingFields[];
+
         const list = JSON.parse(storageListing) as IListingFields[];
-        // console.log('list:', list)
-        // console.log('Array.isArray(list):', Array.isArray(list))
+
         setListingsList(list);
+
       }
     }, 0);
 
@@ -265,12 +266,12 @@ export default function ProfilePage() {
 
   return (
     <PageContainer h1={"Profile Page"}>
-      <div className="flex flex-col">
 
+      <div className="flex flex-col">
+        {/* AVATAR UPLOAD */}
         <ul className={`${styles.ulMsg} ${styles.msgErr} ${styles.msgProg}`} >
-          {fileMsg && fileMsg[0].error && <li className={styles.msgErr} key='fileMsg[0].error' >{fileMsg[0].error} </li>}
-          {fileMsg && fileMsg[0].progress && <li className={styles.msgProg} key='fileMsg.progress' >{fileMsg[0].progress} </li>}
-          {/* {fileMsg && fileMsg[0].downloadURL && <li key='fileMsg[0].downloadURL'> <img src={fileMsg[0].downloadURL} alt='new image' /></li>} */}
+          {fileMsg && fileMsg[0].error && <li className={styles.msgErr}>{fileMsg[0].error} </li>}
+          {fileMsg && fileMsg[0].progress && <li className={styles.msgProg}>{fileMsg[0].progress} </li>}
         </ul>
 
         <Avatar user={currentUser}
@@ -279,7 +280,8 @@ export default function ProfilePage() {
         {/* data update */}
         <SigningForm forms={eForms.profile} />
       </div>
-
+      
+      {/* CTRLS */}
       <ul id='ulProfile' className={`${styles.ulProfile} my-3 gap-3`} onClick={eventBubble_clickHandler}>
         <li className="border-b-2 " ><span id="showListings"> Show Listing</span> </li>
         <li className={`text-right ${styles['li-rtl']}`}><span id="logOut">Log-Out</span></li>
@@ -297,7 +299,7 @@ export default function ProfilePage() {
         listingsList.length > 0 ? (<div>
           <>
             <h2>My Listings</h2>
-            {listingsList.map((ad, index) => (
+            {listingsList.slice().reverse().map((ad, index) => (
               <Card key={index.toString() + (ad._id || index)} item={ad} deleteListing={deleteListing_eh} />
             ))}
           </>

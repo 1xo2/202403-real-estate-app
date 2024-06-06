@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useBeforeUnload, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import xss from 'xss';
@@ -9,9 +9,8 @@ import CardLandscape from '../../components/card/CardLandscape';
 import { loader } from '../../components/dialogs/Loader';
 import ModalDialogOkCancel from '../../components/dialogs/ModalDialog/ModalDialogOkCancel';
 import UpdateModal from '../../components/dialogs/UpdateModal/UpdateModal';
-import { IAppError } from '../../errorHandlers/clientErrorHandler';
 import { AppDispatch, RootState } from '../../redux/store';
-import { general_failure, loading_start } from '../../redux/user/userSlice';
+import { loading_start } from '../../redux/user/userSlice';
 import { __Client_FirebaseStorageDomain } from '../../share/consts';
 import { fetchHeaders } from '../../share/fetchHeaders';
 import { IFileMsgState, firebase_delete, firebase_fileUploadHandler, validateFilesForUpload } from '../../share/firebase/storage/imageStorageManager';
@@ -68,28 +67,13 @@ export default function ListingPage({ isCreate }: Props) {
     const [fileMsgArr_index, setFileMsgArr_index] = useState(0)  // for inserting on existing images in fileMsgArr
     const isUploadsCompleteRef = useRef(false);
 
-
+    // image delete
     useEffect(() => {
         if (isFileDeleted)
             submitForm(true)
     }, [isFileDeleted]);
 
-    // useEffect(() => {
-    //     const checkCondition = async () => {
-
-    //         const fileMsgLength = fileMsgArr.filter(fileMsg => fileMsg.downloadURL).length
-    //         if (fileMsgArr.length && (fileMsgLength - fileMsgArr_index) === fileArr.length) {
-    //             console.log('All files uploaded.');
-    //             toast.success('File Uploaded Successfully zzz', toastBody);
-    //             setUploadsComplete(true);
-    //             isUploadsCompleteRef.current = true;
-    //         }
-    //     };
-
-    //     fileArr.length > 0 && checkCondition();
-
-    // }, [fileMsgArr, fileArr.length]);
-
+    // client file select
     useEffect(() => {
         if (fileArr.length > 0) {
             const allFilesUploaded = fileMsgArr.filter(fileMsg => fileMsg.downloadURL).length === fileArr.length + fileMsgArr_index;
@@ -101,7 +85,7 @@ export default function ListingPage({ isCreate }: Props) {
         }
     }, [fileMsgArr, fileArr.length, fileMsgArr_index]);
 
-
+    // submit ready  
     useEffect(() => {
         if (fileArr.length > 0 && (uploadsComplete || isUploadsCompleteRef.current)) {
             const allFilesUploaded = fileMsgArr.filter(fileMsg => fileMsg.downloadURL).length >= fileArr.length;
@@ -113,7 +97,7 @@ export default function ListingPage({ isCreate }: Props) {
     }, [uploadsComplete, fileMsgArr, fileArr.length]);
 
 
-    const removeSelectedFile_eventBubble = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    const removeSelectedFile_eh_Bubble = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 
         const target = e.target as HTMLElement
         let id = target.ariaLabel
@@ -131,7 +115,6 @@ export default function ListingPage({ isCreate }: Props) {
         newFiles.splice(index, 1);
         setFileArr(newFiles);
     };
-
 
     const uploadImages_eh = async () => {
         // image urls will be set on setFileMsgArr
@@ -156,8 +139,7 @@ export default function ListingPage({ isCreate }: Props) {
         }
     };
 
-
-    const eventHandler_fileOnChange = async (e: React.ChangeEvent<HTMLInputElement> | undefined): Promise<void> => {
+    const fileOnChange_eh = async (e: React.ChangeEvent<HTMLInputElement> | undefined): Promise<void> => {
 
         // loader(async () => {
 
@@ -184,7 +166,7 @@ export default function ListingPage({ isCreate }: Props) {
 
 
     };
-    const firebaseFileDelete_eventBubble = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    const firebaseFileDelete_eh_Bubble = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 
         const target = e.target as HTMLElement
         let id = target.ariaLabel
@@ -236,10 +218,10 @@ export default function ListingPage({ isCreate }: Props) {
             toast.success('file deleted successfully', toastBody)
         }, dispatch)
     }
-    //#endregion
+    
 
 
-    const eventBubble_formOnChange = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    const formOnChange_eh_Bubble = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         try {
             const target = e.target as HTMLInputElement
 
@@ -276,8 +258,6 @@ export default function ListingPage({ isCreate }: Props) {
 
     const formSubmit_eh = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        // console.log('formData:', formData);
-
 
         if (!formData) {
             throw new Error("error: id: sa9df80kkj-l2 ");
@@ -298,13 +278,6 @@ export default function ListingPage({ isCreate }: Props) {
         } else {
             submitForm()
         }
-
-        // todo:
-        // if(formData.type === 'rent') {
-        //    delete formData.priceDiscounted 
-        // }
-
-        //#endregion
 
     }
 
@@ -396,14 +369,14 @@ export default function ListingPage({ isCreate }: Props) {
     return (
         <PageContainer h1={`${isCreate ? 'Create' : 'Edit'} Listing Page`} isWide={true} >
             <form onSubmit={formSubmit_eh} id="formListing" className={`${styles.formListing} flex flex-col sm:flex-row gap-7`} >
-                <div className={styles['rap-side']} onChange={eventBubble_formOnChange} >
+                <div className={styles['rap-side']} onChange={formOnChange_eh_Bubble} >
                     {/* //////    INPUTS   //////// */}
                     <>
                         <input type="text"
                             placeholder='Title'
                             required
                             id="txtName"
-                            maxLength={10}
+                            maxLength={20}
                             minLength={2}
                             defaultValue={formData.name} />
                         <textarea
@@ -412,13 +385,13 @@ export default function ListingPage({ isCreate }: Props) {
                             required
                             defaultValue={formData.description}
                             id="txtDescription"
-                            maxLength={62}
+                            maxLength={150}
                         />
                         <input type="text"
                             placeholder='Address'
                             required
                             id="txtAddress"
-                            maxLength={62}
+                            maxLength={100}
                             defaultValue={formData.address}
                         />
                     </>
@@ -488,7 +461,7 @@ export default function ListingPage({ isCreate }: Props) {
                     <div className={styles['section']}>
                         <div className="flex gap-3 w-full ">
                             {/* File Input */}
-                            <input type="file" disabled={loading} onChange={eventHandler_fileOnChange} className='rounded border border-gray-300 p-3 w-full' id="images"
+                            <input type="file" disabled={loading} onChange={fileOnChange_eh} className='rounded border border-gray-300 p-3 w-full' id="images"
                                 accept='image/*' multiple placeholder='Add images' data-testid="file-input" />
                         </div>
                     </div>
@@ -496,7 +469,7 @@ export default function ListingPage({ isCreate }: Props) {
                     <div className="overflow-auto">
                         {/* File upload msg */}
                         {fileMsgArr.length > 0 &&
-                            <div onClick={firebaseFileDelete_eventBubble}>
+                            <div onClick={firebaseFileDelete_eh_Bubble}>
                                 {fileMsgArr.map((fileMsg, index) => (
                                     <CardLandscape key={index} index={index} fileUrl={fileMsg.downloadURL} totalImages={fileMsgArr.length} firstCover={true} header={'info.'}
                                         body={
@@ -512,7 +485,7 @@ export default function ListingPage({ isCreate }: Props) {
 
                         {/* Selected Files For Upload */}
                         {fileArr.length > 0 &&
-                            <div className="overflow-auto h-96 " onClick={removeSelectedFile_eventBubble}>
+                            <div className="overflow-auto h-96 " onClick={removeSelectedFile_eh_Bubble}>
                                 <span className="font-light">(6/{totalImages}) Selected Files For Upload:</span >
                                 {
                                     fileArr.map((file, index) => (

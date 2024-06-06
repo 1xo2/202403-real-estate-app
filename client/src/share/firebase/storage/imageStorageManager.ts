@@ -287,7 +287,7 @@ export function getMimeTypeFromFile(file: File): Promise<boolean> {
 
 export function isURL_ImageFileExtension(url: string): boolean {
     // List of known image file extensions
-    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.svg'];
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.svg', '.webp', '.avif'];
 
     // Check if the URL contains any of the known image file extensions
     return imageExtensions.some(extension => url.toLowerCase().indexOf(extension) !== -1);

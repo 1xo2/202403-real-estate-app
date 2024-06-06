@@ -34,7 +34,7 @@ export default function OAuthGoogle() {
 
 
       if (data._id && result.user.photoURL)
-        update_localStorage({ _id: data._id, key: "Avatar", value: result.user.photoURL })
+        update_localStorage({ _id: data._id, key: "Avatar", value: result.user.photoURL , isArray: false });
 
 
       navigate('/home')

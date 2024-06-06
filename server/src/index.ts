@@ -11,7 +11,7 @@ import publicRouter from "../src/routes/public/public.route";
 import userRouter from "../src/routes/user.route";
 import envManager, { validateEnvironmentVariables } from "./middleware/envManager";
 import helmetConfig from "./middleware/security/helmetConfig";
-import { getBodyParams_XSS_sanitized_verifyUser } from "./middleware/security/sanitize";
+import { sanitized_verifyUser } from "./middleware/security/sanitize";
 
 ///////////////
 // INI
@@ -27,9 +27,11 @@ connectToDatabase()   // Connect to the database
 ///////////////
 app.use(helmetConfig());    // Content-Security-Policy header.
 app.use(compression());     // Use compression middleware
-app.use(cookieParser())     // verify user by cookie token.
 app.use(express.json());
-app.use(getBodyParams_XSS_sanitized_verifyUser);    // Add middleware before route handlers
+app.use(cookieParser())     // verify user by cookie token.
+// app.use(getBodyParams_XSS_sanitized_verifyUser);    // Add middleware before route handlers
+app.use(sanitized_verifyUser);    // Add middleware before route handlers
+
 
 
 
@@ -39,6 +41,7 @@ app.use(getBodyParams_XSS_sanitized_verifyUser);    // Add middleware before rou
 app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/listing", listingRouter);
+// PUBLIC ROUTES
 app.use("/api/public",publicRouter);
 
 app.use(errorMiddleware);   // Error handling middleware

@@ -10,6 +10,8 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import ListingPage from "./pages/listing/ListingPage";
 import ListingView from "./pages/listing/ListingView";
+import SearchPage from "./pages/SearchPage/SearchPage";
+
 
 function App() {
   return (
@@ -22,6 +24,7 @@ function App() {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/login" element={<LogInPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/search" element={<SearchPage />} />
         <Route element={<PrivateRoute />} >
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/listings-edit/:listingId" element={<ListingPage isCreate={false} />} />
