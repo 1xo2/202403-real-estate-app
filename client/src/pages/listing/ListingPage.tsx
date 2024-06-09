@@ -25,6 +25,24 @@ type Props = {
     isCreate: boolean
 }
 
+const optionArr = ["Sale", "Rent", "Parking", "Furnished", "Offer"]
+const _listingIni = {
+    name: "",
+    description: "",
+    address: "",
+    price: 1,
+    priceDiscounted: 0,
+    bedrooms: 0,
+    bathrooms: 0,
+    furnished: false,
+    parking: false,
+    type: "rent",
+    offer: false,
+    imageUrl: [],
+    FK_User: "",
+    _id: ''
+}
+
 export default function ListingPage({ isCreate }: Props) {
 
     const navigate = useNavigate();
@@ -40,23 +58,7 @@ export default function ListingPage({ isCreate }: Props) {
     const [fileArr, setFileArr] = useState<File[]>([])
 
 
-    const [formData, setFormData] = useState<IListingFields>(singleListing || {
-        name: "",
-        description: "",
-        address: "",
-        price: 1,
-        priceDiscounted: 0,
-        bedrooms: 0,
-        bathrooms: 0,
-        furnished: false,
-        parking: false,
-        type: "rent",
-        offer: false,
-        imageUrl: [],
-        FK_User: "",
-        _id: ''
-    })
-    const optionArr = ["Sell", "Rent", "Parking", "Furnished", "Offer"]
+    const [formData, setFormData] = useState<IListingFields>(singleListing || _listingIni)
 
     let totalImages: number = (fileMsgArr && fileMsgArr?.length || 0) + fileArr?.length // max 6 constant
 
@@ -218,7 +220,7 @@ export default function ListingPage({ isCreate }: Props) {
             toast.success('file deleted successfully', toastBody)
         }, dispatch)
     }
-    
+
 
 
     const formOnChange_eh_Bubble = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -234,8 +236,8 @@ export default function ListingPage({ isCreate }: Props) {
                         Number(value) :
                         value.toLocaleLowerCase();
 
-            if (type === 'checkbox' && (fieldName === 'sell' || fieldName === 'rent')) {
-                fieldValue = checked ? fieldName : (fieldName === 'rent' ? 'sell' : 'rent');
+            if (type === 'checkbox' && (fieldName === 'sale' || fieldName === 'rent')) {
+                fieldValue = checked ? fieldName : (fieldName === 'rent' ? 'sale' : 'rent');
                 fieldName = 'type';
             }
 
@@ -403,7 +405,7 @@ export default function ListingPage({ isCreate }: Props) {
                                     {/* eslint-disable-next-line react/jsx-props-no-spreading */}
                                     <input type="checkbox"
                                         checked={
-                                            optionArr[index] === "Sell" || option === "Rent" ?
+                                            optionArr[index] === "Sale" || option === "Rent" ?
                                                 (formData.type === option.toLowerCase()) :
                                                 (formData[optionArr[index].toLowerCase() as keyof typeof formData] as boolean)
                                         }

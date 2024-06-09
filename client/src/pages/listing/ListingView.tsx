@@ -18,13 +18,17 @@ import 'swiper/css/pagination';
 import 'swiper/css/scrollbar';
 
 
-import { FaBath, FaBed, FaChair, FaMapMarkerAlt, FaParking } from "react-icons/fa";
+// import { FaBath, FaBed, FaChair, FaMapMarkerAlt, FaParking } from "react-icons/fa";
 import { toast } from "react-toastify";
 import PageContainer from "../../components/PageContainer";
 import { __Client_FirebaseStorageDomain } from "../../share/consts";
 import { toastBody } from "../../share/toast";
 import styles2 from './ListingView.module.css';
 import { CheckmarkIcon } from "../../components/svg/CheckmarkIcon";
+import ListingDetailView from "../../components/listing/ListingDetailView";
+
+
+
 
 
 
@@ -171,7 +175,8 @@ export default function ListingView() {
                     <PageContainer isWide={true} >
                         <div className='flex flex-col max-w-4xl mx-auto p-3 my-7 gap-3'>
                             <h1 className={styles2.ttl} >{formData.name}</h1>
-                            <p className='text-2xl font-semibold capitalize'>
+
+                            {/* <p className='text-2xl font-semibold capitalize'>
                                 {formData.name} - ${' '}
                                 {formData.offer
                                     ? formData.priceDiscounted?.toLocaleString('en-US')
@@ -217,7 +222,8 @@ export default function ListingView() {
                                     <FaChair className='text-lg' />
                                     {formData.furnished ? 'Furnished' : 'Unfurnished'}
                                 </li>
-                            </ul>
+                            </ul> */}
+                            <ListingDetailView formData={formData} />
 
                         </div>
 

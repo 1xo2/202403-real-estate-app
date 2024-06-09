@@ -1,0 +1,19 @@
+.ulInfo li {
+    display: flex;
+    justify-items: center;
+    gap: .4rem;
+    white-space: nowrap;
+}
+
+.min {
+    gap: 1.3rem;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+}
+
+.txt3dot {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}

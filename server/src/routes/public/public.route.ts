@@ -18,13 +18,15 @@ function parseQueryParameter(value: string | undefined, trueValue: any, falseVal
 
 publicRouter.get('/search', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const sortBy = req.query.sort as string || 'createdAt';        
-        const order = req.query.order === 'Descending' ? -1 : 1;
-        const limit = parseInt(req.query.limit as string) || 9;
-        const page = parseInt(req.query.page as string) || 1;
-        const startIndex = (page - 1) * limit;
+        const pageNo = parseInt(req.query.pageNo as string) || 1;
+        const limit = 9// parseInt(req.query.limit as string) || 9;
+        const startIndex = (pageNo - 1) * limit;
+        const sTotalResults = req.query.total as string;
 
         let listingQuery: { [key: string]: any } = {};
+
+        const sortBy = req.query.sort as string || 'createdAt';
+        const order = req.query.order === 'descending' ? -1 : 1;
 
         if (req.query.offer !== undefined) {
             listingQuery.offer = parseQueryParameter(req.query.offer as string, true, false);
@@ -42,31 +44,41 @@ publicRouter.get('/search', async (req: Request, res: Response, next: NextFuncti
 
 
 
-        
+
         // const search = req.query.search as string || '';
         console.log('req.query:', req.query)
         const searchTerm = req.query.searchTerm as string || '';
-        
+
         if (searchTerm) {
             const regex = new RegExp(searchTerm, 'i');
             listingQuery.$or = [
                 { name: regex },
                 { description: regex },
                 { address: regex },
-            ];            
+            ];
         }
 
+        // Count total results matching the query
+        const totalResults = sTotalResults ? parseInt(sTotalResults) : await ListingModel.countDocuments(listingQuery);
+
+        console.log('totalResults:', totalResults)
         console.log('listingQuery:', listingQuery)
-         const listings =
-            await ListingModel.find(listingQuery)                             
-                .sort({ [sortBy]: order }) 
+
+        const listingsPage =
+            await ListingModel.find(listingQuery)
+                .sort({ [sortBy]: order })
                 .limit(limit)
                 .skip(startIndex);
 
         // await ListingModel.find({ $or: [{ name: /island/i }, { description: /island/i }, { address: /island/i }] })
 
 
-        return res.status(200).json(listings);
+        return res.status(200).json({
+            listingsPage,
+            totalResults,
+            currentPageNo: pageNo,
+            // totalPages: Math.ceil(totalResults / limit),
+        });
     } catch (error) {
         console.error('error:', error);
         next(error);

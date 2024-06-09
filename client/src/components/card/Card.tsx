@@ -5,6 +5,7 @@ import { isURL_ImageFileExtension } from '../../share/firebase/storage/imageStor
 import { IListingFields } from '../../share/types/listings';
 import { isNull_Undefined_emptyString } from '../../utils/stringManipulation';
 import styles from './Card.module.css'; // Importing the CSS module
+import ListingDetailView from '../listing/ListingDetailView';
 type Props = {
     item: IListingFields
     deleteListing?: (item: IListingFields) => void
@@ -12,7 +13,7 @@ type Props = {
 
 const Card = ({ item, deleteListing }: Props) => {
     // console.log('item:', item)
-    const { name, description, imageUrl, _id } = item
+    const { imageUrl, _id } = item    
 
     if (isNull_Undefined_emptyString(_id)) {
         console.error("Card: id is null or undefined. n:sad9jja-ssa3-e")
@@ -29,16 +30,13 @@ const Card = ({ item, deleteListing }: Props) => {
             <Link to={`/listing-view/${_id}`} state={{ singleListing: item }}>
                 <img src={imageSrc} alt="Card Image" />
             </Link>
-            <div className={styles['card-content']}>
-                <h3>{name}</h3>
-                <p>{description}</p>
-                <div className={styles["btn-wrap"]}>
-                    {deleteListing &&
-                        <>
-                            <Link to={`/listings-edit/${_id}`} state={{ singleListing: item }} className={styles.btn}>Edit</Link>
-                            <Link to='#' onClick={() => deleteListing(item)} className={styles.btn}>Delete</Link>
-                        </>}
-                </div>
+            <div className={styles['card-content']}>                
+                <ListingDetailView formData={item} isMin />
+                {deleteListing &&
+                    <div className={styles["btn-wrap"]}>
+                        <Link to={`/listings-edit/${_id}`} state={{ singleListing: item }} className={styles.btn}>Edit</Link>
+                        <Link to='#' onClick={() => deleteListing(item)} className={styles.btn}>Delete</Link>
+                    </div>}
             </div>
         </div>
     );
