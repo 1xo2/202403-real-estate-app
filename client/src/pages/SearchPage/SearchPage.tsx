@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import xss from 'xss';
@@ -9,17 +9,18 @@ import { AppDispatch, RootState } from '../../redux/store';
 import { fetchHeaders } from '../../share/fetchHeaders';
 import { IListingFields } from '../../share/types/listings';
 import styles from './SearchPage.module.css';
+import { ImSpinner2 } from "react-icons/im";
 
 
 type TDataForm = {
     rent?: boolean;
     sale?: boolean;
-    type: 'rent' | 'sale' | null; // Include null as a valid type
+    type: 'rent' | 'sale' | null;
     sort: string;
     order: string;
     searchTerm?: string | null;
     totalResults?: string;
-    currentPageNo: string;
+    pageNo?: string;
 } & Omit<IListingFields, 'type' | 'name' | 'description' | 'address' | 'price' | 'priceDiscounted' | 'FK_User' | 'imageUrl' | 'bedrooms' | "bathrooms">;
 
 const _formDataIni: TDataForm = {
@@ -33,21 +34,29 @@ const _formDataIni: TDataForm = {
     order: 'ascending',
     sort: 'createdAt',
     totalResults: '',
-    currentPageNo: '1'
+    pageNo: '0'
 }
 
 type TResponseApi = {
     listingsPage: IListingFields[];
-    currentPageNo: number;
+    pageNo: number;
     totalResults: number;
 }
 
 type TPage = {} & Omit<TResponseApi, 'totalResults'>
 
 type TPagination = {
-    listingsPageArr: [TPage];
+    listingsPageArr: TPage[];
     totalResults: number;
 }
+type TFlags = {
+    isFetching_Debounce: boolean;
+    currentPageNo: number | null;
+    currentTotalResults: number | null;
+    // pageNoDebounce: number;
+}
+const _pageLimit = 9;
+
 export default function SearchPage() {
     const dispatch: AppDispatch = useDispatch();
     const { loading } = useSelector((state: RootState) => state.user);
@@ -55,10 +64,73 @@ export default function SearchPage() {
 
 
 
-    const [formData, setFormData] = useState<TDataForm>(_formDataIni as TDataForm)
-    const [resultsData, setResultsData] = useState<IListingFields[]>([])
-    const [resultsPagination, setResultsPagination] = useState<TPagination>({} as TPagination)
+    const [formData, setFormData] = useState<TDataForm>(_formDataIni as TDataForm)                  // form search info
+    const [resultsPagination, setResultsPagination] = useState<TPagination>({} as TPagination)      // api results
 
+    const sideRightRef = useRef<HTMLDivElement>(null);  // paging by scroll
+    const [isNextPage, setIsNextPage] = useState(false) // msg loading
+
+
+
+    const flagsIni: TFlags = {
+        // URL as single src of truth. / stale closer - state
+        currentPageNo: null,
+        currentTotalResults: null,
+        // for pagination
+        isFetching_Debounce: false,
+
+    }
+    const flags_ref = useRef(flagsIni)
+
+
+    // PAGING
+    useEffect(() => {
+        const handleScroll = async () => {
+
+            if ((flags_ref.current.currentPageNo && flags_ref.current.currentTotalResults) && ((flags_ref.current.currentPageNo * _pageLimit) >= flags_ref.current.currentTotalResults)) {
+                return // paging end
+            }
+
+            if (sideRightRef.current && !flags_ref.current.isFetching_Debounce) {
+                const { scrollTop, scrollHeight, clientHeight } = sideRightRef.current;
+
+                if (scrollTop + clientHeight >= scrollHeight * 0.999) {
+                    try {
+                        flags_ref.current.isFetching_Debounce = true
+                        console.log('Scrolled to 99%');
+
+                        setIsNextPage(true); // msg loading
+                        await new Promise(resolve => setTimeout(async () => {
+
+                            await searchClick_eh();
+                            setIsNextPage(false); // msg loading
+                            flags_ref.current.isFetching_Debounce = false;
+
+                            resolve;
+                        }, 1000));
+
+
+
+                    } catch (error) {
+                        console.log('error:', error)
+
+                    }
+                }
+            }
+        };
+
+        const sideRightElement = sideRightRef.current;
+        if (sideRightElement) {
+            sideRightElement.addEventListener('scroll', handleScroll);
+        }
+
+        return () => {
+            if (sideRightElement) {
+                sideRightElement.removeEventListener('scroll', handleScroll);
+            }
+        };
+    }, []);
+    // URL params
     useEffect(() => {
         const urlParams = new URLSearchParams(location.search);
         // Loop through form data keys and set state based on URL params
@@ -83,7 +155,6 @@ export default function SearchPage() {
 
     }, [location.search])
 
-
     // Handle form field changes - event babel.
     function fields_eh_Babel(e: React.MouseEvent<HTMLDivElement, MouseEvent> | React.ChangeEvent<HTMLInputElement>): void {
         const target = e.target as HTMLInputElement
@@ -105,13 +176,18 @@ export default function SearchPage() {
             }
 
 
-            setFormData(prevState => {
-                const state = { ...prevState, [key]: value }
-                // console.log('state:', state)
+            setFormData(prevState => {                
                 return { ...prevState, [key]: value }
             })
         }
 
+        // console.log('formData:', formData)
+
+        // flags_ref.current = { ...flagsIni };
+        // setResultsPagination({} as TPagination);
+        // if (location.search) {
+        //     navigate('/search')
+        // }
     }
 
     const getUrlParamsFromObject = (data: TDataForm) => {
@@ -133,6 +209,8 @@ export default function SearchPage() {
     async function searchClick_eh(): Promise<void> {
         loader(async () => {
 
+
+
             const { rent, sale, ...data } = formData
             if (rent === sale) {
                 data.type = null;
@@ -140,6 +218,18 @@ export default function SearchPage() {
             } else {
                 data.type = sale ? 'sale' : 'rent';
             }
+
+            const urlParams = new URLSearchParams(location.search);
+            const pageNo = urlParams.get('pageNo') // for stael closer between 
+            const totalResults = urlParams.get('totalResults') // for stael closer between 
+
+            if (pageNo && parseInt(pageNo || '0') * _pageLimit >= parseInt(totalResults || '0')) {
+                console.log('No more data to fetch')
+                return
+            }
+
+            data.pageNo = (parseInt(pageNo || data.pageNo as string) + 1).toString()
+
 
             // api params
             // const stringifiedData: Record<string, string> = {}
@@ -154,7 +244,7 @@ export default function SearchPage() {
             // const params = (new URLSearchParams(stringifiedData)).toString();
             // console.log('data:', data)
             const params = getUrlParamsFromObject(data)
-            // console.log('api params:', params)
+
 
 
             const url = `/api/public/search?${params}`;
@@ -167,31 +257,32 @@ export default function SearchPage() {
             }
 
             const results: TResponseApi = await res.json()
-            setResultsData(results.listingsPage)
+            console.log('api results:', results)
 
-
+            flags_ref.current.currentPageNo = results.pageNo;
+            flags_ref.current.currentTotalResults = results.totalResults;
 
             const page: TPage = {
                 listingsPage: results.listingsPage,
-                currentPageNo: results.currentPageNo
+                pageNo: results.pageNo
             }
-
             setResultsPagination(prevState => {
                 return {
                     ...prevState,
-                    listingsPageArr: [page],                    
+                    listingsPageArr: [...(prevState.listingsPageArr || []), page],
                     totalResults: results.totalResults,
+
                 }
             })
 
 
 
-            
+
             setFormData(prevState => {
                 return {
                     ...prevState,
                     totalResults: results.totalResults.toString(),
-                    currentPageNo: results.currentPageNo.toString()
+                    pageNo: results.pageNo?.toString() || '1'
                 }
             })
 
@@ -212,18 +303,18 @@ export default function SearchPage() {
             const searchQuery = getUrlParamsFromObject({
                 ...formData,
                 totalResults: results.totalResults.toString(),
-                currentPageNo: results.currentPageNo.toString()
+                pageNo: results.pageNo.toString()
             })
             // console.log('searchQuery:', searchQuery)
             navigate(`/search?${searchQuery}`)
-
+            // flags_ref.current.pageNoDebounce = results.pageNo;
 
         }, dispatch)
     }
 
 
+
     return (
-        // <div className="mx-auto p-6 max-w-full flex ">
         <div className={styles.parentContainer}>
             <div className={styles.sideLeft} onChange={fields_eh_Babel}>
                 {/* <form onSubmit={formSubmit_eh}></form> */}
@@ -287,29 +378,58 @@ export default function SearchPage() {
                 </div>
                 <hr />
                 <button onClick={searchClick_eh} type="button" className='btnBig bg-slate-600' >Search</button>
-
             </div>
-            <div className={styles.sideRight} >
 
-                {resultsData && 
-                
-                <>
-                    <h1>Results: {formData.totalResults ? resultsData.length + '/' + resultsPagination.totalResults : <span className='italic text-base opacity-80 ' >'Use the Search Button'</span>}</h1>
-                    <div className={`flex gap-4 flex-col md:flex-row flex-wrap ${styles.paper}`}>
-                        {
-                            resultsData.map((listing: any) => {
-                                return (
-                                    <div key={listing._id} className='' >
+            <div ref={sideRightRef} className={styles.sideRight} >
 
-                                        <Card item={listing} />
-                                    </div>
-                                )
-                            })
-                        }
-                    </div>
-                </>
-                
+                {/* Use the Search Button */}
+                {!resultsPagination?.totalResults && <h1>Results: <span className='italic text-base opacity-80 ' >'Use the Search Button'</span></h1>}
+                {/* RESULTS */}
+                {
+                    resultsPagination && resultsPagination.listingsPageArr && resultsPagination.listingsPageArr.map((page: TPage, index: number) => (
+                        <div key={page.pageNo} >
+
+                            <h3>
+                                {
+                                    resultsPagination.totalResults ?
+                                        (
+                                            <>
+                                                Page: {index + 1}
+                                                <span> {(resultsPagination.listingsPageArr[index].listingsPage.length + (index * _pageLimit)) + '/' + resultsPagination.totalResults} </span>
+                                                {/* <span> {(page.pageNo * _pageLimit) + '/' + resultsPagination.totalResults} </span> */}
+                                            </>
+                                        ) :
+                                        (<span>'Use the Search Button'</span>)
+                                }
+                            </h3>
+
+
+                            <div className={`flex gap-4 flex-col md:flex-row flex-wrap ${styles.paper}`}>
+                                {
+                                    page.listingsPage.map((listing: any) => (
+                                        <div key={listing._id} >
+                                            <Card item={listing} />
+                                        </div>
+                                    ))
+                                }
+                            </div>
+                        </div>
+                    ))
                 }
+
+                {/* NEXT PAGE */}
+                <div className={`${styles.lNext} ${isNextPage ? '' : styles.disappear} `} >
+                    {isNextPage && (<>'Loading Next Page...'<span className={styles.spinner} ><ImSpinner2 /></span></>)}
+                </div>
+
+                {/* END'S */}
+                <div className={`flex !justify-around  ${styles.lNext} ${((flags_ref.current.currentPageNo && flags_ref.current.currentTotalResults) &&
+                    ((flags_ref.current.currentPageNo * _pageLimit) >= flags_ref.current.currentTotalResults)) ? '' : styles.disappear} `} >
+                    <span>Acabou...</span>
+                    <span>Its Ended...</span>
+                    <span>C'est Fini...</span>
+                </div>
+
             </div>
             <UpdateModal isOpen={loading} />
         </div>

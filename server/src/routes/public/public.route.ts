@@ -21,6 +21,7 @@ publicRouter.get('/search', async (req: Request, res: Response, next: NextFuncti
         const pageNo = parseInt(req.query.pageNo as string) || 1;
         const limit = 9// parseInt(req.query.limit as string) || 9;
         const startIndex = (pageNo - 1) * limit;
+        console.log('startIndex:', startIndex)
         const sTotalResults = req.query.total as string;
 
         let listingQuery: { [key: string]: any } = {};
@@ -74,9 +75,9 @@ publicRouter.get('/search', async (req: Request, res: Response, next: NextFuncti
 
 
         return res.status(200).json({
-            listingsPage,
             totalResults,
-            currentPageNo: pageNo,
+            pageNo,
+            listingsPage,
             // totalPages: Math.ceil(totalResults / limit),
         });
     } catch (error) {

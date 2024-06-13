@@ -16,11 +16,15 @@ export default function Header() {
   const formSubmit_eh = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-
-    const urlParams = new URLSearchParams(location.search)
-    urlParams.set(_SEARCH_TERM, searchTerm);
-    const searchQuery = urlParams.toString();
-    navigate(`/search?${searchQuery}`)
+    if (searchTerm) {
+      const urlParams = new URLSearchParams(location.search)
+      urlParams.set(_SEARCH_TERM, searchTerm);
+      const searchQuery = urlParams.toString();
+      navigate(`/search?${searchQuery}`)
+    }
+    else {
+      navigate('/search')
+    }
   }
 
 
