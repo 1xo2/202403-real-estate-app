@@ -34,6 +34,7 @@ full CI-CD with Github.Action
 │   │   │   │   └── index.ts
 │   │   └── cypress.config.ts
 │   │   └── cypress.d.ts
+│   │   └── global.d.ts
 │   │   └── index.html
 │   │   └── info.txt
 │   │   └── mockServiceWorker.js.4HttpReq.txt
@@ -63,6 +64,9 @@ full CI-CD with Github.Action
 │   │   │   │   /client/src/components/Contact/
 │   │   │   │   │   └── Contact.tsx.txt
 │   │   │   │   └── Header.tsx
+│   │   │   │   /client/src/components/listing/
+│   │   │   │   │   └── ListingDetailView.module.css
+│   │   │   │   │   └── ListingDetailView.tsx
 │   │   │   │   └── PageContainer.tsx
 │   │   │   │   └── SigningForm.tsx
 │   │   │   │   /client/src/components/svg/
@@ -91,6 +95,9 @@ full CI-CD with Github.Action
 │   │   │   │   │   └── ProfilePage.module.css
 │   │   │   │   │   └── ProfilePage.tsx
 │   │   │   │   └── RegisterPage.tsx
+│   │   │   │   /client/src/pages/SearchPage/
+│   │   │   │   │   └── SearchPage.module.css
+│   │   │   │   │   └── SearchPage.tsx
 │   │   │   │   /client/src/pages/__test__/
 │   │   │   │   │   └── AboutPage.test.tsx
 │   │   │   │   │   └── CreateListingPage.test.tsx
@@ -108,8 +115,8 @@ full CI-CD with Github.Action
 │   │   │   │   └── fetchHeaders.ts
 │   │   │   │   /client/src/share/firebase/
 │   │   │   │   │   /client/src/share/firebase/OAuthGoogle/
-│   │   │   │   │   │   └── firebase.ts
-│   │   │   │   │   │   └── OAuthGoogle.tsx
+│   │   │   │   │   │   └── firebase.ts.txt
+│   │   │   │   │   │   └── OAuthGoogle.tsx.txt
 │   │   │   │   │   /client/src/share/firebase/storage/
 │   │   │   │   │   │   └── imageStorageManager.ts
 │   │   │   │   │   │   └── imageStorageManager.txt
@@ -175,6 +182,7 @@ full CI-CD with Github.Action
 │   │   │   └── index.d.ts
 │   │   │   └── userTypes.ts
 │   └── todo.txt
+
 
 
 ```

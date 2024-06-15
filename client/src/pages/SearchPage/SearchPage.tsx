@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { ImSpinner2 } from "react-icons/im";
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import xss from 'xss';
@@ -9,7 +10,7 @@ import { AppDispatch, RootState } from '../../redux/store';
 import { fetchHeaders } from '../../share/fetchHeaders';
 import { IListingFields } from '../../share/types/listings';
 import styles from './SearchPage.module.css';
-import { ImSpinner2 } from "react-icons/im";
+import debounce from 'lodash.debounce';
 
 
 type TDataForm = {
@@ -19,8 +20,8 @@ type TDataForm = {
     sort: string;
     order: string;
     searchTerm?: string | null;
-    totalResults?: string;
-    pageNo?: string;
+    totalResults?: number | null;
+    pageNo?: number | null;
 } & Omit<IListingFields, 'type' | 'name' | 'description' | 'address' | 'price' | 'priceDiscounted' | 'FK_User' | 'imageUrl' | 'bedrooms' | "bathrooms">;
 
 const _formDataIni: TDataForm = {
@@ -33,8 +34,8 @@ const _formDataIni: TDataForm = {
     parking: false,
     order: 'ascending',
     sort: 'createdAt',
-    totalResults: '',
-    pageNo: '0'
+    totalResults: null,
+    pageNo: null
 }
 
 type TResponseApi = {
@@ -51,9 +52,7 @@ type TPagination = {
 }
 type TFlags = {
     isFetching_Debounce: boolean;
-    currentPageNo: number | null;
-    currentTotalResults: number | null;
-    // pageNoDebounce: number;
+    isNewSearch: boolean; // for auto search on scroll event conditions true    
 }
 const _pageLimit = 9;
 
@@ -65,6 +64,7 @@ export default function SearchPage() {
 
 
     const [formData, setFormData] = useState<TDataForm>(_formDataIni as TDataForm)                  // form search info
+    const formDataRef = useRef<TDataForm>(_formDataIni as TDataForm)                                // form search info
     const [resultsPagination, setResultsPagination] = useState<TPagination>({} as TPagination)      // api results
 
     const sideRightRef = useRef<HTMLDivElement>(null);  // paging by scroll
@@ -73,21 +73,20 @@ export default function SearchPage() {
 
 
     const flagsIni: TFlags = {
-        // URL as single src of truth. / stale closer - state
-        currentPageNo: null,
-        currentTotalResults: null,
-        // for pagination
         isFetching_Debounce: false,
-
+        isNewSearch: false,
     }
     const flags_ref = useRef(flagsIni)
 
 
     // PAGING
     useEffect(() => {
-        const handleScroll = async () => {
+        const handleScroll = debounce(async () => {
 
-            if ((flags_ref.current.currentPageNo && flags_ref.current.currentTotalResults) && ((flags_ref.current.currentPageNo * _pageLimit) >= flags_ref.current.currentTotalResults)) {
+            if (!flags_ref.current.isNewSearch) {
+                return // not new search
+            }
+            if ((formDataRef.current.pageNo && formDataRef.current.totalResults) && (formDataRef.current.pageNo * _pageLimit) >= formDataRef.current.totalResults) {
                 return // paging end
             }
 
@@ -117,7 +116,7 @@ export default function SearchPage() {
                     }
                 }
             }
-        };
+        }, 200);
 
         const sideRightElement = sideRightRef.current;
         if (sideRightElement) {
@@ -130,30 +129,32 @@ export default function SearchPage() {
             }
         };
     }, []);
-    // URL params
+    // URL params 
     useEffect(() => {
         const urlParams = new URLSearchParams(location.search);
+
         // Loop through form data keys and set state based on URL params
         (Object.keys(_formDataIni) as (keyof TDataForm)[]).forEach(key => {
             const sValue = urlParams.get(key);
+            if (sValue !== undefined && sValue !== null && sValue !== '') {
+                // !the xss is string type
+                let value: any = (sValue !== undefined && sValue !== null && sValue !== '') ? xss(String(sValue)) : _formDataIni[key];
 
-            // !the xss is string type
-            let value: any = (sValue !== undefined && sValue !== null && sValue !== '') ? xss(String(sValue)) : _formDataIni[key];
+                if (typeof _formDataIni[key] === 'boolean') {
+                    value = value === 'true';
+                }
 
-            // Parse the value based on expected type
-            if (typeof _formDataIni[key] === 'boolean') {
-                value = value === 'true';
+                formDataRef.current = { ...formDataRef.current, [key]: value };
             }
-
-            setFormData(prevState => ({
-                ...prevState,
-                [key]: value
-            }));
-            // console.log('Parsed value:', key, value, typeof value);
         });
 
+        setFormData(prevState => ({
+            ...prevState,
+            ...formDataRef.current
+        }));
 
     }, [location.search])
+
 
     // Handle form field changes - event babel.
     function fields_eh_Babel(e: React.MouseEvent<HTMLDivElement, MouseEvent> | React.ChangeEvent<HTMLInputElement>): void {
@@ -176,42 +177,48 @@ export default function SearchPage() {
             }
 
 
-            setFormData(prevState => {                
-                return { ...prevState, [key]: value }
+            flags_ref.current.isNewSearch = false
+
+            setFormData(prevState => {
+                const state = { ...prevState, [key]: value }
+                formDataRef.current = { ...formDataRef.current, [key]: value };  // update ref here: value is async value change of closure/state
+
+                // form reset
+                flags_ref.current = { ...flagsIni };
+                setResultsPagination({} as TPagination);
+                formDataRef.current.pageNo = _formDataIni.pageNo;
+                formDataRef.current.totalResults = _formDataIni.totalResults;
+                state.pageNo = _formDataIni.pageNo; // update also the state: to avoid race conditions or stale state issues.
+                state.totalResults = _formDataIni.totalResults;
+
+                const urlParams = getUrlParamsFromObject(formDataRef.current as TDataForm)
+                navigate(`/search?${urlParams}`)
+
+                return state;
             })
         }
 
-        // console.log('formData:', formData)
-
-        // flags_ref.current = { ...flagsIni };
-        // setResultsPagination({} as TPagination);
-        // if (location.search) {
-        //     navigate('/search')
-        // }
     }
 
     const getUrlParamsFromObject = (data: TDataForm) => {
-        const stringifiedData: Record<string, string> = {};
+
+        const urlParams = new URLSearchParams()
         Object.keys(data).forEach(key => {
-            const value = data[key as keyof typeof data];
+            const value = data[key as keyof typeof formData];
             if (value !== null && value !== undefined && value !== false && value !== '') {
                 if (value !== 'ascending' && value !== 'createdAt') { // api default value
-                    // console.log('key: value:', value, key)
-                    stringifiedData[key] = String(value);
+                    urlParams.set(key, String(value))
                 }
             }
-        });
-
-        return (new URLSearchParams(stringifiedData)).toString()
+        })
+        return urlParams.toString()
     }
 
     // Handle search button click
     async function searchClick_eh(): Promise<void> {
         loader(async () => {
 
-
-
-            const { rent, sale, ...data } = formData
+            const { rent, sale, ...data } = formDataRef.current
             if (rent === sale) {
                 data.type = null;
                 // delete data.type;
@@ -223,26 +230,16 @@ export default function SearchPage() {
             const pageNo = urlParams.get('pageNo') // for stael closer between 
             const totalResults = urlParams.get('totalResults') // for stael closer between 
 
-            if (pageNo && parseInt(pageNo || '0') * _pageLimit >= parseInt(totalResults || '0')) {
+            if (totalResults && parseInt(pageNo || '0') * _pageLimit >= parseInt(totalResults || '0')) {
                 console.log('No more data to fetch')
                 return
             }
 
-            data.pageNo = (parseInt(pageNo || data.pageNo as string) + 1).toString()
+            //          data.pageNo = (parseInt(pageNo || data.pageNo as string) + 1).toString()
+            data.pageNo = ((pageNo && parseInt(pageNo)) || data.pageNo || 0) + 1
+            data.totalResults = totalResults ? parseInt(totalResults) : null
 
 
-            // api params
-            // const stringifiedData: Record<string, string> = {}
-            // Object.keys(data).forEach(key => {
-            //     const value = data[key as keyof typeof data];
-            //     if (value !== null) {
-            //         stringifiedData[key] = String(value);
-            //     }
-            // });
-
-            // Create query parameters
-            // const params = (new URLSearchParams(stringifiedData)).toString();
-            // console.log('data:', data)
             const params = getUrlParamsFromObject(data)
 
 
@@ -259,9 +256,7 @@ export default function SearchPage() {
             const results: TResponseApi = await res.json()
             console.log('api results:', results)
 
-            flags_ref.current.currentPageNo = results.pageNo;
-            flags_ref.current.currentTotalResults = results.totalResults;
-
+            
             const page: TPage = {
                 listingsPage: results.listingsPage,
                 pageNo: results.pageNo
@@ -277,47 +272,37 @@ export default function SearchPage() {
 
 
 
+            formDataRef.current.pageNo = results.pageNo;
+            formDataRef.current.totalResults = results.totalResults;
 
             setFormData(prevState => {
                 return {
                     ...prevState,
-                    totalResults: results.totalResults.toString(),
-                    pageNo: results.pageNo?.toString() || '1'
+                    totalResults: results.totalResults,
+                    pageNo: results.pageNo || 1
                 }
             })
+            
 
 
-            // Prepare stringified data for URL search parameters           
-            // const urlParams = new URLSearchParams()
-            // Object.keys(formData).forEach(key => {
-            //     const value = formData[key as keyof typeof formData];
-            //     if (value !== undefined && value !== null) {            
-            //         urlParams.set(key, String(value))
-            //     }
-            // })
-
-            // const searchQuery = urlParams.toString();
-            // console.log('formData:', formData)
 
 
             const searchQuery = getUrlParamsFromObject({
-                ...formData,
-                totalResults: results.totalResults.toString(),
-                pageNo: results.pageNo.toString()
+                ...formDataRef.current,
+                totalResults: results.totalResults,
+                pageNo: results.pageNo
             })
-            // console.log('searchQuery:', searchQuery)
+
+            flags_ref.current.isNewSearch = true;
             navigate(`/search?${searchQuery}`)
-            // flags_ref.current.pageNoDebounce = results.pageNo;
+
 
         }, dispatch)
     }
 
-
-
     return (
         <div className={styles.parentContainer}>
             <div className={styles.sideLeft} onChange={fields_eh_Babel}>
-                {/* <form onSubmit={formSubmit_eh}></form> */}
                 <input type="text" placeholder="Search" id='txt-searchTerm' value={formData.searchTerm || ''} />
                 <div>
                     {/* TYPES */}
@@ -388,7 +373,6 @@ export default function SearchPage() {
                 {
                     resultsPagination && resultsPagination.listingsPageArr && resultsPagination.listingsPageArr.map((page: TPage, index: number) => (
                         <div key={page.pageNo} >
-
                             <h3>
                                 {
                                     resultsPagination.totalResults ?
@@ -396,7 +380,6 @@ export default function SearchPage() {
                                             <>
                                                 Page: {index + 1}
                                                 <span> {(resultsPagination.listingsPageArr[index].listingsPage.length + (index * _pageLimit)) + '/' + resultsPagination.totalResults} </span>
-                                                {/* <span> {(page.pageNo * _pageLimit) + '/' + resultsPagination.totalResults} </span> */}
                                             </>
                                         ) :
                                         (<span>'Use the Search Button'</span>)
@@ -423,8 +406,8 @@ export default function SearchPage() {
                 </div>
 
                 {/* END'S */}
-                <div className={`flex !justify-around  ${styles.lNext} ${((flags_ref.current.currentPageNo && flags_ref.current.currentTotalResults) &&
-                    ((flags_ref.current.currentPageNo * _pageLimit) >= flags_ref.current.currentTotalResults)) ? '' : styles.disappear} `} >
+                <div className={`flex !justify-around  ${styles.lNext} ${((formDataRef.current.pageNo && (formDataRef.current.totalResults ?? -1)) &&
+                    ((formDataRef.current.pageNo * _pageLimit) >= (formDataRef.current.totalResults ?? -1))) ? '' : styles.disappear} `} >
                     <span>Acabou...</span>
                     <span>Its Ended...</span>
                     <span>C'est Fini...</span>
