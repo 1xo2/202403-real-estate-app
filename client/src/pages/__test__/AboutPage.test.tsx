@@ -15,6 +15,6 @@ beforeEach(() => {
 });
 describe("AboutPage", () => {
   it("should render page correctly", () => {
-    expect(screen.getByText("About Page")).toBeDefined()
+    expect(screen.getByText("What is it about?")).toBeDefined()
   });
 });
