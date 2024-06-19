@@ -1,6 +1,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import HomePage from "../HomePage";
+import HomePage from "../home/HomePage";
+
 
 afterEach(() => {
   cleanup();

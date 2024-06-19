@@ -175,54 +175,7 @@ export default function ListingView() {
                     <PageContainer isWide={true} >
                         <div className='flex flex-col max-w-4xl mx-auto p-3 my-7 gap-3'>
                             <h1 className={styles2.ttl} >{formData.name}</h1>
-
-                            {/* <p className='text-2xl font-semibold capitalize'>
-                                {formData.name} - ${' '}
-                                {formData.offer
-                                    ? formData.priceDiscounted?.toLocaleString('en-US')
-                                    : formData.price.toLocaleString('en-US')}
-                                {formData.type === 'rent' && ' / month'}
-                            </p>
-                            <p className='flex items-center mt-6 gap-2 text-slate-600  text-sm'>
-                                <FaMapMarkerAlt className='text-green-700' />
-                                {formData.address}
-                            </p>
-                            <div className='flex gap-4'>
-                                <p className='bg-red-900 w-full max-w-[200px] text-white text-center p-1 rounded-md'>
-                                    {formData.type === 'rent' ? 'For Rent' : 'For Sale'}
-                                </p>
-                                {formData.offer && (
-                                    <p className='bg-green-900 w-full max-w-[200px] text-white text-center p-1 rounded-md'>
-                                        ${+formData.price - +(formData.priceDiscounted || 0)} OFF
-                                    </p>
-                                )}
-                            </div>
-                            <p className='text-slate-800'>
-                                <span className='font-semibold text-black'>Description - </span>
-                                {formData.description}
-                            </p>
-                            <ul className={`${styles2.ulInfo} text-green-900 font-semibold text-sm flex flex-wrap items-center gap-4 sm:gap-6`}>
-                                <li>
-                                    <FaBed className='text-lg' />
-                                    {formData.bedrooms > 1
-                                        ? `${formData.bedrooms} beds `
-                                        : `${formData.bedrooms} bed `}
-                                </li>
-                                <li>
-                                    <FaBath className='text-lg' />
-                                    {formData.bathrooms > 1
-                                        ? `${formData.bathrooms} baths `
-                                        : `${formData.bathrooms} bath `}
-                                </li>
-                                <li>
-                                    <FaParking className='text-lg' />
-                                    {formData.parking ? 'Parking spot' : 'No Parking'}
-                                </li>
-                                <li>
-                                    <FaChair className='text-lg' />
-                                    {formData.furnished ? 'Furnished' : 'Unfurnished'}
-                                </li>
-                            </ul> */}
+                            
                             <ListingDetailView formData={formData} />
 
                         </div>

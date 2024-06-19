@@ -86,4 +86,44 @@ publicRouter.get('/search', async (req: Request, res: Response, next: NextFuncti
     }
 });
 
+publicRouter.get('/homePage', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const sort: { $sort: { createdAt: 1 | -1 } } = { $sort: { createdAt: 1 } };
+        const limit: { $limit: number } = { $limit: 4 };
+
+        const listings = await ListingModel.aggregate([
+            {
+                $facet: {
+                    forSale: [
+                        { $match: { type: 'sale', offer: false } },
+                        sort,
+                        limit
+                    ],
+                    forRent: [
+                        { $match: { type: 'rent' } },
+                        sort,
+                        limit
+                    ],
+                    forOffer: [
+                        { $match: { offer: true } },
+                        sort,
+                        limit
+                    ]
+                }
+            }
+        ]);
+
+        return res.status(200).json({
+            forSale: listings[0].forSale,
+            forRent: listings[0].forRent,
+            forOffer: listings[0].forOffer
+        });
+    } catch (error) {
+        console.error('error:', error);
+        next(error);
+    }
+});
+
+
+
 export default publicRouter;

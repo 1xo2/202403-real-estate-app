@@ -1,18 +1,10 @@
-# Real Estate app
+import PageContainer from "../../components/PageContainer"
+import styles from './AboutPage.module.css'
 
-## Client:
-React TS Jest Cypress Tailwind 
+export default function AboutPage() {
 
-## server:
-ExpressJS, MongoDB
-
-full CI-CD with Github.Action 
-
-
-
-## -------- app last structure (1Jun/2024)
-```
-/
+  const txt = `
+|   ./
 │   /client/
 │   │   └── .eslintrc.cjs
 │   │   /client/cypress/
@@ -185,9 +177,30 @@ full CI-CD with Github.Action
 │   │   │   └── express.d.ts
 │   │   │   └── index.d.ts
 │   │   │   └── userTypes.ts
-│   └── todo.txt
+│   └── todo.txt`
 
 
+  return (
+    <PageContainer isWide={true} >
+      <h1>What is it about?</h1>
+      <h2>React | TS | Jest | Cypress | Tailwind | Node | MongoDB | Full CI-CD | Redux</h2>
 
+      <div className={styles.extra} >
+        XSS friendly,
+        Firebase img storage,
+        API/LocalStorage optimized
+      </div>
 
-```
+      <div>
+        <fieldset>
+          <legend>Files Structure</legend>
+
+          <pre>
+            {txt}
+          </pre>
+
+        </fieldset>
+      </div>
+    </PageContainer>
+  )
+}

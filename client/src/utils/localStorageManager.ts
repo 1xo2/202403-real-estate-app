@@ -3,7 +3,7 @@ import { isNull_Undefined_emptyString } from "./stringManipulation";
 
 interface ILocalStorageManager {
     _id: string | null | undefined;
-    key: 'Avatar' | 'listing' | 'search';
+    key: 'Avatar' | 'listing' | 'search' | 'homePage';
 }
 
 interface ILocalStorageManager_Delete extends ILocalStorageManager {

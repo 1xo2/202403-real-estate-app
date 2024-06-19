@@ -33,7 +33,7 @@ declare global {
 if (typeof window !== 'undefined') {
   window.__store__ = store;
   
-  if (window.Cypress) {
-    window.__store__ = store;
-  }
+  // if (window.Cypress) {
+  //   window.__store__ = store;
+  // }
 }

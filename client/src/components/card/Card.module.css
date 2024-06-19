@@ -11,7 +11,7 @@
     box-shadow: 0px -6px 10px rgba(0, 0, 0, 0.22);
 
     animation: easeAppear .3s ease-out;
-    animation-timing-function: ease-in-out;
+    animation-timing-function: ease-in-out;    
 }
 
 @keyframes easeAppear {
@@ -32,15 +32,18 @@
 
 .card img {
     width: 100%;
+    /* min-width: 272px; */
     height: 215px;
     /* width: 100%;
     height: auto; */
     border-top-left-radius: 4px;
     border-top-right-radius: 4px;
+
 }
 
 .card-content {
     padding: 16px;
+    /* padding: 16px 16px 0 16px; */
 }
 
 .card-content h3 {

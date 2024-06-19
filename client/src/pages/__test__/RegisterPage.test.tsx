@@ -4,7 +4,6 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import RegisterPage from "../RegisterPage";
 import { Provider } from "react-redux";
 import { store } from "../../redux/store";
-import React from "react";
 
 
 afterEach(() => {

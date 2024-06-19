@@ -1,8 +1,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import AboutPage from "../AboutPage";
+import AboutPage from "../about/AboutPage";
 import { BrowserRouter } from "react-router-dom";
-import React from "react";
 
 afterEach(() => {
   cleanup();
