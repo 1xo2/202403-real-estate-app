@@ -187,6 +187,7 @@ export default function AboutPage() {
 
       <div className={styles.extra} >
         XSS friendly,
+        Auto scroll Paging,
         Firebase img storage,
         API/LocalStorage optimized
       </div>

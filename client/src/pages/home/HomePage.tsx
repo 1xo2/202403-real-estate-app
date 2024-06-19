@@ -24,7 +24,7 @@ const Listings = (data: IListingFields[], groupName: string) => (
           <div>
             {
               data.map((item, index) => {
-                return <Card key={index} item={item} />
+                return <Card key={index} item={item} link={`/search?${groupName.toLowerCase()}=true`} />                
               })
             }
           </div>
@@ -76,9 +76,9 @@ export default function HomePage() {
       }
 
       setListingData(data)
-      
+
       setTimeout(() => {
-        update_localStorage({ _id, key: 'homePage', isArray: false, value: data });        
+        update_localStorage({ _id, key: 'homePage', isArray: false, value: data });
       }, 0);
 
 

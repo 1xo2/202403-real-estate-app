@@ -8,12 +8,13 @@ import styles from './Card.module.css'; // Importing the CSS module
 import ListingDetailView from '../listing/ListingDetailView';
 type Props = {
     item: IListingFields
-    deleteListing?: (item: IListingFields) => void
+    deleteListing?: (item: IListingFields) => void;
+    link?: string
 }
 
-const Card = ({ item, deleteListing }: Props) => {
+const Card = ({ item, deleteListing, link }: Props) => {
     // console.log('item:', item)
-    const { imageUrl, _id } = item    
+    const { imageUrl, _id } = item
 
     if (isNull_Undefined_emptyString(_id)) {
         console.error("Card: id is null or undefined. n:sad9jja-ssa3-e")
@@ -26,11 +27,11 @@ const Card = ({ item, deleteListing }: Props) => {
 
 
     return (
-        <div className={styles.card} key={_id} >
-            <Link to={`/listing-view/${_id}`} state={{ singleListing: item }}>
+        <div className={styles.card} key={_id} data-cy='cy-card'>
+            <Link to={link || `/listing-view/${_id}`} state={{ singleListing: item }}>
                 <img src={imageSrc} alt="Card Image" />
             </Link>
-            <div className={styles['card-content']}>                
+            <div className={styles['card-content']}>
                 <ListingDetailView formData={item} isMin />
                 {deleteListing &&
                     <div className={styles["btn-wrap"]}>

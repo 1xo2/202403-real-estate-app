@@ -20,9 +20,10 @@ import 'swiper/css/scrollbar';
 
 // import { FaBath, FaBed, FaChair, FaMapMarkerAlt, FaParking } from "react-icons/fa";
 import { toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+import { toastBody } from "../../share/toast";
 import PageContainer from "../../components/PageContainer";
 import { __Client_FirebaseStorageDomain } from "../../share/consts";
-import { toastBody } from "../../share/toast";
 import styles2 from './ListingView.module.css';
 import { CheckmarkIcon } from "../../components/svg/CheckmarkIcon";
 import ListingDetailView from "../../components/listing/ListingDetailView";

@@ -17,6 +17,9 @@ import { eBD_fields, eForms } from "../share/enums";
 import { fetchHeaders } from "../share/fetchHeaders";
 import { isNull_Undefined_emptyString } from "../utils/stringManipulation";
 import OAuthGoogle from "./auth/OAuthGoogle/OAuthGoogle";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { toastBody } from "../share/toast";
 
 type Props = { forms: eForms };
 
@@ -26,10 +29,7 @@ export default function SigningForm({ forms }: Props) {
   const { loading, error, currentUser } = useSelector(
     (state: RootState) => state.user
   );
-  // const refEmail = useRef<HTMLInputElement | null>(null);
-  // const refPassword = useRef<HTMLInputElement | null>(null);
-  // const refUserName = useRef<HTMLInputElement | null>(null);
-
+  
   // form validations //
   const [isValid, setIsValid] = useState({
     formState: {},
@@ -100,7 +100,9 @@ export default function SigningForm({ forms }: Props) {
       const data = await res.json();
 
       if (data.success === false) {
-        console.log("fetching data.status fail:", data.message);
+        console.log("fetching data.status fail: ", data.message);
+        console.log('data.message:', data.message)
+        toast.error(data.message, toastBody )
         dispatch(login_Fail(data as IAppError));
         return;
       }
@@ -168,6 +170,8 @@ export default function SigningForm({ forms }: Props) {
           {(forms === eForms.register || forms === eForms.profile) && (
             <input
               id="userName"
+              autoComplete="off"
+              name="userName"
               required
               type="text"
               placeholder="User Name"
@@ -179,6 +183,7 @@ export default function SigningForm({ forms }: Props) {
           )}
           <input
             id="eMail"
+            name="eMail"
             data-testid="email-input"
             required
             type="email"

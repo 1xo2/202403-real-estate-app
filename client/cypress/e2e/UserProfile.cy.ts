@@ -1,5 +1,5 @@
-import { fetchHeaders } from './../../src/share/fetchHeaders';
 /// <reference types="cypress" />
+import { fetchHeaders } from './../../src/share/fetchHeaders';
 
 
 
@@ -149,7 +149,8 @@ it('(should fetch API and render and store in local storage on first click', () 
 
 
     // TEST:  DOM to update and then assert
-    cy.get('._card_1iz3v_1', { timeout: 5000 }).should('be.visible').should('have.length', 1);
+    // cy.get('._card_1iz3v_1', { timeout: 5000 }).should('be.visible').should('have.length', 1);
+    cy.get("[data-cy='cy-card']", { timeout: 5000 }).should('be.visible').should('have.length', 1);
 
 
     

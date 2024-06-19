@@ -18,16 +18,16 @@ const errorMiddleware = (
   const statusCode = err.statusCode || res.statusCode || 500;
   const message = err.msg || "Internal Server Error.";
 
-  // const isDuplicateKeyErr =
-  //   err.message.includes("E11000") ||
-  //   err.message.includes("duplicate key") ||
-  //   err.name === "MongoServerError" ||
-  //   (err && (err as any).code === 11000);
+  const isDuplicateKeyErr =
+    err.message.includes("E11000") ||
+    err.message.includes("duplicate key") ||
+    err.name === "MongoServerError" ||
+    (err && (err as any).code === 11000);
 
-  // let resAltMsg; //= "An error occurred while processing your request.";
-  // if (isDuplicateKeyErr) {
-  //   resAltMsg = wordsCap("please try other user name");
-  // }
+  let resAltMsg; //= "An error occurred while processing your request.";
+  if (isDuplicateKeyErr) {
+    resAltMsg = wordsCap("please try other user name");
+  }
 
   // Logging to STDOUT/STDERR: Platform-as-a-Service (PaaS)
   console.error({
@@ -43,8 +43,8 @@ const errorMiddleware = (
     // error: {
     success: false,
     statusCode,
-    // message: resAltMsg || message,
-    message: message,
+    message: resAltMsg || message,
+    // message: message,
     msg: err.msg,
     errorName: err?.name,
     error: err,

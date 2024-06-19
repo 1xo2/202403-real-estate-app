@@ -10,13 +10,13 @@ type props = {
 }
 
 export default function Avatar({ user, cssClass, onClick }: props) {
-   
 
-    const userLocalImage = get_localStorage({ _id: user?._id, key: 'Avatar' });
+
+    const userLocalImage = user?._id && get_localStorage({ _id: user?._id, key: 'Avatar' });
     const userImage = userLocalImage || user?.userPhoto;
     const style = cssClass || 'rounded-full w-7 h-7 object-cover'
 
-    
+
 
     return userImage ? (
         <img className={style} src={userImage} alt="avatar" onClick={onClick} />

@@ -4,7 +4,7 @@ import { AppDispatch } from "../../redux/store";
 import { general_failure, loading_end, loading_start } from "../../redux/user/userSlice";
 import { toastBody } from "../../share/toast";
 import { toast } from "react-toastify";
-
+import 'react-toastify/dist/ReactToastify.css';
 
 export async function loader(fun: () =>
     Promise<false | void | undefined>,

@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 import Avatar from "../../components/Avatar";
 import PageContainer from "../../components/PageContainer";
 import SigningForm from "../../components/SigningForm";
