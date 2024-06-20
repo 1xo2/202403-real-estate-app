@@ -6,7 +6,7 @@
   "scripts": {
     "test": "test",
     "build": "npx tsc",
-    "start": "tsc node dist/src/index.js",
+    "start": "node dist/src/index.js",
     "d": "nodemon dist/src/index.js",
     "dd": "ts-node-dev ./src/index.ts",
     "i":"npm install"

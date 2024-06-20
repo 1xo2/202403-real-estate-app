@@ -10,6 +10,7 @@
     ],
     "module": "ESNext",
     "skipLibCheck": true,
+    "noImplicitAny": false,
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
@@ -17,6 +18,10 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",    
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "esModuleInterop": true,
+    "allowJs": true, // Enable JavaScript file compilation if needed
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
@@ -29,7 +34,14 @@
   },
   "include": [
     "./src",
+    "./src/**/*.ts",
+    "./src/**/*.tsx",
+    "./src/**/*.js",
     "./global.d.ts",    
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
   ],
   "references": [
     {
