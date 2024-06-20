@@ -17,7 +17,10 @@
     "go": "npm-run-all --parallel s-d c-d",
     "go-s": "npm-run-all --parallel s-d c-d cy-o",
     "c-cr": "concurrently -n \"server,client,Cypress\" -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\"   \"npm run s-d -n server\" \"npm run c-d\"  \"npm run start:cypress:run\"  ",
-    "c-co": "concurrently -n \"server,client,Cypress\" -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\"   \"npm run s-d -n server\" \"npm run c-d\"  \"npm run start:cypress:open\"  "
+    "c-co": "concurrently -n \"server,client,Cypress\" -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\"   \"npm run s-d -n server\" \"npm run c-d\"  \"npm run start:cypress:open\"  ",
+    "i-server":"cd server && npm install && npm run build",
+    "i-client":"cd client && npm install && npm run build",
+    "i": "npm-run-all --parallel i-server i-client"
   },
   "repository": {
     "type": "git",

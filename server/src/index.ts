@@ -12,11 +12,13 @@ import userRouter from "../src/routes/user.route";
 import envManager, { validateEnvironmentVariables } from "./middleware/envManager";
 import helmetConfig from "./middleware/security/helmetConfig";
 import { sanitized_verifyUser } from "./middleware/security/sanitize";
+import path from "path";
 
 ///////////////
 // INI
 ///////////////
 // dotenv.config();      //For env File
+
 validateEnvironmentVariables()
 const app: Application = express();
 connectToDatabase()   // Connect to the database
@@ -45,6 +47,14 @@ app.use("/api/listing", listingRouter);
 app.use("/api/public",publicRouter);
 
 app.use(errorMiddleware);   // Error handling middleware
+
+
+console.log('__dirname:', __dirname)
+app.use(express.static(path.join(__dirname, "../client/dist")));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/dist/index.html"));
+});
+
 
 
 
