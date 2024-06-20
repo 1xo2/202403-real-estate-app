@@ -13,6 +13,11 @@ import envManager, { validateEnvironmentVariables } from "./middleware/envManage
 import helmetConfig from "./middleware/security/helmetConfig";
 import { sanitized_verifyUser } from "./middleware/security/sanitize";
 import path from "path";
+console.log('Loaded environment variables:');
+console.log(`MONGOconn: ${process.env.MONGOconn}`);
+console.log(`DBname: ${process.env.DBname}`);
+console.log(`PORT: ${process.env.PORT}`);
+console.log(`JWT_SECRET: ${process.env.JWT_SECRET}`);
 
 ///////////////
 // INI
@@ -49,7 +54,7 @@ app.use("/api/public",publicRouter);
 app.use(errorMiddleware);   // Error handling middleware
 
 
-console.log('__dirname:', __dirname)
+
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
