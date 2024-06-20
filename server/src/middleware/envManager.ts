@@ -9,7 +9,7 @@ dotenv.config();
 
 // Validate required environment variables
 export function validateEnvironmentVariables() {
-    ['MONGOconn', 'DBName', 'PORT', 'JWT_SECRET'].forEach((val: string) => {
+    ['MONGOconn', 'DBname', 'PORT', 'JWT_SECRET'].forEach((val: string) => {
         if (isNull_Undefined_emptyString(process.env[val] as string)) {
             throw new Error(`${val} \n ----environment variable is missing or invalid`);
         }
