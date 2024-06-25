@@ -102,7 +102,7 @@ export const logIn_controller = async (
       .cookie(__SERVER_ACCESS_TOKEN, token, {
         httpOnly: true, //   ensures that cookies are not accessible from client-side JavaScript
         secure: process.env.NODE_ENV === 'production', //  ensures that cookies are only sent over HTTPS in production mode
-        sameSite: 'strict' // Change to 'strict' 'lax' or 'none' if needed (default is 'lax')
+        sameSite: 'none' // Change to 'strict' 'lax' or 'none' if needed (default is 'lax')
       })
       .status(200)
       .json(rest);
@@ -162,7 +162,10 @@ export const google_controller = async (
 
       res
         // cookie info are accessible just from server - not react/client
-        .cookie(__SERVER_ACCESS_TOKEN, token, { httpOnly: true })
+        .cookie(__SERVER_ACCESS_TOKEN, token, { 
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production', //  ensures that cookies are only sent over HTTPS in production mode
+          sameSite: 'none' })
         .status(200)
         .json(restResponseUser);
     } else {
