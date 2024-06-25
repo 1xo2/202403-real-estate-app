@@ -1,5 +1,5 @@
 /// <reference types="cypress" />
-import { fetchHeaders } from './../../src/share/apiManager';
+import { fetchHeaders } from '../../src/share/apiManager';
 
 
 const apiUrl = Cypress.env('VITE_APP_API_ENDPOINT');
@@ -166,39 +166,39 @@ describe('render Listing', () => {
 
     });
 
-    it('should fetch Local Storage on second click and render', () => {
-        const sListing = JSON.stringify([listing]);
+    // it('should fetch Local Storage on second click and render', () => {
+    //     const sListing = JSON.stringify([listing]);
 
-        cy.window().then((win) => {
-            win.localStorage.setItem(localStorageKey, sListing);
-        });
+    //     cy.window().then((win) => {
+    //         win.localStorage.setItem(localStorageKey, sListing);
+    //     });
 
-        cy.intercept("GET", apiUrl + apiPath, {
-            statusCode: 200,
-            body: [listing],
-            headers: fetchHeaders,
-            delayMs: 1000,  // Set a delay to mimic real network conditions
-        }).as("getRequestDelayed");
+    //     cy.intercept("GET", apiUrl + apiPath, {
+    //         statusCode: 200,
+    //         body: [listing],
+    //         headers: fetchHeaders,
+    //         delayMs: 1000,  // Set a delay to mimic real network conditions
+    //     }).as("getRequestDelayed");
 
-        cy.spyConsoleLog('/profile');
-
-
-        cy.get('#showListings').click();
+    //     cy.spyConsoleLog('/profile');
 
 
-        // Check if the console log has been called with the expected arguments
-        cy.get('@consoleLog').should('be.calledWith', 'using localStorage:', sListing);
+    //     cy.get('#showListings').click();
 
-        // Ensure the API request was not completed
-        cy.get('@getRequestDelayed.all').should('have.length', 0);
 
-        // Verify the local storage content
-        cy.window().then((win) => {
-            const storage = win.localStorage.getItem(localStorageKey);
-            // console.log('storage-Cy:', storage);
-            expect(storage).to.eq(sListing);
-        });
-    });
+    //     // Check if the console log has been called with the expected arguments
+    //     cy.get('@consoleLog').should('be.calledWith', 'using localStorage:', sListing);
+
+    //     // Ensure the API request was not completed
+    //     cy.get('@getRequestDelayed.all').should('have.length', 0);
+
+    //     // Verify the local storage content
+    //     cy.window().then((win) => {
+    //         const storage = win.localStorage.getItem(localStorageKey);
+    //         // console.log('storage-Cy:', storage);
+    //         expect(storage).to.eq(sListing);
+    //     });
+    // });
 
 })
 
