@@ -1,8 +1,10 @@
 import compression from "compression";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 import express, {
   Application
 } from "express";
+import path from "path";
 import { connectToDatabase } from "../src/middleware/db";
 import errorMiddleware from "../src/middleware/errorHandling/errorMiddleware";
 import authRouter from "../src/routes/auth.route";
@@ -12,16 +14,15 @@ import userRouter from "../src/routes/user.route";
 import envManager, { validateEnvironmentVariables } from "./middleware/envManager";
 import helmetConfig from "./middleware/security/helmetConfig";
 import { sanitized_verifyUser } from "./middleware/security/sanitize";
-import path from "path";
-
 ///////////////
 // INI
 ///////////////
-// dotenv.config();      //For env File
 
-validateEnvironmentVariables()
+
+
+validateEnvironmentVariables()  // Validate required environment variables
 const app: Application = express();
-connectToDatabase()   // Connect to the database
+connectToDatabase()             // Connect to the database
 
 
 ///////////////
@@ -34,6 +35,15 @@ app.use(cookieParser())     // verify user by cookie token.
 // app.use(getBodyParams_XSS_sanitized_verifyUser);    // Add middleware before route handlers
 app.use(sanitized_verifyUser);    // Add middleware before route handlers
 
+// Enable CORS
+
+const corsOptions = {
+  // origin: envManager.ORIGIN,
+  origin: 'http://localhost:3000',
+  credentials: true,        // Enable cookies to be sent with requests
+  optionsSuccessStatus: 200 // Some legacy browsers choke on 204
+};
+app.use(cors(corsOptions));
 
 
 

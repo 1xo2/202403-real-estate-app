@@ -9,7 +9,7 @@
     "start": "node dist/src/index.js",
     "d": "nodemon dist/src/index.js",
     "dd": "ts-node-dev ./src/index.ts",
-    "i":"npm install"
+    "i": "npm install"
   },
   "repository": {
     "type": "git",
@@ -29,6 +29,7 @@
     "bcryptjs": "^2.4.3",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
     "express": "^4.19.2",
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",

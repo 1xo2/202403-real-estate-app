@@ -1,6 +1,8 @@
 /// <reference types="cypress" />
-import { fetchHeaders } from './../../src/share/fetchHeaders';
+import { fetchHeaders } from './../../src/share/apiManager';
 
+
+const apiUrl = Cypress.env('VITE_APP_API_ENDPOINT');
 
 
 
@@ -98,9 +100,9 @@ it('should test update', () => {
 
     const apiPath = '/api/user/update/123';
     // Intercept the API request based on the environment
-    cy.intercept("POST", apiPath, {
+    cy.intercept("POST", apiUrl + apiPath, {
         statusCode: 200,
-        body: { success: true },        
+        body: { success: true },
     }).as("updateRequest");
 
 
@@ -115,63 +117,63 @@ it('should test update', () => {
 })
 // Show Listings
 
-describe('render Listing', () => { 
-    
+describe('render Listing', () => {
+
     const apiPath = '/api/listing/list/123';
     const _localStorageKey = "listingUser_"
     // _localStorageKey + _id + key
     const localStorageKey = `${_localStorageKey}${userId}listing`
 
 
-it('(should fetch API and render and store in local storage on first click', () => {
-
-    
-    // Intercept the API request and inject a detailed JSON response
-    cy.intercept("GET", apiPath, {
-        statusCode: 200,
-        body: [listing],
-        headers: fetchHeaders,
-        delayMs: 1000,
-
-    }).as("getRequest");
-
-    cy.visit('/profile');
+    it('(should fetch API and render and store in local storage on first click', () => {
 
 
-    // Trigger the API request
-    cy.get('#showListings').click();
+        // Intercept the API request and inject a detailed JSON response
+        cy.intercept("GET", apiUrl + apiPath, {
+            statusCode: 200,
+            body: [listing],
+            headers: fetchHeaders,
+            delayMs: 1000,
 
-    // Wait for the intercepted request to complete
-    cy.wait("@getRequest", { timeout: 5000 })
-        .its('response.statusCode').should('eq', 200).then((interception) => {
-        // console.log('interception', interception)
-    })
+        }).as("getRequest");
 
-
-    // TEST:  DOM to update and then assert
-    // cy.get('._card_1iz3v_1', { timeout: 5000 }).should('be.visible').should('have.length', 1);
-    cy.get("[data-cy='cy-card']", { timeout: 5000 }).should('be.visible').should('have.length', 1);
+        cy.visit('/profile');
 
 
-    
-    // TEST: get localStorage
-    cy.window().then((win) => {
-        const storage = win.localStorage.getItem(localStorageKey);        
-        // Assert the local storage content
-        expect(storage).to.eq(JSON.stringify([listing]));        
+        // Trigger the API request
+        cy.get('#showListings').click();
+
+        // Wait for the intercepted request to complete
+        cy.wait("@getRequest", { timeout: 5000 })
+            .its('response.statusCode').should('eq', 200).then((interception) => {
+                // console.log('interception', interception)
+            })
+
+
+        // TEST:  DOM to update and then assert
+        // cy.get('._card_1iz3v_1', { timeout: 5000 }).should('be.visible').should('have.length', 1);
+        cy.get("[data-cy='cy-card']", { timeout: 5000 }).should('be.visible').should('have.length', 1);
+
+
+
+        // TEST: get localStorage
+        cy.window().then((win) => {
+            const storage = win.localStorage.getItem(localStorageKey);
+            // Assert the local storage content
+            expect(storage).to.eq(JSON.stringify([listing]));
+        });
+
+
     });
-
-
-});
 
     it('should fetch Local Storage on second click and render', () => {
         const sListing = JSON.stringify([listing]);
-        
+
         cy.window().then((win) => {
             win.localStorage.setItem(localStorageKey, sListing);
         });
 
-        cy.intercept("GET", apiPath, {
+        cy.intercept("GET", apiUrl + apiPath, {
             statusCode: 200,
             body: [listing],
             headers: fetchHeaders,
@@ -180,10 +182,10 @@ it('(should fetch API and render and store in local storage on first click', () 
 
         cy.spyConsoleLog('/profile');
 
-    
+
         cy.get('#showListings').click();
 
-        
+
         // Check if the console log has been called with the expected arguments
         cy.get('@consoleLog').should('be.calledWith', 'using localStorage:', sListing);
 
@@ -205,7 +207,7 @@ it('should test log out', () => {
     cy.visit('/profile');
     const apiPath = '/api/auth/logout';
     // Intercept the API request based on the environment
-    cy.intercept("GET", apiPath, {
+    cy.intercept("GET", apiUrl + apiPath, {
         statusCode: 200,
         body: { success: true },
     }).as("getRequest");
@@ -229,13 +231,13 @@ it('should test delete account', () => {
 
     cy.get('#deleteAccount').click();
 
-    
-    
+
+
     // clicking on ok dialogBox
     cy.get('.buttons > :nth-child(1)').click();
-    
+
     // Verify that the user is redirected to the login page
     // cy.wait("@deleteRequest", { timeout: 5000 });
-    
+
     cy.url().should("include", "/login");
 })

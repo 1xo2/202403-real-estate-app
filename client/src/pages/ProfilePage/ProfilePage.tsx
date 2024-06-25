@@ -13,8 +13,8 @@ import UpdateModal from "../../components/dialogs/UpdateModal/UpdateModal";
 import { IAppError } from "../../errorHandlers/clientErrorHandler";
 import { AppDispatch, RootState } from "../../redux/store";
 import { logOutOrDeletion_Success, logOutOrDeletion_fail, profile_updateAvatar } from "../../redux/user/userSlice";
+import { apiManager } from "../../share/apiManager";
 import { eForms } from "../../share/enums";
-import { fetchHeaders } from "../../share/fetchHeaders";
 import { IFileMsgState, firebase_delete, firebase_fileUploadHandler, validateFilesForUpload } from "../../share/firebase/storage/imageStorageManager";
 import { toastBody } from "../../share/toast";
 import { IListingFields } from "../../share/types/listings";
@@ -45,14 +45,13 @@ export default function ProfilePage() {
       if (isNull_Undefined_emptyString(item._id))
         throw new Error("id is null or undefined. n:sad9jja-ssa3ad");
 
-      console.log('id:', item._id)
-      const res = await fetch('/api/listing/delete/' + item._id, {
-        method: "delete",
-        headers: fetchHeaders
-      });
+      // console.log('id:', item._id)
 
-      const data = await res.json();
-      console.log('data:', data)
+      const { data, res } = await apiManager({
+        urlPath: '/api/listing/delete/' + item._id,
+        httpMethod: 'delete',
+      });
+      // console.log('data:', data)
 
 
       if (res.status === 200) {
@@ -88,13 +87,13 @@ export default function ProfilePage() {
 
 
       // delete DB account
-      const res = await fetch('/api/user/delete/' + currentUser?._id, {
-        method: "delete",
-        headers: fetchHeaders
+      const { data } = await apiManager({
+        urlPath: '/api/user/delete/' + currentUser?._id,
+        httpMethod: 'delete',
       });
 
-      const data = await res.json();
-      console.log('data:', data)
+
+
       if (data.success === false) {
         dispatch(logOutOrDeletion_fail(data.message || data as IAppError))
       } else {
@@ -119,12 +118,11 @@ export default function ProfilePage() {
 
         await loader(async () => {
 
-          const res = await fetch('/api/auth/logout', {
-            method: "get",
-            headers: fetchHeaders
+          const { data } = await apiManager({
+            urlPath: '/api/auth/logout',
+            httpMethod: 'get',
           });
-          const data = await res.json();
-          console.log('data:', data)
+
           if (data.success === false) {
             dispatch(logOutOrDeletion_fail(data.message as IAppError))
           } else {
@@ -161,11 +159,15 @@ export default function ProfilePage() {
 
           } else {
             console.log('using API:')
-            const res = await fetch('/api/listing/list/' + currentUser?._id, {
-              method: "get",
-              headers: fetchHeaders,
-            })
-            data = await res.json();
+            const { data } = await apiManager({
+              urlPath: '/api/listing/list/' + currentUser?._id,
+              httpMethod: 'get',
+            });
+
+            if (data.success === false) {
+              toast.error(data.message, toastBody)
+              return
+            }
 
             setListingsList(data)
 
@@ -281,7 +283,7 @@ export default function ProfilePage() {
         {/* data update */}
         <SigningForm forms={eForms.profile} />
       </div>
-      
+
       {/* CTRLS */}
       <ul id='ulProfile' className={`${styles.ulProfile} my-3 gap-3`} onClick={eventBubble_clickHandler}>
         <li className="border-b-2 " ><span id="showListings"> Show Listing</span> </li>
@@ -301,7 +303,7 @@ export default function ProfilePage() {
           <>
             <h2>My Listings</h2>
             {listingsList.slice().reverse().map((ad, index) => (
-              <Card key={index.toString() + (ad._id || index)} item={ad} deleteListing={deleteListing_eh} />
+              <Card key={index.toString() + (ad._id )} item={ad} deleteListing={deleteListing_eh} />
             ))}
           </>
 

@@ -11,8 +11,8 @@ import ModalDialogOkCancel from '../../components/dialogs/ModalDialog/ModalDialo
 import UpdateModal from '../../components/dialogs/UpdateModal/UpdateModal';
 import { AppDispatch, RootState } from '../../redux/store';
 import { loading_start } from '../../redux/user/userSlice';
+import { apiManager } from '../../share/apiManager';
 import { __Client_FirebaseStorageDomain } from '../../share/consts';
-import { fetchHeaders } from '../../share/fetchHeaders';
 import { IFileMsgState, firebase_delete, firebase_fileUploadHandler, validateFilesForUpload } from '../../share/firebase/storage/imageStorageManager';
 import { toastBody } from '../../share/toast';
 import { IListingFields } from '../../share/types/listings';
@@ -293,13 +293,15 @@ export default function ListingPage({ isCreate }: Props) {
         // DB - space optimization: removing url domain.
         loader(async () => {
 
-            let path;
+            let path, method;
             if (isCreate) {
                 path = 'create';
+                method = 'post';
                 delete formData._id
                 uploadImages_eh();
             } else {
                 path = `update/${listingId}`;
+                method = 'put';
             }
 
             // if (formData.type === 'rent') {
@@ -331,18 +333,11 @@ export default function ListingPage({ isCreate }: Props) {
                 FK_User: currentUser?._id
             }));
 
-
-            // const res = await fetch("/api/listing/" + path, {
-
-            const env = import.meta.env.VITE_APP_API_ENDPOINT;
-            const endPoint = env && env.includes('localhost') ? '' : env;
-            // const res = await fetch(`${endPoint}/api/listings/${path}`, {
-            const res = await fetch(endPoint + "/api/listing/" + path, {
-                method: "post",
-                body: sanitizedFormJson,
-                headers: fetchHeaders
+            const { data } = await apiManager({
+                urlPath: "/api/listing/" + path,
+                apiParam: sanitizedFormJson,
+                httpMethod: method,
             });
-            const data = await res.json();
             // console.log('fetch success data:', data)
 
             if (data.success === false) {

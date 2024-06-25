@@ -1,0 +1,23 @@
+// export const fetchHeaders: Record<string, string> = {
+//   // Specifies the media type of the resource being sent to the server.
+//   // Setting it to "application/json" indicates that the content is JSON data.
+//   "Content-Type": "application/json",
+
+//   // Enables the browser's built-in Cross-Site Scripting (XSS) filter.
+//   // It helps prevent XSS attacks by instructing the browser to block pages when it detects potential XSS attacks.
+//   "X-XSS-Protection": "1; mode=block",
+
+//   // Prevents MIME-sniffing attacks by instructing the browser to honor the declared Content-Type
+//   // and not try to MIME-sniff the response.
+//   "X-Content-Type-Options": "nosniff",
+
+//   // Provides clickjacking protection by indicating whether a browser should be allowed to render a page in a frame.
+//   // Setting it to "DENY" ensures that the page cannot be embedded in a frame.
+//   "X-Frame-Options": "DENY",
+
+//   // Defines a policy that specifies the valid sources of content that the browser should consider executing or rendering.
+//   // It helps mitigate various types of attacks, including XSS and data injection attacks,
+//   // by restricting the resources that a page can load and execute.
+//   // Here, we've set it to allow resources from the same origin ('self').
+//   "Content-Security-Policy": "default-src 'self'",
+// };

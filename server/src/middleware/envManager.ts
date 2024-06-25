@@ -9,7 +9,7 @@ dotenv.config();
 
 // Validate required environment variables
 export function validateEnvironmentVariables() {
-    ['MONGOconn', 'DBname', 'PORT', 'JWT_SECRET'].forEach((val: string) => {
+    ['MONGOconn', 'DBname', 'PORT', 'JWT_SECRET','ORIGIN'].forEach((val: string) => {
         if (isNull_Undefined_emptyString(process.env[val] as string)) {
             throw new Error(`${val} \n ----environment variable is missing or invalid`);
         }
@@ -22,6 +22,7 @@ const envManager = {
     DBName: process.env.DBname as string,
     PORT: process.env.PORT as string,
     JWT_SECRET: process.env.JWT_SECRET as string,
+    ORIGIN: process.env.ORIGIN as string
 };
 
 export default envManager;

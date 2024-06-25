@@ -7,7 +7,6 @@ import Card from '../../components/card/Card';
 import { loader } from '../../components/dialogs/Loader';
 import UpdateModal from '../../components/dialogs/UpdateModal/UpdateModal';
 import { AppDispatch, RootState } from '../../redux/store';
-import { fetchHeaders } from '../../share/fetchHeaders';
 import { IListingFields } from '../../share/types/listings';
 import styles from './SearchPage.module.css';
 import debounce from 'lodash.debounce';

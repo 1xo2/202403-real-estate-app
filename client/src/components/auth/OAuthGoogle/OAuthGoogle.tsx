@@ -4,9 +4,9 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { AppDispatch } from "../../../redux/store";
 import { login_Success } from "../../../redux/user/userSlice";
-import { fetchHeaders } from "../../../share/fetchHeaders";
-import { app } from "./firebase";
+import { apiManager } from "../../../share/apiManager";
 import { update_localStorage } from "../../../utils/localStorageManager";
+import { app } from "./firebase";
 
 export default function OAuthGoogle() {
   const dispatch: AppDispatch = useDispatch();
@@ -18,23 +18,24 @@ export default function OAuthGoogle() {
       const provider = new GoogleAuthProvider(),
         auth = getAuth(app),
         result = await signInWithPopup(auth, provider),
-        res = await fetch("/api/auth/google", {
-          method: "POST",
-          headers: fetchHeaders,
-          body: JSON.stringify({
+
+        { data } = await apiManager({
+          urlPath: "/api/auth/google",
+          apiParam: {
             userName: result.user.displayName,
             eMail: result.user.email,
             userPhoto: result.user.photoURL,
-          }),
+          },
+          httpMethod: 'post',
         });
-      //
-      const data = await res.json();
+
+
 
       dispatch(login_Success({ ...data, userPhoto: result.user.photoURL, source: 'google' }));
 
 
       if (data._id && result.user.photoURL)
-        update_localStorage({ _id: data._id, key: "Avatar", value: result.user.photoURL , isArray: false });
+        update_localStorage({ _id: data._id, key: "Avatar", value: result.user.photoURL, isArray: false });
 
 
       navigate('/home')

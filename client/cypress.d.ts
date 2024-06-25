@@ -9,5 +9,8 @@ declare global {
     interface Chainable {
       mount: typeof mount;
     }
+    interface CypressEnv {
+      VITE_APP_API_ENDPOINT: string;
+    }
   }
 }

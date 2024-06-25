@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Card from '../../components/card/Card'
 import SwiperNav from '../../components/swiper/SwiperNav'
-import { fetchHeaders } from '../../share/fetchHeaders'
+import { apiManager } from '../../share/apiManager'
 import { IListingFields } from '../../share/types/listings'
 import { get_localStorage, update_localStorage } from '../../utils/localStorageManager'
 import styles from './HomePage.module.css'
@@ -59,19 +59,15 @@ export default function HomePage() {
   const fetchData = async () => {
 
     try {
-      const url = `/api/public/homePage`;
-      const res = await fetch(url, {
-        method: 'get',
-        headers: fetchHeaders,
-      })
-      if (!res.ok) {
-        throw new Error('Failed to fetch data');
-      }
-      const data = await res.json();
-      // console.log('data:', data)
+      
+      const {data} = await apiManager({
+        httpMethod: 'get',
+        urlPath: `/api/public/homePage`,
+      });
+      
 
       if (!data) {
-        // todo: static data
+        // todo: branding static data fallback
         return
       }
 

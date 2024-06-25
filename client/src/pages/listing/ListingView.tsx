@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useParams } from "react-router-dom";
 import { loader } from "../../components/dialogs/Loader";
 import { AppDispatch, RootState } from "../../redux/store";
-import { fetchHeaders } from "../../share/fetchHeaders";
 import { IListingFields } from "../../share/types/listings";
 
 
@@ -21,12 +20,13 @@ import 'swiper/css/scrollbar';
 // import { FaBath, FaBed, FaChair, FaMapMarkerAlt, FaParking } from "react-icons/fa";
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import { toastBody } from "../../share/toast";
 import PageContainer from "../../components/PageContainer";
-import { __Client_FirebaseStorageDomain } from "../../share/consts";
-import styles2 from './ListingView.module.css';
-import { CheckmarkIcon } from "../../components/svg/CheckmarkIcon";
 import ListingDetailView from "../../components/listing/ListingDetailView";
+import { CheckmarkIcon } from "../../components/svg/CheckmarkIcon";
+import { apiManager } from "../../share/apiManager";
+import { __Client_FirebaseStorageDomain } from "../../share/consts";
+import { toastBody } from "../../share/toast";
+import styles2 from './ListingView.module.css';
 
 
 
@@ -66,12 +66,11 @@ export default function ListingView() {
                 if (listingId) {
                     console.log('API with listingId:')
                     const fetchData = async () => {
-                        try {
-                            const res = await fetch('/api/listing/get/' + listingId, {
-                                method: "get",
-                                headers: fetchHeaders
+                        try {                            
+                            const { data, res } = await apiManager({
+                                urlPath: '/api/listing/get/' + listingId,
+                                httpMethod: 'get',
                             });
-                            const data = await res.json();
 
                             if (res.status === 200) {
                                 console.log('useEffect data:', data)
@@ -105,12 +104,11 @@ export default function ListingView() {
     const getLandLordEmail = async () => {
 
         loader(async () => {
-
-            const res = await fetch('/api/user/' + formData.FK_User, {
-                method: "get",
-                headers: fetchHeaders
-            });
-            const data = await res.json()// as IUser | null;
+            
+            const { data, res } = await apiManager({
+                urlPath: '/api/user/' + formData.FK_User,
+                httpMethod: 'get',
+            });// as IUser | null;
 
             if (res.status === 200) {
                 console.log('useEffect data:', data)

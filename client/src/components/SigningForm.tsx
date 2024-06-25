@@ -4,6 +4,8 @@ import { MdRemoveDone } from "react-icons/md";
 import { RxEyeClosed } from "react-icons/rx";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import xss from "xss";
 import { IAppError } from "../errorHandlers/clientErrorHandler";
 import { AppDispatch, RootState } from "../redux/store";
@@ -13,13 +15,11 @@ import {
   login_Fail,
   login_Success,
 } from "../redux/user/userSlice";
+import { apiManager } from "../share/apiManager";
 import { eBD_fields, eForms } from "../share/enums";
-import { fetchHeaders } from "../share/fetchHeaders";
+import { toastBody } from "../share/toast";
 import { isNull_Undefined_emptyString } from "../utils/stringManipulation";
 import OAuthGoogle from "./auth/OAuthGoogle/OAuthGoogle";
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { toastBody } from "../share/toast";
 
 type Props = { forms: eForms };
 
@@ -29,7 +29,7 @@ export default function SigningForm({ forms }: Props) {
   const { loading, error, currentUser } = useSelector(
     (state: RootState) => state.user
   );
-  
+
   // form validations //
   const [isValid, setIsValid] = useState({
     formState: {},
@@ -92,18 +92,24 @@ export default function SigningForm({ forms }: Props) {
       dispatch(logIn_Start());
 
       const apiPath = forms === eForms.profile ? (`/api/user/update/${currentUser?._id}`) : ("/api/auth/" + forms);
-      const res = await fetch(apiPath, {
-        method: "post",
-        body: sanitizedFormJson,
-        headers: fetchHeaders
+      // const res = await fetch(apiPath, {
+      //   method: "post",
+      //   body: sanitizedFormJson,
+      //   headers: fetchHeaders
+      // });
+      // const data = await res.json();
+      const { data, res } = await apiManager({
+        urlPath: apiPath,
+        apiParam: sanitizedFormJson,
+        httpMethod: 'post',
       });
-      const data = await res.json();
+      
 
       if (data.success === false) {
-        console.log("fetching data.status fail: ", data.message);
-        console.log('data.message:', data.message)
-        toast.error(data.message, toastBody )
-        dispatch(login_Fail(data as IAppError));
+        
+        console.log("fetching data.status fail: ", data.message);                
+        toast.error(data.message, toastBody)
+        dispatch(login_Fail(data.message as IAppError));
         return;
       }
 
@@ -245,7 +251,7 @@ export default function SigningForm({ forms }: Props) {
 
         {/* BTN Create listing */}
         {(forms === eForms.register || forms === eForms.login) ? <OAuthGoogle /> : (
-          <Link to={'../listings-create'} id='btnSelectListing'           
+          <Link to={'../listings-create'} id='btnSelectListing'
             className="btnBig bg-green-800 hover:no-underline" type="button" >create listings</Link>
         )}
       </form>
