@@ -6,7 +6,7 @@
   "scripts": {
     "test": "test",
     "build1": "npx tsc",
-    "build": "node_modules/.bin/tsc",
+    "build": "tsc",
     "start": "node dist/src/index.js",
     "d": "nodemon dist/src/index.js",
     "dd": "ts-node-dev ./src/index.ts",
