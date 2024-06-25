@@ -1,3 +1,4 @@
+import debounce from 'lodash.debounce';
 import { useEffect, useRef, useState } from 'react';
 import { ImSpinner2 } from "react-icons/im";
 import { useDispatch, useSelector } from 'react-redux';
@@ -7,9 +8,9 @@ import Card from '../../components/card/Card';
 import { loader } from '../../components/dialogs/Loader';
 import UpdateModal from '../../components/dialogs/UpdateModal/UpdateModal';
 import { AppDispatch, RootState } from '../../redux/store';
+import { apiManager } from '../../share/apiManager';
 import { IListingFields } from '../../share/types/listings';
 import styles from './SearchPage.module.css';
-import debounce from 'lodash.debounce';
 
 
 type TDataForm = {
@@ -243,11 +244,11 @@ export default function SearchPage() {
 
 
 
-            const url = `/api/public/search?${params}`;
-            const res = await fetch(url, {
-                method: 'get',
-                headers: fetchHeaders,
+            const { res } = await apiManager({
+                httpMethod: 'get',
+                urlPath: `/api/public/search?${params}`
             })
+
             if (!res.ok) {
                 throw new Error('Failed to fetch data');
             }
@@ -255,7 +256,7 @@ export default function SearchPage() {
             const results: TResponseApi = await res.json()
             console.log('api results:', results)
 
-            
+
             const page: TPage = {
                 listingsPage: results.listingsPage,
                 pageNo: results.pageNo
@@ -281,7 +282,7 @@ export default function SearchPage() {
                     pageNo: results.pageNo || 1
                 }
             })
-            
+
 
 
 

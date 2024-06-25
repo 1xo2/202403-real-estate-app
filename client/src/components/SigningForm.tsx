@@ -98,7 +98,7 @@ export default function SigningForm({ forms }: Props) {
       //   headers: fetchHeaders
       // });
       // const data = await res.json();
-      const { data, res } = await apiManager({
+      const { data } = await apiManager({
         urlPath: apiPath,
         apiParam: sanitizedFormJson,
         httpMethod: 'post',
