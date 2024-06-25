@@ -101,8 +101,8 @@ export const logIn_controller = async (
       // httpOnly: cookie accessible from server ONLY - not react/client
       .cookie(__SERVER_ACCESS_TOKEN, token, {
         httpOnly: true, //   ensures that cookies are not accessible from client-side JavaScript
-        secure: process.env.NODE_ENV === 'production', //  ensures that cookies are only sent over HTTPS in production mode
-        sameSite: 'strict' // Change to 'strict' 'lax' or 'none' if needed (default is 'lax')
+        // secure: process.env.NODE_ENV === 'production', //  ensures that cookies are only sent over HTTPS in production mode
+        // sameSite: 'strict' // Change to 'strict' 'lax' or 'none' if needed (default is 'lax')
       })
       .status(200)
       .json(rest);

@@ -1,15 +1,21 @@
-// import dotenv from 'dotenv';
+
 import { isNull_Undefined_emptyString } from '../utils/stringManipulation';
 
+// Conditionally load dotenv -> not for production.
+if (process.env.NODE_ENV !== 'production') {
+    const dotenv = require('dotenv');
+    dotenv.config();
+}
+
 // Load environment variables from .env file
-// dotenv.config();
+
 
 
 
 
 // Validate required environment variables
 export function validateEnvironmentVariables() {
-    ['MONGOconn', 'DBname', 'PORT', 'JWT_SECRET','ORIGIN'].forEach((val: string) => {
+    ['MONGOconn', 'DBname', 'PORT', 'JWT_SECRET', 'ORIGIN'].forEach((val: string) => {
         if (isNull_Undefined_emptyString(process.env[val] as string)) {
             throw new Error(`${val} \n ----environment variable is missing or invalid`);
         }

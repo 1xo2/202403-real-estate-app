@@ -171,7 +171,12 @@ export default function ProfilePage() {
 
             setListingsList(data)
 
-            update_localStorage({ _id: currentUser?._id, key: 'listing', value: data })
+
+            if (data && data.length > 0) {
+              update_localStorage({ _id: currentUser?._id, key: 'listing', value: data })
+            } else {
+              toast.info('No records yet...', toastBody)
+            }
           }
 
         }, dispatch)
@@ -303,7 +308,7 @@ export default function ProfilePage() {
           <>
             <h2>My Listings</h2>
             {listingsList.slice().reverse().map((ad, index) => (
-              <Card key={index.toString() + (ad._id )} item={ad} deleteListing={deleteListing_eh} />
+              <Card key={index.toString() + (ad._id)} item={ad} deleteListing={deleteListing_eh} />
             ))}
           </>
 
