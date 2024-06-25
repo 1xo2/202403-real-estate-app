@@ -1,8 +1,8 @@
-import dotenv from 'dotenv';
+// import dotenv from 'dotenv';
 import { isNull_Undefined_emptyString } from '../utils/stringManipulation';
 
 // Load environment variables from .env file
-dotenv.config();
+// dotenv.config();
 
 
 
