@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 
 // Interface for user document fields
 export interface IUserFields {
+  _id: mongoose.Types.ObjectId;
   userName: string;
   eMail: string;
   password: string;
@@ -12,8 +13,9 @@ export interface IUserFields {
 }
 
 // Interface for user document METHODS
-export interface IUserDocument extends IUserFields, mongoose.Document {}
-
+export interface IUserDocument extends IUserFields, Document {
+  _id: mongoose.Types.ObjectId; // Ensure _id type matches Document interface
+}
 // Interface for user MODEL methods
 export interface IUserModel extends mongoose.Model<IUserDocument> {}
 
