@@ -38,8 +38,8 @@ app.use(sanitized_verifyUser);    // Add middleware before route handlers
 // Enable CORS
 
 const corsOptions = {
-  // origin: envManager.ORIGIN,
-  origin: 'http://localhost:3000',
+  origin: envManager.ORIGIN,
+  // origin: 'http://localhost:3000',
   credentials: true,        // Enable cookies to be sent with requests
   optionsSuccessStatus: 200 // Some legacy browsers choke on 204
 };
